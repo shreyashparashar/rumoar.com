@@ -107,7 +107,7 @@ const M = {
        full-page video   vid("hero/hero.mp4", { poster: "hero/poster.jpg" })
        scrubbed video    vid("hero/hero.mp4", { poster: "...", scrub: true })
        still photograph  img("hero/plate.jpg", "…", "62% 38%")               */
-    plate: vid("hero/hero.mp4", { poster: "hero/poster.jpg", alt: "RUMOAR hero" }),
+    plate: img("hero/poster.jpg", "Hero image", "62% 38%"),
     figure: img("hero/figure.png", "Hero cutout figure", "50% 100%", "contain"),
   },
 
