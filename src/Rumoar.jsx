@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* ============================================================================
    RUMOAR — v3
@@ -489,12 +493,13 @@ const CHAPTERS = [
    §3  SYSTEM
 ========================================================================== */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&family=Montserrat:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&family=Montserrat:wght@300;400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&display=swap');
 
 .ru{
-  --paper:#FFF; --paper-2:#FAFAF8; --paper-3:#F1F0ED;
-  --ink:#0C0C0B; --ink-2:#56564F; --ink-3:#9C9C94; --line:#E8E6E1;
-  --mark:#1B2A3B;
+  /* PAPER — the argument register. Warm, archival, not clinical white. */
+  --paper:#FBFAF7; --paper-2:#F4F2ED; --paper-3:#EAE7E0;
+  --ink:#111014; --ink-2:#5A5760; --ink-3:#95919C; --line:#E2DED6;
+  --mark:#B3121F;
   --glass:rgba(255,255,255,.55); --gl-hi:rgba(255,255,255,.8); --gl-edge:rgba(12,12,11,.06);
   --micro:180ms; --ui:420ms; --content:820ms; --cine:1400ms;
   --ez:cubic-bezier(.22,.68,.16,1); --ez-out:cubic-bezier(.16,1,.3,1);
@@ -518,6 +523,7 @@ const CSS = `
 
 .ru .g{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gut);
   padding-inline:var(--marg);max-width:1720px;margin-inline:auto}
+@media (min-width:721px){.ru .g,.ru .full,.ru .nav{padding-right:max(var(--marg),34px)}}
 .ru .full{padding-inline:var(--marg);max-width:1720px;margin-inline:auto}
 
 .ru .mega{font-size:clamp(3rem,9.6vw,11rem);line-height:.88;letter-spacing:-.06em;font-weight:200;
@@ -541,10 +547,10 @@ const CSS = `
 
 /* --- sticky era rail: the timeline stops being navigation and becomes a
    scrubber for the whole argument. Pinned while the linked charts pass under. */
-.ru .railwrap{position:sticky;top:0;z-index:60;padding-top:clamp(12px,2vh,22px);
+.ru .railwrap{position:sticky;top:clamp(58px,7.5vh,88px);z-index:60;padding-top:clamp(12px,2vh,22px);
   padding-bottom:clamp(12px,2vh,22px);display:flex;justify-content:center;
   background:linear-gradient(180deg,var(--paper) 58%,rgba(255,255,255,0) 100%)}
-@media (max-width:720px){.ru .railwrap{top:0}}
+@media (max-width:720px){.ru .railwrap{top:clamp(52px,7vh,68px)}}
 
 /* --- income & consumption --- */
 .ru .ic{width:100%;display:block}
@@ -599,6 +605,212 @@ const CSS = `
 .ru .ph b{font-family:'Montserrat',sans-serif;font-size:.52rem;letter-spacing:.24em;color:var(--ink-3);font-weight:600}
 .ru .ph span{font-family:'Montserrat',sans-serif;font-size:.6rem;color:var(--ink-2);word-break:break-all}
 
+/* ===========================================================================
+   NIGHT — the narrative sections run dark. The argument sections stay on
+   paper. The document moves between the two, and the lamp is the switch.
+   =========================================================================== */
+/* NIGHT — the narrative register. One accent (ember) carries all the way
+   through to paper as --mark, so the two halves of the document are the same
+   brand rather than two skins bolted together. */
+.ru{--night:#0A0A0E;--night-2:#121218;--night-3:#1A1A22;
+  --bone:#F5F3EF;--bone-2:#A6A2AE;--bone-3:#66626F;
+  --ember:#FF3B47;--ember-soft:#FF6B74;--ember-deep:#B3121F;
+  --cold:#35E0D0;--nline:rgba(245,243,239,.13);--nline-2:rgba(245,243,239,.06)}
+.ru .night{background:var(--night);color:var(--bone);position:relative}
+.ru .night .body,.ru .night .lede{color:var(--bone-2)}
+.ru .night .lb,.ru .night .dim{color:var(--bone-3)}
+.ru .night .rule{background:var(--nline)}
+.ru .night .num{color:var(--bone)}
+.ru .ember{color:var(--ember)}
+.ru .it{font-style:italic}
+
+/* the loader — a whisper typed in a dark room, then the wordmark condenses
+   out of the same particles that were drifting behind it */
+.ru .ld{position:fixed;inset:0;z-index:400;background:var(--night);display:grid;place-items:center;
+  transition:opacity 1200ms var(--ez),visibility 1200ms;overflow:hidden}
+.ru .ld.gone{opacity:0;visibility:hidden;pointer-events:none}
+.ru .ld canvas{position:absolute;inset:0;width:100%;height:100%}
+.ru .ldstage{position:relative;z-index:2;text-align:center;padding-inline:6vw}
+.ru .ldtype{font-family:'Bodoni Moda',Didot,serif;font-weight:400;color:var(--bone);
+  font-size:clamp(1.15rem,3.2vw,2.1rem);letter-spacing:.005em;line-height:1.5;min-height:1.5em}
+.ru .ldtype i{display:inline-block;width:2px;height:1em;background:var(--ember);
+  margin-left:6px;vertical-align:-.12em;animation:ck 1s steps(2) infinite}
+@keyframes ck{50%{opacity:0}}
+.ru .ldword{display:flex;justify-content:center;gap:.02em;font-weight:400;
+  font-family:'Bodoni Moda',Didot,serif;
+  font-size:clamp(2.8rem,9.5vw,7.4rem);letter-spacing:.03em;color:var(--bone)}
+.ru .ldword span{display:inline-block;opacity:0;filter:blur(16px);transform:translateY(26px) scale(1.06);
+  transition:opacity 1150ms var(--ez-out),filter 1150ms var(--ez-out),transform 1150ms var(--ez-out)}
+.ru .ldword.in span{opacity:1;filter:blur(0);transform:none}
+.ru .ldword span.o{color:var(--ember);font-style:italic}
+.ru .ldest,.ru .ldskip{position:absolute;bottom:2rem;font-family:'Montserrat',sans-serif;
+  font-size:.55rem;letter-spacing:.28em;text-transform:uppercase;color:var(--bone-3)}
+.ru .ldest{left:clamp(1.2rem,4vw,3rem)}
+.ru .ldskip{right:clamp(1.2rem,4vw,3rem);opacity:0;transition:opacity .6s}
+.ru .ld.can-skip .ldskip{opacity:1}
+
+/* the edge strip — a rumour running the length of the page, vertically */
+.ru .estrip{position:fixed;top:0;bottom:0;right:0;width:26px;z-index:170;overflow:hidden;
+  border-left:1px solid var(--line);background:var(--paper);pointer-events:none;
+  display:flex;align-items:flex-start;justify-content:center;transition:background var(--ui),border-color var(--ui)}
+.ru .estrip .etrack{writing-mode:vertical-rl;white-space:nowrap;font-family:'Montserrat',sans-serif;
+  font-size:.56rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-3);
+  animation:eroll 42s linear infinite;padding-block:10px}
+.ru .estrip .etrack b{color:var(--ember);font-weight:500}
+@keyframes eroll{to{transform:translateY(-50%)}}
+body.ru-night .ru .estrip,.ru .estrip.night{background:var(--night);border-left-color:var(--nline)}
+.ru .estrip.night .etrack{color:var(--bone-3)}
+@media (max-width:720px){.ru .estrip{display:none}}
+
+/* the thesis stage — GSAP pins this. Each phase is a full-bleed grid layer,
+   so nothing can collide: the timeline is the only thing that reveals them. */
+.ru .tstage{position:relative;background:var(--night)}
+.ru .tpin{height:100svh;display:grid;place-items:center;overflow:hidden;position:relative}
+.ru .tgrain{position:absolute;inset:0;pointer-events:none;opacity:.5;z-index:1;
+  background-image:radial-gradient(circle at 18% 24%,rgba(255,59,71,.10),transparent 46%),
+    radial-gradient(circle at 82% 74%,rgba(53,224,208,.07),transparent 44%)}
+.ru .manwrap,.ru .tquote,.ru .tseq{grid-area:1/1;position:relative;z-index:2}
+.ru .manwrap{display:flex;flex-direction:column;align-items:center;gap:1.4rem;will-change:opacity,filter,transform}
+.ru .manwrap svg{height:min(58svh,500px);width:auto;display:block}
+.ru .mancap{font-family:'Montserrat',sans-serif;font-size:.62rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--bone-2);text-align:center;min-height:1.4em;max-width:32ch}
+.ru .acc{will-change:opacity,transform;opacity:0}
+.ru .tquote{display:grid;place-items:center;text-align:center;padding-inline:8vw;pointer-events:none;
+  opacity:0;visibility:hidden}
+.ru .tquote p{font-size:clamp(1.7rem,4.6vw,3.6rem);font-weight:200;letter-spacing:-.055em;
+  line-height:1.08;color:var(--bone)}
+.ru .tseq{display:grid;place-items:center;text-align:center;padding-inline:8vw;pointer-events:none}
+.ru .tline{grid-area:1/1;will-change:opacity,transform,filter;opacity:0;visibility:hidden}
+.ru .tline.neg{font-size:clamp(1.6rem,4.2vw,3.2rem);font-weight:200;letter-spacing:-.05em;
+  color:var(--bone-2)}
+.ru .tline.pos{font-size:clamp(2.6rem,8.5vw,6.8rem);font-weight:200;letter-spacing:-.065em;
+  color:var(--bone);line-height:1}
+.ru .strike{position:relative;display:inline-block}
+.ru .strike i{position:absolute;left:0;top:56%;height:2px;width:100%;background:var(--ember);
+  transform:scaleX(0);transform-origin:left}
+
+/* mask wrapper — a line rises out of its own baseline, nothing spills */
+.ru .msk{display:block;overflow:hidden;padding-bottom:.08em}
+.ru .msk > span{display:block}
+
+/* night sections get depth: a faint two-tone wash so black isn't flat */
+.ru .night{background:
+  radial-gradient(ellipse 70% 50% at 15% 0%,rgba(255,59,71,.055),transparent 60%),
+  radial-gradient(ellipse 60% 50% at 88% 100%,rgba(53,224,208,.04),transparent 58%),
+  var(--night)}
+.ru .night .rv{will-change:opacity,transform}
+.ru .night .big,.ru .night .mid,.ru .night .mega{color:var(--bone)}
+
+@media (prefers-reduced-motion:reduce){
+  .ru .tstage{height:auto}
+  .ru .tpin{height:auto;display:block;padding-block:clamp(60px,10vh,120px)}
+  .ru .manwrap,.ru .tquote,.ru .tseq{grid-area:auto;display:block;text-align:center}
+  .ru .manwrap{display:flex}
+  .ru .tquote{opacity:1;visibility:visible;margin-top:clamp(40px,8vh,90px)}
+  .ru .tseq{display:block;margin-top:clamp(32px,6vh,70px)}
+  .ru .tline{grid-area:auto;opacity:1;visibility:visible;margin-block:.4em}
+  .ru .tline.neg{font-size:clamp(1.1rem,2.4vw,1.6rem)}
+  .ru .tline.pos{font-size:clamp(1.6rem,4vw,2.8rem)}
+  .ru .acc{opacity:1}
+  .ru .strike i{transform:scaleX(1)}
+}
+
+/* the pulse — one day, drawn as one line */
+.ru .pulse{border:1px solid var(--nline);padding:clamp(16px,2.4vw,28px);background:var(--night-2)}
+.ru .phead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.ru .pnow{font-family:'Montserrat',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+  display:flex;gap:12px;align-items:baseline}
+.ru .pnow b{color:var(--ember);font-variant-numeric:tabular-nums;font-weight:600}
+.ru .pnow i{color:var(--bone-2);font-style:normal;letter-spacing:.12em}
+.ru .pulse canvas{width:100%;height:150px;display:block;margin-top:14px}
+.ru .pfoot{display:flex;justify-content:space-between;gap:16px;margin-top:12px;
+  font-family:'Montserrat',sans-serif;font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--bone-3);flex-wrap:wrap}
+.ru .pfoot b{color:var(--cold)}
+
+/* the lamp — scrutiny deserves daylight */
+.ru .lampsec{position:relative;background:var(--night);color:var(--bone);
+  transition:background 900ms var(--ez),color 900ms var(--ez)}
+.ru .lampsec.lit{background:var(--paper);color:var(--ink)}
+.ru .lampsec.lit .body,.ru .lampsec.lit .lede{color:var(--ink-2)}
+.ru .lampsec.lit .lb{color:var(--ink-3)}
+.ru .lampsec.lit .risk{border-color:var(--line)}
+.ru .lampsec.lit .rq{color:var(--ink)}
+.ru .lamp{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:5;
+  display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.ru .lamp .cord{width:1px;height:0;background:var(--bone-3);transition:height 620ms var(--ez-out)}
+.ru .lamp.on .cord{height:clamp(48px,9vh,110px)}
+.ru .lamp .fix{opacity:0;transform:translateY(-140px);color:var(--bone-3);
+  transition:opacity 620ms var(--ez-out),transform 620ms var(--ez-out)}
+.ru .lamp.on .fix{opacity:1;transform:none}
+.ru .lamp svg{width:110px;height:76px;display:block}
+.ru .lamp .bulb{fill:#22262E;transition:fill 260ms var(--ez)}
+.ru .lamp.on .bulb{fill:#FFE9B0;filter:drop-shadow(0 0 14px rgba(255,220,140,.9))}
+.ru .lamp .beam{position:absolute;top:clamp(48px,9vh,110px);left:50%;transform:translateX(-50%);
+  width:min(78vw,900px);height:70vh;opacity:0;transition:opacity 700ms var(--ez);
+  background:radial-gradient(ellipse 50% 60% at 50% 0%,rgba(255,228,170,.30),transparent 70%);
+  clip-path:polygon(42% 0,58% 0,100% 100%,0 100%)}
+.ru .lamp.on .beam{opacity:1}
+.ru .risk{border:1px solid var(--nline);padding:clamp(18px,2.4vw,28px);
+  transition:border-color var(--ui)}
+.ru .risk+.risk{margin-top:-1px}
+.ru .rsev{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--ember)}
+.ru .rq{font-size:clamp(1.05rem,1.7vw,1.4rem);font-weight:300;letter-spacing:-.03em;margin-top:10px;
+  color:var(--bone)}
+.ru .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.4vw,32px);margin-top:18px}
+@media (max-width:760px){.ru .rgrid{grid-template-columns:1fr}}
+.ru .rgrid b{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.22em;
+  text-transform:uppercase;display:block;margin-bottom:8px}
+.ru .rgrid .atk b{color:var(--ember)}
+.ru .rgrid .ans b{color:var(--cold)}
+
+/* the chamber — say something, watch it stop being yours */
+.ru .chamber{position:relative;height:min(72svh,620px);border:1px solid var(--nline);
+  background:var(--night-2);overflow:hidden}
+.ru .chamber canvas{position:absolute;inset:0;width:100%;height:100%}
+.ru .chform{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:1.2rem;width:min(84vw,420px);
+  transition:opacity .6s,filter .6s}
+.ru .chform.gone{opacity:0;filter:blur(8px);pointer-events:none}
+.ru .chform input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--nline);
+  color:var(--bone);font-family:'Poppins',sans-serif;font-weight:200;text-align:center;
+  font-size:clamp(1.4rem,3.4vw,2.2rem);letter-spacing:-.03em;padding:10px 0;outline:none}
+.ru .chform input::placeholder{color:var(--bone-3);font-weight:200}
+.ru .chform input:focus{border-bottom-color:var(--ember)}
+.ru .chform button{font-family:'Montserrat',sans-serif;font-size:.58rem;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--bone-2);border:1px solid var(--nline);padding:11px 22px;
+  border-radius:100px;transition:all var(--ui) var(--ez)}
+.ru .chform button:hover{color:var(--night);background:var(--bone);border-color:var(--bone)}
+.ru .chfield{position:absolute;inset:0;z-index:2}
+.ru .wh{position:absolute;transform:translate(-50%,-50%);font-family:'Poppins',sans-serif;
+  font-weight:200;color:var(--bone);white-space:nowrap;letter-spacing:-.02em;
+  opacity:0;transition:opacity 700ms var(--ez-out),transform 1500ms var(--ez),filter 1500ms var(--ez)}
+.ru .wh.in{opacity:var(--wo,1)}
+.ru .wh.root{color:var(--ember)}
+.ru .wh.final{font-size:clamp(2rem,6vw,4rem)!important;letter-spacing:.06em}
+.ru .chend{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);z-index:4;text-align:center;
+  width:min(90vw,640px);opacity:0;transition:opacity 900ms var(--ez)}
+.ru .chend.on{opacity:1}
+.ru .chend p{font-size:clamp(1rem,1.8vw,1.4rem);font-weight:200;letter-spacing:-.03em;color:var(--bone-2)}
+.ru .chend button{margin-top:16px;font-family:'Montserrat',sans-serif;font-size:.55rem;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--bone-3)}
+.ru .chend button:hover{color:var(--bone)}
+
+/* the ask */
+.ru .ask{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;
+  background:var(--nline);border:1px solid var(--nline)}
+.ru .askc{background:var(--night);padding:clamp(20px,2.6vw,32px)}
+.ru .askc .v{font-size:clamp(1.5rem,2.8vw,2.4rem);font-weight:200;letter-spacing:-.045em;
+  font-variant-numeric:tabular-nums;line-height:1}
+.ru .askc .k{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--bone-3);margin-top:10px}
+.ru .askc .s{font-size:.8rem;color:var(--bone-2);margin-top:8px;font-weight:300;line-height:1.55}
+.ru .term{font-family:'Montserrat',sans-serif;font-size:clamp(.7rem,1vw,.85rem);line-height:2;
+  color:var(--bone-2);letter-spacing:.02em}
+.ru .term b{color:var(--ember);font-weight:500}
+.ru .term .c{color:var(--cold)}
+
 .ru .intro{position:fixed;inset:0;z-index:400;background:#fff;display:grid;place-items:center;
   transition:opacity 900ms var(--ez),visibility 900ms}
 .ru .intro.gone{opacity:0;visibility:hidden}
@@ -636,11 +848,17 @@ const CSS = `
 .ru .cta:hover{color:#fff}
 .ru .cta:hover::before{transform:none}
 
-.ru .hero{height:100svh;min-height:600px;position:relative;overflow:hidden}
+.ru .hero{height:100svh;min-height:600px;position:relative;overflow:hidden;
+  background:var(--night);color:var(--bone)}
+.ru .hero .lb{color:var(--bone-3)}
 .ru .plate{position:absolute;inset:-8% -5%;will-change:transform}
 .ru .cut{position:absolute;right:-3%;bottom:0;width:min(50vw,720px);height:86%;will-change:transform}
 .ru .hwash{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(96deg,#fff 0%,rgba(255,255,255,.9) 32%,rgba(255,255,255,.38) 60%,rgba(255,255,255,.04) 100%)}
+  background:linear-gradient(96deg,var(--night) 0%,rgba(10,10,14,.94) 30%,rgba(10,10,14,.62) 58%,rgba(10,10,14,.12) 100%),
+    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(255,59,71,.10),transparent 62%)}
+/* the hero headline rises after the loader clears, not on a fixed timer */
+.ru .hero .hl{display:block;overflow:hidden;padding-bottom:.06em}
+.ru .hero .hl > span{display:block;will-change:transform}
 
 .ru .rail{position:relative;border-radius:100px;padding:9px clamp(12px,1.6vw,22px);display:flex;
   align-items:center;gap:clamp(4px,2vw,40px);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}
@@ -1101,21 +1319,152 @@ const LB = ({ children, style }) => <p className="lb" style={style}>{children}</
 /* ==========================================================================
    §6  SITE
 ========================================================================== */
-function Intro({ done }) {
-  const bar = useRef(null);
+/* ---------------------------------------------------------------------------
+   THE LOADER
+   Two lines typed into a dark room, then the wordmark condenses out of the
+   same particles that were drifting behind them. The O is the ember — it is
+   the only warm thing on screen, and it is the thing the whole brand is named
+   for. Click anywhere to skip; reduced-motion users never see it.
+   --------------------------------------------------------------------------- */
+const LOADER_LINES = [
+  "Every story starts with a whisper.",
+  "Every great brand starts as a rumour.",
+];
+
+function Loader({ onDone }) {
+  const cv = useRef(null);
+  const [txt, setTxt] = useState("");
+  const [word, setWord] = useState(false);
+  const [wordIn, setWordIn] = useState(false);
+  const [gone, setGone] = useState(false);
+  const [skippable, setSkippable] = useState(false);
+  const done = useRef(false);
+  const gather = useRef(null);
+
+  const finish = useCallback(() => {
+    if (done.current) return;
+    done.current = true;
+    setWord(true); setWordIn(true);
+    setTimeout(() => setGone(true), 420);
+    setTimeout(() => onDone && onDone(), 1500);
+  }, [onDone]);
+
+  /* particles — whispers in a dark room. They drift upward until the wordmark
+     needs them, then they gather into its bounding box. */
   useEffect(() => {
-    let v = 0, raf;
-    const step = () => {
-      v = Math.min(1, v + .012);
-      if (bar.current) bar.current.style.width = `${v * 100}%`;
-      if (v < 1) raf = requestAnimationFrame(step);
+    if (reduced()) { finish(); return; }
+    const c = cv.current; if (!c) return;
+    const ctx = c.getContext("2d");
+    let W = 0, H = 0, raf, run = true;
+    const size = () => {
+      const d = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      c.width = W * d; c.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0);
     };
-    step(); return () => cancelAnimationFrame(raf);
-  }, []);
+    size(); window.addEventListener("resize", size);
+    const P = Array.from({ length: 70 }, () => ({
+      x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+      vx: (Math.random() - .5) * .14, vy: -.06 - Math.random() * .16,
+      r: .6 + Math.random() * 1.4, a: .12 + Math.random() * .3,
+      seed: Math.random() * 6.283, warm: Math.random() < .3,
+    }));
+    const frame = (t) => {
+      if (!run) return;
+      ctx.clearRect(0, 0, W, H);
+      const g = gather.current;
+      for (const p of P) {
+        if (g) {
+          p.x += (g.x + Math.cos(p.seed) * g.rx - p.x) * .045;
+          p.y += (g.y + Math.sin(p.seed * 1.7) * g.ry - p.y) * .045;
+        } else {
+          p.x += p.vx + Math.sin(t * .0006 + p.seed) * .08; p.y += p.vy;
+          if (p.y < -8) p.y = H + 8;
+          if (p.x < -8) p.x = W + 8;
+          if (p.x > W + 8) p.x = -8;
+        }
+        ctx.fillStyle = p.warm ? `rgba(255,80,95,${p.a})` : `rgba(242,244,247,${p.a * .8})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => { run = false; cancelAnimationFrame(raf); window.removeEventListener("resize", size); };
+  }, [finish]);
+
+  /* the typing sequence */
+  useEffect(() => {
+    if (reduced()) return;
+    let cancelled = false;
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const type = async (line, sp) => {
+      for (let i = 1; i <= line.length; i++) {
+        if (cancelled || done.current) return;
+        setTxt(line.slice(0, i)); await wait(sp);
+      }
+    };
+    const erase = async (line, sp) => {
+      for (let i = line.length; i >= 0; i--) {
+        if (cancelled || done.current) return;
+        setTxt(line.slice(0, i)); await wait(sp);
+      }
+    };
+    (async () => {
+      await wait(520); if (cancelled || done.current) return;
+      setSkippable(true);
+      await type(LOADER_LINES[0], 27); await wait(680); await erase(LOADER_LINES[0], 11);
+      if (cancelled || done.current) return;
+      await wait(240);
+      await type(LOADER_LINES[1], 27); await wait(1000); await erase(LOADER_LINES[1], 11);
+      if (cancelled || done.current) return;
+      await wait(220);
+      /* the wordmark materialises out of the drifting particles */
+      setWord(true);
+      await wait(40);
+      gather.current = { x: window.innerWidth / 2, y: window.innerHeight / 2, rx: Math.max(window.innerWidth * .18, 120), ry: 60 };
+      setWordIn(true);
+      await wait(1500); if (cancelled || done.current) return;
+      setGone(true);
+      await wait(1100); if (cancelled) return;
+      onDone && onDone();
+      done.current = true;
+    })();
+    return () => { cancelled = true; };
+  }, [onDone]);
+
+  if (reduced()) return null;
+
   return (
-    <div className={`intro ${done ? "gone" : ""}`} aria-hidden={done}>
-      <span className="im">RUMOAR</span>
-      <span className="ibar" ref={bar} />
+    <div className={`ld ${gone ? "gone" : ""} ${skippable ? "can-skip" : ""}`}
+      aria-hidden="true" onClick={finish}>
+      <canvas ref={cv} />
+      <div className="ldstage">
+        {!word ? <p className="ldtype">{txt}<i /></p> : null}
+        {word ? (
+          <div className={`ldword ${wordIn ? "in" : ""}`}>
+            {"RUMOAR".split("").map((ch, i) => (
+              <span key={i} className={i === 3 ? "o" : ""}
+                style={{ transitionDelay: `${i * 80}ms` }}>{ch}</span>
+            ))}
+          </div>
+        ) : null}
+      </div>
+      <span className="ldest">RUMOAR · MMXXVI</span>
+      <span className="ldskip">Click to skip</span>
+    </div>
+  );
+}
+
+/* the rumour, running the length of the page down the right-hand edge */
+function EdgeStrip({ night }) {
+  const words = ["Identity", "Status", "Belonging", "Confidence"];
+  const run = [...words, ...words, ...words, ...words];
+  return (
+    <div className={`estrip ${night ? "night" : ""}`} aria-hidden="true">
+      <div className="etrack">
+        {run.map((w, i) => (
+          <React.Fragment key={i}>{w}<b> · </b></React.Fragment>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1204,10 +1553,10 @@ function Hero() {
       <div className="full" ref={type} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center" }}>
         <div>
           <LB style={{ marginBottom: "clamp(20px,4vh,40px)" }}>RUMOAR — Field note 01</LB>
-          <h1 className="mega in" style={{ maxWidth: "13ch" }}>
-            <span className="lm"><span style={{ transitionDelay: "1900ms" }}>Men changed.</span></span>
-            <span className="lm"><span style={{ transitionDelay: "2010ms", color: "var(--ink-3)" }}>Menswear</span></span>
-            <span className="lm"><span style={{ transitionDelay: "2120ms" }}>didn't.</span></span>
+          <h1 className="mega" style={{ maxWidth: "13ch" }}>
+            <span className="hl"><span className="hero-line">Men changed.</span></span>
+            <span className="hl"><span className="hero-line" style={{ color: "var(--bone-3)" }}>Menswear</span></span>
+            <span className="hl"><span className="hero-line">didn&rsquo;t.</span></span>
           </h1>
         </div>
       </div>
@@ -2105,6 +2454,383 @@ function PlotYourself({ you, setYou }) {
     This computes it live — and shows the count collapse when a piece stops
     relating to the others, which is the whole argument for a system. */
 /* ---------------------------------------------------------------------------
+   GSAP MOTION LAYER
+   Applied once, at the app root. Everything here is opt-in by class name so
+   it layers on top of the existing components without rewriting them.
+
+   Rules that keep it from feeling like a template:
+   - nothing animates more than 34px (restraint reads as expensive)
+   - stagger is always sub-90ms (any slower and the page feels like it lags)
+   - every trigger is `once` except the parallax, so nothing re-fires on the
+     way back up and makes the page feel twitchy
+   --------------------------------------------------------------------------- */
+function useGsapMotion(active) {
+  useEffect(() => {
+    if (!active || reduced()) return;
+    const ctx = gsap.context(() => {
+
+      /* the hero headline lands as the loader dissolves — one continuous move
+         from the wordmark into the argument, no cut, no fixed timer */
+      const heroLines = gsap.utils.toArray(".hero-line");
+      if (heroLines.length) {
+        gsap.from(heroLines, {
+          yPercent: 112, duration: 1.35, ease: "expo.out", stagger: .085, delay: .15,
+        });
+        gsap.from(".hero .lb, .hero .cut", { autoAlpha: 0, duration: 1.4, ease: "power2.out", delay: .5 });
+      }
+
+      /* headline mask-reveal — lines rise out of their own baseline */
+      gsap.utils.toArray(".gs-rise").forEach((el) => {
+        gsap.from(el, {
+          yPercent: 108, duration: 1.15, ease: "expo.out",
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
+        });
+      });
+
+      /* body + card entrances */
+      gsap.utils.toArray(".gs-up").forEach((el) => {
+        gsap.from(el, {
+          y: 34, autoAlpha: 0, duration: 1, ease: "expo.out",
+          scrollTrigger: { trigger: el, start: "top 90%", once: true },
+        });
+      });
+
+      /* stat cards and role tiles, dealt like a hand of cards */
+      gsap.utils.toArray(".gs-stagger").forEach((wrap) => {
+        gsap.from(wrap.children, {
+          y: 28, autoAlpha: 0, duration: .85, ease: "expo.out", stagger: .07,
+          scrollTrigger: { trigger: wrap, start: "top 88%", once: true },
+        });
+      });
+
+      /* rules that draw themselves */
+      gsap.utils.toArray(".gs-rule").forEach((el) => {
+        gsap.from(el, {
+          scaleX: 0, transformOrigin: "left", duration: 1.3, ease: "expo.inOut",
+          scrollTrigger: { trigger: el, start: "top 92%", once: true },
+        });
+      });
+
+      /* numerals count up — the only place the page raises its voice */
+      gsap.utils.toArray(".gs-count").forEach((el) => {
+        const raw = el.dataset.to;
+        const num = parseFloat(raw);
+        if (Number.isNaN(num)) return;
+        const pre = el.dataset.pre || "", suf = el.dataset.suf || "";
+        const dec = (raw.split(".")[1] || "").length;
+        const o = { v: 0 };
+        ScrollTrigger.create({
+          trigger: el, start: "top 90%", once: true,
+          onEnter: () => gsap.to(o, {
+            v: num, duration: 1.9, ease: "expo.out",
+            onUpdate: () => { el.textContent = pre + o.v.toFixed(dec) + suf; },
+          }),
+        });
+      });
+
+      /* slow parallax on night sections — depth without motion sickness */
+      gsap.utils.toArray(".gs-drift").forEach((el) => {
+        gsap.to(el, {
+          yPercent: -12, ease: "none",
+          scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 1.1 },
+        });
+      });
+
+      ScrollTrigger.refresh();
+    });
+    return () => ctx.revert();
+  }, [active]);
+}
+
+/* ---------------------------------------------------------------------------
+   THE THESIS — pinned scroll
+   A man walks in with nothing. Six objects arrive one at a time. His body
+   never changes: the figure is the same path throughout. Only the light in
+   the room warms, and he stands one pixel taller each time.
+
+   That is the entire argument for why this is an identity company and not an
+   accessories company, and it is made without a word of copy.
+   --------------------------------------------------------------------------- */
+const MAN_STEPS = [
+  { id: "wallet", cap: "The first thing he bought with his own money." },
+  { id: "watch", cap: "A glance at the time is a glance at the plan." },
+  { id: "chain", cap: "Wedding-season fluent." },
+  { id: "shades", cap: "Confidence at arm's length." },
+  { id: "sling", cap: "The young man's briefcase." },
+  { id: "frag", cap: "Invisible detail. Visible status." },
+];
+
+const CREED_NEG = ["Not a store.", "Not a catalogue.", "Not accessories."];
+const CREED_POS = ["Identity.", "Status.", "Belonging.", "Confidence."];
+
+function Thesis() {
+  const root = useRef(null);
+  const [cap, setCap] = useState("A man walks in with nothing.");
+
+  useEffect(() => {
+    const el = root.current; if (!el) return;
+
+    /* Reduced motion: CSS already un-stacks this section into normal flow and
+       reveals every layer. Nothing to animate, and nothing to gate. */
+    if (reduced()) return;
+
+    /* If anything in the timeline throws, the section must not be left blank —
+       every layer starts hidden in CSS, so a failure has to reveal them. */
+    const bail = () => {
+      gsap.set(el.querySelectorAll(".acc"), { autoAlpha: 1, scale: 1 });
+      gsap.set(el.querySelectorAll(".tquote"), { autoAlpha: 1, filter: "none" });
+      gsap.set(el.querySelectorAll(".tline"), { autoAlpha: 0 });
+      gsap.set(el.querySelectorAll(".tline.pos:last-child"), { autoAlpha: 1 });
+    };
+
+    let ctx;
+    try {
+    ctx = gsap.context(() => {
+      const accs = gsap.utils.toArray(".acc", el);
+      const negs = gsap.utils.toArray(".tline.neg", el);
+      const poss = gsap.utils.toArray(".tline.pos", el);
+
+      /* PHASE GATES — every phase starts hidden and is explicitly cleared by
+         the phase before it. This is what stops the creed sitting on top of
+         the man: nothing is visible unless the timeline put it there. */
+      gsap.set(accs, { autoAlpha: 0, scale: .82, transformOrigin: "center" });
+      gsap.set(".tquote", { autoAlpha: 0, filter: "blur(10px)" });
+      gsap.set([...negs, ...poss], { autoAlpha: 0 });
+      gsap.set(".strike i", { scaleX: 0 });
+      gsap.set(".warmlight", { opacity: 0 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el, start: "top top", end: "+=4200",
+          scrub: .7, pin: true, anticipatePin: 1,
+          /* .ru sets overflow-x:clip, which clips position:fixed descendants
+             in Chrome. Transform pinning sidesteps that entirely. */
+          pinType: "transform",
+          invalidateOnRefresh: true,
+        },
+      });
+
+      /* 1 — he gets dressed. The figure never changes; the room warms. */
+      MAN_STEPS.forEach((st, i) => {
+        const at = i * 1.15 + .5;
+        tl.to(accs[i], { autoAlpha: 1, scale: 1, duration: .7 }, at)
+          .add(() => setCap(st.cap), at)
+          .to(".warmlight", { opacity: (i + 1) / MAN_STEPS.length, duration: 1 }, at)
+          .to(".manfig", { y: -(i + 1) * 1.4, duration: 1 }, at);
+      });
+
+      /* 2 — he dissolves, and the claim lands alone */
+      const T = MAN_STEPS.length * 1.15 + 1.2;
+      tl.to(".manwrap", { autoAlpha: .05, filter: "blur(8px)", scale: .96, duration: 1.1 }, T)
+        .add(() => setCap(""), T)
+        .to(".tquote", { autoAlpha: 1, filter: "blur(0px)", duration: 1.2 }, T + .5);
+
+      /* 3 — the creed. The quote is fully out before line one arrives. */
+      const T2 = T + 3.4;
+      tl.to(".tquote", { autoAlpha: 0, filter: "blur(10px)", duration: .8 }, T2);
+
+      let c = T2 + .95;
+      negs.forEach((l) => {
+        tl.fromTo(l, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: .5 }, c)
+          .to(l.querySelector(".strike i"), { scaleX: 1, duration: .42, ease: "power3.inOut" }, c + .5)
+          .to(l, { autoAlpha: 0, y: -24, duration: .42 }, c + 1.12);
+        c += 1.62;   /* > 1.54 so the out completes before the next in starts */
+      });
+
+      c += .2;
+      poss.forEach((l, i) => {
+        const last = i === poss.length - 1;
+        tl.fromTo(l, { autoAlpha: 0, scale: .9, filter: "blur(12px)" },
+          { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: .65 }, c);
+        if (!last) tl.to(l, { autoAlpha: 0, scale: 1.06, filter: "blur(10px)", duration: .48 }, c + 1.0);
+        c += last ? 0 : 1.56;   /* > 1.48 so no two creed lines are ever lit together */
+      });
+      tl.to({}, { duration: 1.5 }, c + .9);
+    }, el);
+    } catch (err) {
+      console.error("[RUMOAR] thesis timeline failed, revealing static state", err);
+      bail();
+    }
+    return () => ctx && ctx.revert();
+  }, []);
+
+  return (
+    <section className="tstage night" ref={root} id="thesis">
+      <div className="tpin">
+        <div className="tgrain" aria-hidden="true" />
+        <div className="manwrap">
+          <svg viewBox="0 0 400 640" role="img"
+            aria-label="A silhouette of a man gradually acquiring a wallet, watch, chain, sunglasses, bag and fragrance, while only the light around him changes">
+            <defs>
+              <radialGradient id="lgc" cx="50%" cy="42%" r="60%">
+                <stop offset="0%" stopColor="#0E3038" stopOpacity=".9" />
+                <stop offset="100%" stopColor="#0A0A0E" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="lgw" cx="50%" cy="42%" r="62%">
+                <stop offset="0%" stopColor="#4A0E18" stopOpacity=".95" />
+                <stop offset="100%" stopColor="#0A0A0E" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <ellipse cx="200" cy="290" rx="185" ry="270" fill="url(#lgc)" />
+            <ellipse className="warmlight" cx="200" cy="290" rx="185" ry="270" fill="url(#lgw)" />
+            <ellipse cx="200" cy="618" rx="118" ry="11" fill="#000" opacity=".55" />
+            <g className="manfig">
+              <circle cx="200" cy="82" r="33" fill="#0E1016" />
+              <path fill="#0E1016" d="M167,120 L233,120 C257,127 273,138 281,156 C292,181 295,222 293,256 L287,334 C286,348 279,356 269,356 L261,356 C253,356 249,348 250,336 L255,270 L249,300 L246,346 C245,466 243,538 239,594 C238,608 229,614 220,614 L214,614 C206,614 202,606 203,594 L206,470 L200,404 L194,470 L197,594 C198,606 194,614 186,614 L180,614 C171,614 162,608 161,594 C157,538 155,466 154,346 L151,300 L145,270 L150,336 C151,348 147,356 139,356 L131,356 C121,356 114,348 113,334 L107,256 C105,222 108,181 119,156 C127,138 143,127 167,120 Z" />
+            </g>
+            <g className="acc">
+              <rect x="252" y="342" width="24" height="16" rx="3" fill="#2B1218" stroke="#35E0D0" strokeWidth="1" />
+              <path d="M252,348 h24" stroke="#35E0D0" strokeWidth=".8" />
+            </g>
+            <g className="acc">
+              <rect x="120" y="330" width="18" height="12" rx="3" fill="#101823" stroke="#35E0D0" strokeWidth="1.1" />
+              <circle cx="129" cy="336" r="2.4" fill="#35E0D0" />
+            </g>
+            <g className="acc">
+              <path d="M176,138 Q200,166 224,138" fill="none" stroke="#35E0D0" strokeWidth="1.6" />
+              <circle cx="200" cy="154" r="3.2" fill="#35E0D0" />
+            </g>
+            <g className="acc">
+              <rect x="172" y="70" width="56" height="13" rx="6.5" fill="#05060A" stroke="#3A4150" strokeWidth="1" />
+              <path d="M178,74 h18" stroke="rgba(245,243,239,.35)" strokeWidth="1.4" />
+            </g>
+            <g className="acc">
+              <path d="M162,132 L258,296" stroke="#2B1218" strokeWidth="9" strokeLinecap="round" />
+              <rect x="238" y="286" width="46" height="32" rx="7" fill="#2B1218" stroke="#35E0D0"
+                strokeWidth="1" transform="rotate(-8 261 302)" />
+            </g>
+            <g className="acc">
+              {[[286, 150, 1.8, "#FF6B74", 1], [302, 128, 1.3, "#F5F3EF", .6], [312, 168, 1.6, "#FF6B74", .7],
+                [296, 192, 1.2, "#F5F3EF", .5], [322, 142, 1.1, "#FF6B74", .6], [306, 210, 1.5, "#F5F3EF", .45],
+                [278, 176, 1.2, "#FF6B74", .55], [318, 196, 1, "#F5F3EF", .4]].map(([cx, cy, r, f, o], i) => (
+                <circle key={i} cx={cx} cy={cy} r={r} fill={f} opacity={o}>
+                  <animate attributeName="cy" values={`${cy};${cy - 7 - (i % 3) * 3};${cy}`}
+                    dur={`${2.2 + i * .25}s`} repeatCount="indefinite" />
+                </circle>
+              ))}
+            </g>
+          </svg>
+          <p className="mancap">{cap}</p>
+        </div>
+
+        <div className="tquote">
+          <p>&ldquo;We don&rsquo;t change men.<br /><span className="it ember">We reveal them.&rdquo;</span></p>
+        </div>
+
+        <div className="tseq" aria-hidden="true">
+          {CREED_NEG.map((l) => (
+            <div key={l} className="tline neg">
+              <span className="strike">{l}<i /></span>
+            </div>
+          ))}
+          {CREED_POS.map((l, i) => (
+            <div key={l} className="tline pos">
+              {i === 0 ? <span className="it ember">{l}</span> : l}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   ONE DAY, DRAWN AS ONE LINE
+   Six moments in a day where he is read before he speaks. Four of them are
+   settled by an object he chose that morning in about nine seconds. The line
+   is live — a playhead runs the day on a loop and lights each moment as it
+   passes. Teal dots are the ones decided by something he wears.
+   --------------------------------------------------------------------------- */
+const DAY_MOMENTS = [
+  { at: .06, h: .55, t: "06:10", l: "the gym, before anyone is awake", worn: false },
+  { at: .24, h: .78, t: "09:40", l: "standup, camera on, wrist visible", worn: true },
+  { at: .42, h: .42, t: "13:15", l: "lunch, wallet out in front of the team", worn: true },
+  { at: .60, h: .92, t: "18:30", l: "client handshake, second impression", worn: true },
+  { at: .78, h: 1.0, t: "20:45", l: "first date, four seconds of judgement", worn: true },
+  { at: .93, h: .30, t: "23:50", l: "the feed, learning what he wants next", worn: false },
+];
+
+function PulseDay() {
+  const cv = useRef(null);
+  const [now, setNow] = useState(DAY_MOMENTS[0]);
+
+  useEffect(() => {
+    const c = cv.current; if (!c) return;
+    const ctx = c.getContext("2d"); if (!ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0, vis = false, active = -1, raf, run = true;
+    const size = () => {
+      const r = c.getBoundingClientRect();
+      W = r.width; H = r.height;
+      c.width = Math.max(1, W * dpr); c.height = Math.max(1, H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    size(); window.addEventListener("resize", size);
+    const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { rootMargin: "80px" });
+    io.observe(c);
+
+    const yAt = (x, t) => {
+      let y = H * .58 + Math.sin(x * .045 + t * .0011) * 3;
+      for (const m of DAY_MOMENTS) {
+        const d = (x - m.at * W) / (W * .018);
+        if (Math.abs(d) < 6) y -= Math.exp(-d * d * .55) * Math.cos(d * 1.15) * m.h * (H * .40);
+      }
+      return y;
+    };
+
+    const frame = (t) => {
+      if (!run) return;
+      if (vis && W) {
+        ctx.clearRect(0, 0, W, H);
+        const head = ((t * .00013) % 1) * W;
+        ctx.strokeStyle = "rgba(242,244,247,.07)"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, H * .58); ctx.lineTo(W, H * .58); ctx.stroke();
+        ctx.lineWidth = 1.6; ctx.lineJoin = "round";
+        for (let x = 0; x < W; x += 2) {
+          const age = (head - x + W) % W;
+          const a = Math.max(0, 1 - age / (W * .92));
+          if (a <= .02) continue;
+          ctx.strokeStyle = `rgba(255,59,71,${(a * .85).toFixed(3)})`;
+          ctx.beginPath(); ctx.moveTo(x, yAt(x, t)); ctx.lineTo(x + 2, yAt(x + 2, t)); ctx.stroke();
+        }
+        DAY_MOMENTS.forEach((m, i) => {
+          const cx = m.at * W;
+          const dist = ((head - cx) + W) % W;
+          if (dist < W * .02 && active !== i) { active = i; setNow(m); }
+          const lit = Math.max(0, 1 - dist / (W * .22));
+          ctx.fillStyle = m.worn ? `rgba(53,224,208,${.3 + lit * .7})` : `rgba(242,244,247,${.14 + lit * .3})`;
+          ctx.beginPath(); ctx.arc(cx, yAt(cx, t), m.worn ? 2.4 + lit * 2.6 : 1.8 + lit * 1.4, 0, 6.283); ctx.fill();
+          if (m.worn && lit > .05) {
+            ctx.strokeStyle = `rgba(53,224,208,${lit * .35})`; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(cx, yAt(cx, t), 6 + (1 - lit) * 16, 0, 6.283); ctx.stroke();
+          }
+        });
+        ctx.fillStyle = "rgba(242,244,247,.9)";
+        ctx.beginPath(); ctx.arc(head, yAt(head, t), 2.6, 0, 6.283); ctx.fill();
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => { run = false; cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener("resize", size); };
+  }, []);
+
+  return (
+    <div className="pulse">
+      <div className="phead">
+        <span className="lb">One day, drawn as one line</span>
+        <span className="pnow"><b>{now.t}</b><i>{now.l}</i></span>
+      </div>
+      <canvas ref={cv} role="img"
+        aria-label="One day of the modern Indian man drawn as a single pulse, spiking at the six moments he is read by other people" />
+      <div className="pfoot">
+        <span><b>Four</b> of the six spikes are decided by something he wears</span>
+        <span>the line is live</span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
    INCOME & CONSUMPTION                                        [HYPOTHESIS 1]
    Two rising lines and one flat one. Income and market climb together across a
    century; the number of wardrobe systems available to a man never moves off 1.
@@ -2168,7 +2894,7 @@ function IncomeCurve() {
 
       <p className="body" style={{ marginTop: 18, maxWidth: "52ch" }}>{d.note}</p>
 
-      <div className="facts">
+      <div className="facts gs-stagger">
         {incomeFacts.map((f) => (
           <div className="fact" key={f.k}>
             <p className="v num">{f.v}</p>
@@ -2209,7 +2935,7 @@ function RoleGrid() {
         </div>
       </div>
 
-      <div className="roles">
+      <div className="roles gs-stagger">
         {personaData.map((r) => {
           const live = r.from <= era;
           return (
@@ -2309,6 +3035,320 @@ function PriceGap() {
           : "At ₹4,000–8,000 a man can buy an excellent shirt from four houses. He cannot buy a point of view from any of them. He assembles coherence himself, unpaid, and mostly fails."}
       </p>
     </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   THE LAMP — "now the lights come on"
+   Every deck has a slide where the founder stops selling. This is that slide.
+   A lamp descends from the top of the section, the pull-cord tugs, and the
+   room flips from night to daylight for the duration of the risk register.
+   The device is the argument: scrutiny deserves light, and a founder who
+   dims the room for the hard part is hiding something.
+   --------------------------------------------------------------------------- */
+const RISKS = [
+  { n: "Risk 01", q: "A marketplace private-label clones the winners in six weeks",
+    atk: "Myntra and Ajio have infinite traffic, deeper discounts and private labels that copy bestsellers overnight. On product alone this loses every time. It is the single most likely cause of death.",
+    ans: "Never fight on product alone. The wardrobe system, the fit record, the drop calendar and the chapter membership are not clonable by a catalogue business, because cloning them would require a marketplace to become a small brand again." },
+  { n: "Risk 02", q: "CAC eats the company before the system compounds",
+    atk: "India's D2C graveyard is full of brands whose CPMs doubled while AOVs didn't. A ₹4,500 order cannot carry a ₹900 CAC, and an identity system takes longer to explain than a discount does.",
+    ans: "Structural, not hopeful. Paid capped at a fixed share of revenue with a hard CAC ceiling; referral built into the parcel; wedding-season gifting as a zero-CAC demand spike. If organic pull hasn't appeared by month six the thesis is wrong, and the honest move is to pivot cheaply rather than scale expensively." },
+  { n: "Risk 03", q: "Inventory is where the cash goes to die",
+    atk: "A system wardrobe implies range, and range implies SKUs. One bad buy of a thousand units freezes six months of runway in cardboard.",
+    ans: "Low domestic MOQs make small-batch drops viable, so scarcity is working-capital discipline before it is brand theatre. One category earns its way in at a time; sell-through above 80% unlocks the next, and below it the model absorbs the miss at 200 units instead of 2,000." },
+  { n: "Risk 04", q: "\"System\" is a word men nod at and don't pay for",
+    atk: "Coherence is a real pain, but pain is not the same as willingness to pay. He may agree with every word of this document and still buy the ₹1,299 shirt.",
+    ans: "Which is why the first purchase is a garment at a competitive price, not a subscription to a philosophy. The system is what makes the second and third purchase inevitable — and repeat rate, not first order, is where this business is actually won." },
+  { n: "Risk 05", q: "Founder-led taste doesn't survive contact with scale",
+    atk: "A point of view is a person. Systems built on one man's eye break at the fiftieth SKU, or the day he stops picking.",
+    ans: "The point of view has to be written down as rules before it is scaled — which is what the wardrobe logic in this document is. If it can be taught to a merchandiser it can be scaled; if it can't, the brand should stay small deliberately." },
+];
+
+function LampAct() {
+  const sec = useRef(null);
+  const [lit, setLit] = useState(false);
+  const [open, setOpen] = useState(0);
+  useEffect(() => {
+    const el = sec.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) => setLit(e.isIntersecting),
+      { rootMargin: "-38% 0px -40% 0px" });
+    io.observe(el); return () => io.disconnect();
+  }, []);
+  return (
+    <section className={`lampsec ${lit ? "lit" : ""}`} ref={sec} id="risks"
+      style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
+      <div className={`lamp ${lit ? "on" : ""}`}>
+        <i className="cord" />
+        <div className="fix">
+          <svg viewBox="0 0 140 96" aria-hidden="true">
+            <path d="M70,6 L70,18" stroke="currentColor" strokeWidth="4" />
+            <path d="M34,58 Q34,22 70,20 Q106,22 106,58 Z" fill="currentColor" />
+            <rect x="30" y="56" width="80" height="7" rx="3.5" fill="currentColor" />
+            <circle className="bulb" cx="70" cy="76" r="13" />
+          </svg>
+        </div>
+        <i className="beam" />
+      </div>
+
+      <div className="g" style={{ position: "relative", zIndex: 2 }}>
+        <div style={{ gridColumn: "1 / 8" }}>
+          <Reveal>
+            <p className="lb">08 — Where this breaks</p>
+            <h2 className="big" style={{ marginTop: 18 }}>
+              <span className="msk"><span className="gs-rise">Now the lights</span></span>
+              <span className="msk"><span className="gs-rise it">come on.</span></span>
+            </h2>
+            <p className="lede" style={{ marginTop: 22, maxWidth: "46ch" }}>
+              Every deck has a page where the founder stops selling. This is that page, taken
+              seriously. Below are the five most credible ways this company dies — attacked
+              honestly first, then answered.
+            </p>
+            <p className="lb gs-up" style={{ marginTop: 18 }}>The room changed on purpose</p>
+          </Reveal>
+        </div>
+      </div>
+
+      <div className="g" style={{ marginTop: "clamp(40px,7vh,80px)", position: "relative", zIndex: 2 }}>
+        <div style={{ gridColumn: "1 / 13" }}>
+          {RISKS.map((r, i) => (
+            <Reveal key={r.n} delay={i * 80}>
+              <div className="risk">
+                <button style={{ width: "100%", textAlign: "left" }}
+                  aria-expanded={open === i}
+                  onClick={() => setOpen(open === i ? -1 : i)}>
+                  <span className="rsev">{r.n}</span>
+                  <p className="rq">{r.q}</p>
+                </button>
+                {open === i ? (
+                  <div className="rgrid">
+                    <div className="atk"><b>The attack</b><p className="body">{r.atk}</p></div>
+                    <div className="ans"><b>The answer</b><p className="body">{r.ans}</p></div>
+                  </div>
+                ) : null}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   THE WHISPER CHAMBER
+   Type a word. It gets retold three generations deep, drifting a little with
+   every retelling, then every version collapses back into the one word that
+   survives being repeated. It is a toy, and it is also the distribution
+   thesis: a brand is your word, retold until it belongs to everyone.
+   --------------------------------------------------------------------------- */
+const VOW = "aeiou";
+function mutateWord(w, heat) {
+  const a = w.split("");
+  const ops = 1 + Math.floor(Math.random() * heat);
+  for (let k = 0; k < ops; k++) {
+    const r = Math.random();
+    const i = 1 + Math.floor(Math.random() * Math.max(a.length - 2, 1));
+    if (r < .3 && a.length > 1) { const t = a[i - 1]; a[i - 1] = a[i]; a[i] = t; }
+    else if (r < .55 && a[i] && VOW.includes(a[i].toLowerCase())) { a[i] = VOW[(Math.random() * 5) | 0]; }
+    else if (r < .75) { a.splice(i, 0, a[i] || a[i - 1] || ""); }
+    else if (a.length > 3) { a.splice(i, 1); }
+  }
+  let out = a.join("");
+  if (heat > 1 && Math.random() < .25) out += "?";
+  return out;
+}
+
+function Chamber() {
+  const stage = useRef(null), cv = useRef(null);
+  const [val, setVal] = useState("");
+  const [words, setWords] = useState([]);
+  const [running, setRunning] = useState(false);
+  const [ended, setEnded] = useState(false);
+  const edges = useRef([]);
+  const cancel = useRef(false);
+
+  useEffect(() => {
+    const c = cv.current, st = stage.current; if (!c || !st) return;
+    const ctx = c.getContext("2d");
+    let W = 0, H = 0, raf, run = true;
+    const size = () => {
+      const d = Math.min(window.devicePixelRatio || 1, 2);
+      const r = st.getBoundingClientRect();
+      W = r.width; H = r.height;
+      c.width = Math.max(1, W * d); c.height = Math.max(1, H * d);
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+    };
+    size(); window.addEventListener("resize", size);
+    const frame = (t) => {
+      if (!run) return;
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineWidth = 1;
+      for (const e of edges.current) {
+        const age = Math.min((t - e.born) / 600, 1);
+        ctx.strokeStyle = `rgba(242,244,247,${(.05 + .09 * age * e.a).toFixed(3)})`;
+        ctx.beginPath(); ctx.moveTo(e.x1 * W, e.y1 * H);
+        const mx = ((e.x1 + e.x2) / 2) * W + Math.sin(t * .0009 + e.s) * 6;
+        const my = ((e.y1 + e.y2) / 2) * H + Math.cos(t * .0011 + e.s) * 6;
+        ctx.quadraticCurveTo(mx, my, (e.x1 + (e.x2 - e.x1) * age) * W, (e.y1 + (e.y2 - e.y1) * age) * H);
+        ctx.stroke();
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => { run = false; cancelAnimationFrame(raf); window.removeEventListener("resize", size); };
+  }, []);
+
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  const run = async (seed) => {
+    if (running) return;
+    setRunning(true); setEnded(false); cancel.current = false;
+    edges.current = [];
+    const nodes = [{ x: .5, y: .46, t: seed }];
+    setWords([{ id: "root", t: seed, x: .5, y: .46, fs: 44, a: 1, root: true, in: false }]);
+    await wait(60);
+    setWords((w) => w.map((x) => ({ ...x, in: true })));
+
+    const GENS = [{ n: 6, fs: 26, a: .85, d: [.10, .18] },
+                  { n: 12, fs: 19, a: .6, d: [.08, .16] },
+                  { n: 16, fs: 14, a: .38, d: [.06, .13] }];
+    for (let g = 0; g < GENS.length; g++) {
+      const cfg = GENS[g], born = [];
+      for (let i = 0; i < cfg.n; i++) {
+        if (cancel.current) { setRunning(false); return; }
+        const par = nodes[(Math.random() * nodes.length) | 0];
+        const ang = Math.random() * Math.PI * 2, d = rnd(cfg.d[0], cfg.d[1]);
+        const x = Math.max(.07, Math.min(.93, par.x + Math.cos(ang) * d));
+        const y = Math.max(.09, Math.min(.88, par.y + Math.sin(ang) * d * 1.1));
+        const t = mutateWord(par.t, g + 1);
+        const id = `${g}-${i}`;
+        edges.current.push({ x1: par.x, y1: par.y, x2: x, y2: y, born: performance.now(), s: Math.random() * 6.28, a: cfg.a });
+        born.push({ x, y, t });
+        setWords((w) => [...w, { id, t, x, y, fs: cfg.fs * (.85 + Math.random() * .4), a: cfg.a, in: false }]);
+        await wait(30);
+        setWords((w) => w.map((q) => (q.id === id ? { ...q, in: true } : q)));
+        await wait(rnd(60, 150));
+      }
+      nodes.push(...born);
+      await wait(360);
+    }
+    if (cancel.current) { setRunning(false); return; }
+    await wait(900);
+    /* every version converges back to the one word that survives retelling */
+    setWords((w) => w.map((q) => (q.root ? q : { ...q, x: .5, y: .46, in: false })));
+    edges.current = [];
+    await wait(1500);
+    if (cancel.current) { setRunning(false); return; }
+    setWords([{ id: "root", t: "RUMOAR", x: .5, y: .46, fs: 44, a: 1, root: true, in: true, final: true }]);
+    setEnded(true);
+    setRunning(false);
+  };
+
+  const reset = () => {
+    cancel.current = true;
+    edges.current = []; setWords([]); setEnded(false); setRunning(false); setVal("");
+  };
+
+  return (
+    <div className="chamber" ref={stage}>
+      <canvas ref={cv} aria-hidden="true" />
+      <div className={`chform ${words.length ? "gone" : ""}`}>
+        <input value={val} maxLength={14} spellCheck={false} placeholder="leave one word"
+          aria-label="Type one word to whisper into the chamber"
+          onChange={(e) => setVal(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && val.trim()) run(val.trim()); }} />
+        <button type="button" onClick={() => val.trim() && run(val.trim())}>whisper it</button>
+      </div>
+      <div className="chfield" aria-live="polite">
+        {words.map((w) => (
+          <span key={w.id}
+            className={`wh ${w.in ? "in" : ""} ${w.root ? "root" : ""} ${w.final ? "final" : ""}`}
+            style={{ left: `${w.x * 100}%`, top: `${w.y * 100}%`, fontSize: w.fs, "--wo": w.a }}>
+            {w.t}
+          </span>
+        ))}
+      </div>
+      <div className={`chend ${ended ? "on" : ""}`}>
+        <p>That&rsquo;s all a brand is — <span className="it ember">your word, retold until it belongs to everyone.</span></p>
+        <button type="button" onClick={reset}>whisper another</button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   THE ASK
+   The old version of this page was an audition. This one is a term sheet with
+   a pulse: what the money buys, what it proves, and what has to be true for
+   the next round to exist. Operator-investors read the last page first.
+   --------------------------------------------------------------------------- */
+const ASK_CARDS = [
+  { v: "One category", k: "What we launch with", s: "Not a catalogue. One line, built to prove the system logic holds before range is earned." },
+  { v: "18 months", k: "What the round buys", s: "To first repeat cohort and a defensible gross margin, not to a vanity revenue number." },
+  { v: "Repeat rate", k: "The metric that decides", s: "First order proves demand exists. The second proves the system does. Everything else is noise until then." },
+  { v: "Month 6", k: "The kill date", s: "If organic pull hasn't appeared, the thesis is wrong and we pivot cheaply rather than scale expensively." },
+];
+
+function TheAsk() {
+  return (
+    <section className="night" id="ask" style={{ paddingBlock: "clamp(100px,18vh,220px)" }}>
+      <div className="g">
+        <div style={{ gridColumn: "1 / 8" }}>
+          <Reveal>
+            <p className="lb">09 — The Ask</p>
+            <h2 className="big" style={{ marginTop: 18 }}>
+              <span className="msk"><span className="gs-rise">Everything above is a thesis.</span></span>
+              <span className="msk"><span className="gs-rise it">This part is a number.</span></span>
+            </h2>
+            <p className="lede" style={{ marginTop: 22, maxWidth: "48ch" }}>
+              The market research says the money arrived and the wardrobe didn&rsquo;t. The
+              white space says nobody sells a system at any price. Neither of those is a
+              business until someone builds it and shows the unit economics hold.
+            </p>
+          </Reveal>
+        </div>
+        <div style={{ gridColumn: "9 / 13", alignSelf: "end" }}>
+          <Reveal delay={200}>
+            <p className="term">
+              <b>What we are</b><br />
+              An identity system for Indian men,<br />
+              sold as garments, priced competitively,<br />
+              defended by coherence.<br /><br />
+              <span className="c">What we are not</span><br />
+              A catalogue with better photography.
+            </p>
+          </Reveal>
+        </div>
+      </div>
+
+      <div className="g" style={{ marginTop: "clamp(40px,7vh,80px)" }}>
+        <div style={{ gridColumn: "1 / 13" }}>
+          <div>
+            <div className="ask gs-stagger">
+              {ASK_CARDS.map((c) => (
+                <div className="askc" key={c.k}>
+                  <p className="v num">{c.v}</p>
+                  <p className="k">{c.k}</p>
+                  <p className="s">{c.s}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="g" style={{ marginTop: "clamp(48px,9vh,110px)" }}>
+        <div style={{ gridColumn: "3 / 11" }}>
+          <Reveal>
+            <p className="mid" style={{ textAlign: "center", color: "var(--bone)" }}>
+              Every brand in this category sells him an object.<br />
+              <span className="dim">The first one that sells him a method keeps him for a decade.</span>
+            </p>
+          </Reveal>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -2435,17 +3475,28 @@ export default function Rumoar() {
   const [route, setRoute] = useState(() =>
     typeof window !== "undefined" && window.location.hash === "#/lab" ? "lab" : "site");
   const [veil, setVeil] = useState(false);
-  const [intro, setIntro] = useState(false);
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);
   const [you, setYou] = useState(null);   // the visitor's own point on the field
   const [active, setActive] = useState("money");
   const [era, setEra] = useState(0);      // shared timeline index — drives every chart
+  const [introDone, setIntroDone] = useState(() => reduced());
+  const [nightZone, setNightZone] = useState(true);
   const eraCtx = useMemo(() => ({ era, setEra }), [era]);
 
   const brand = useMemo(() => brandData.find((b) => b.id === selected) || null, [selected]);
 
-  useEffect(() => { const t = setTimeout(() => setIntro(true), 1800); return () => clearTimeout(t); }, []);
+  /* motion boots only after the loader clears, so ScrollTrigger measures a
+     settled layout rather than one that is still animating in */
+  useGsapMotion(route === "site" && introDone);
+
+  /* any late layout shift (fonts, images) invalidates pin math */
+  useEffect(() => {
+    if (route !== "site" || !introDone) return;
+    const t = setTimeout(() => ScrollTrigger.refresh(), 600);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
+    return () => clearTimeout(t);
+  }, [route, introDone]);
 
   const swap = (r) => {
     setRoute(r);
@@ -2483,11 +3534,30 @@ export default function Rumoar() {
     return () => io.disconnect();
   }, [route]);
 
+  /* the edge strip inverts with whatever section is behind it */
+  useEffect(() => {
+    if (route !== "site") return;
+    const onScroll = () => {
+      const mid = window.innerHeight * .5;
+      const els = document.querySelectorAll(".night, .lampsec");
+      let inNight = false;
+      els.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top <= mid && r.bottom >= mid) inNight = !el.classList.contains("lit");
+      });
+      setNightZone((n) => (n === inNight ? n : inNight));
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [route]);
+
   return (
     <EraContext.Provider value={eraCtx}>
     <div className="ru">
       <style>{CSS}</style>
-      <Intro done={intro} />
+      {!introDone ? <Loader onDone={() => setIntroDone(true)} /> : null}
+      <EdgeStrip night={nightZone} />
 
       {route === "site" ? (
         <>
@@ -2499,6 +3569,26 @@ export default function Rumoar() {
           }}>Skip to the argument</button>
           <Nav active={active} onLab={() => goto("lab")} />
           <Hero />
+          <Thesis />
+
+          <section className="night" style={{ paddingBlock: "clamp(70px,12vh,150px)" }}>
+            <div className="g">
+              <div style={{ gridColumn: "2 / 11" }}>
+                <Reveal>
+                  <p className="mid" style={{ color: "var(--bone)" }}>
+                    A wallet is leather and thread. What a man pays for is the version of
+                    himself who carries it. <span className="it ember">RUMOAR sells the second
+                    thing</span>{" "}and ships the first one in the box.
+                  </p>
+                  <p className="body" style={{ marginTop: 28, maxWidth: "58ch" }}>
+                    Every decision that follows — market, product, price, distribution — flows
+                    from that single inversion. Sell objects and you compete on price. Sell
+                    identity and you compete on meaning. Meaning compounds. Price erodes.
+                  </p>
+                </Reveal>
+              </div>
+            </div>
+          </section>
 
           <Chapter id="money" n="01 — The Money"
             title={["The wallet grew.", { t: "The wardrobe didn't.", dim: true }]}
@@ -2519,9 +3609,31 @@ export default function Rumoar() {
             title={["He is not six men.", { t: "He is one man, in six rooms,", dim: true }, { t: "inside the same week.", dim: true }]}
             note="Research on urban Indian men finds that recalibrating persona across social groups is itself what produces a fragmented sense of identity. So these are not segments. They are registers one person is asked to hold — and the bar under each shows how well the market currently dresses it." />
 
-          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,170px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(60px,10vh,120px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><RoleGrid /></Reveal>
+            </div>
+          </section>
+
+          <section className="night" style={{ paddingBlock: "clamp(80px,14vh,170px)" }}>
+            <div className="g">
+              <div style={{ gridColumn: "1 / 7" }}>
+                <Reveal>
+                  <p className="lb">The same man, at day scale</p>
+                  <h2 className="big" style={{ marginTop: 18 }}>
+                    <span className="msk"><span className="gs-rise">Six moments</span></span>
+                    <span className="msk"><span className="gs-rise it">before he speaks.</span></span>
+                  </h2>
+                  <p className="body" style={{ marginTop: 22, maxWidth: "42ch" }}>
+                    Four of them are settled by an object he chose that morning in about nine
+                    seconds. That nine seconds is the whole category — and nobody is designing
+                    for it.
+                  </p>
+                </Reveal>
+              </div>
+              <div style={{ gridColumn: "7 / 13", alignSelf: "center" }}>
+                <Reveal delay={180}><PulseDay /></Reveal>
+              </div>
             </div>
           </section>
 
@@ -2574,6 +3686,33 @@ export default function Rumoar() {
           <WhiteSpaceAct you={you} />
           <RumoarAct />
           <WardrobeMath />
+
+          <section className="night" id="chamber" style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
+            <div className="g" style={{ marginBottom: "clamp(28px,5vh,56px)" }}>
+              <div style={{ gridColumn: "1 / 8" }}>
+                <Reveal>
+                  <p className="lb">Interlude — an experiment you run</p>
+                  <h2 className="big" style={{ marginTop: 18 }}>
+                    <span className="msk"><span className="gs-rise">Say something.</span></span>
+                    <span className="msk"><span className="gs-rise it">Watch it stop being yours.</span></span>
+                  </h2>
+                  <p className="body" style={{ marginTop: 22, maxWidth: "46ch" }}>
+                    Type one word. The chamber passes it mouth to mouth, and every retelling
+                    changes it a little. That drift is not a bug in how brands spread — it is
+                    the entire distribution model.
+                  </p>
+                </Reveal>
+              </div>
+            </div>
+            <div className="g">
+              <div style={{ gridColumn: "1 / 13" }}>
+                <Reveal><Chamber /></Reveal>
+              </div>
+            </div>
+          </section>
+
+          <LampAct />
+          <TheAsk />
           <Threshold onLab={() => goto("lab")} />
           <Colophon />
           <Dive brand={brand} onClose={() => setSelected(null)} />
