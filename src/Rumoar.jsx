@@ -729,30 +729,35 @@ const CSS = `
   .ru .strike i{transform:scaleX(1)}
 }
 
-/* THE THREAD — the depth is all CSS 3D + layered strokes, no WebGL */
-.ru .thread{position:relative;background:var(--paper)}
-.ru .th-pin{height:100svh;display:grid;place-items:center;position:relative;overflow:hidden;
-  contain:layout paint}
-.ru .th-pin::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 46% 50% at 50% 50%,rgba(255,59,71,.10),transparent 68%)}
-.ru.day .th-pin::before{background:radial-gradient(ellipse 46% 50% at 50% 50%,rgba(179,18,31,.07),transparent 68%)}
-/* the perspective box — this is what turns the tilt into real depth */
-.ru .th-tilt{perspective:1400px;transform-style:preserve-3d;width:min(94vw,1200px);
+/* small 3D — cards with thickness, buttons with pull */
+.ru .tiltgrid{perspective:1100px;perspective-origin:50% 50%}
+.ru .tiltgrid > *{position:relative;transform-style:preserve-3d;will-change:transform}
+.ru .sheen{position:absolute;inset:0;pointer-events:none;opacity:0;
+  --mx:50%;--my:50%;
+  background:radial-gradient(circle 220px at var(--mx) var(--my),
+    rgba(255,255,255,.10),transparent 62%)}
+.ru.day .sheen{background:radial-gradient(circle 220px at var(--mx) var(--my),
+  rgba(255,255,255,.85),transparent 60%)}
+.ru .mag{position:relative;display:inline-flex;align-items:center;justify-content:center;
   will-change:transform}
-.ru .th-svg{width:100%;height:auto;display:block;transform-style:preserve-3d;
-  overflow:visible}
-.ru .th-group{transform-origin:50% 50%}
-.ru .th-shade,.ru .th-core,.ru .th-spec{will-change:d,transform}
-.ru .th-cap{position:absolute;left:50%;bottom:clamp(76px,13vh,140px);transform:translateX(-50%);
-  font-size:clamp(1.1rem,2.4vw,1.9rem);font-weight:200;letter-spacing:-.04em;color:var(--ink);
-  text-align:center;white-space:nowrap}
-.ru .th-note{position:absolute;left:50%;bottom:clamp(44px,7vh,80px);transform:translateX(-50%);
-  font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.3em;text-transform:uppercase;
-  color:var(--ink-3)}
-@media (prefers-reduced-motion:reduce){
-  .ru .thread{height:auto}
-  .ru .th-pin{height:auto;padding-block:clamp(60px,10vh,120px)}
-}
+.ru .mag-l{display:inline-flex;align-items:center;gap:.6em;will-change:transform}
+
+/* THE SPINE — fixed behind everything, for the whole document */
+.ru .spine{position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.92;transition:opacity 600ms var(--ez)}
+.ru.day .spine{opacity:.8}
+.ru .spine canvas{display:block;width:100%;height:100%}
+.ru .spinecap{position:fixed;left:50%;bottom:clamp(14px,2.4vh,26px);transform:translateX(-50%);
+  z-index:2;font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--ink-3);pointer-events:none;opacity:.75;
+  white-space:nowrap;transition:opacity var(--ui)}
+/* content rides above the cord */
+.ru .rt-content{position:relative;z-index:1}
+/* NOTE: never put a transform/will-change:transform on .rt-content — it would
+   become the containing block for the fixed nav, progress bar and dive panel,
+   and would break ScrollTrigger's fixed pinning. Scroll velocity is expressed
+   on the cord instead, where it is free to move. */
+@media (max-width:720px){.ru .spinecap{font-size:.44rem;letter-spacing:.22em}}
 
 /* the pulse — one day, drawn as one line */
 .ru .pulse{border:1px solid var(--nline);padding:clamp(16px,2.4vw,28px);background:var(--night-2)}
@@ -1351,20 +1356,34 @@ function Lines({ lines, className = "big", delay = 0, stagger = 90, style }) {
 }
 
 /** Cursor-magnetic control. Desktop pointer only; off under reduced motion. */
-function Magnetic({ children, strength = 14, className = "", style, ...rest }) {
+/* A button that leans toward the cursor before you reach it. The label moves
+   less than the shell, which reads as the surface having thickness. */
+function Magnetic({ as: T = "button", strength = .34, className = "", children, ...rest }) {
   const ref = useRef(null);
-  const on = (e) => {
-    if (reduced() || window.matchMedia("(pointer:coarse)").matches) return;
-    const el = ref.current; if (!el) return;
-    const r = el.getBoundingClientRect();
-    el.style.transform =
-      `translate(${((e.clientX - r.left) / r.width - .5) * strength}px,${((e.clientY - r.top) / r.height - .5) * strength}px)`;
-  };
-  const off = () => { if (ref.current) ref.current.style.transform = ""; };
-  return (
-    <button ref={ref} className={className} onMouseMove={on} onMouseLeave={off}
-      style={{ transition: "transform 500ms cubic-bezier(.16,1,.3,1)", ...style }} {...rest}>{children}</button>
-  );
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced() || window.matchMedia("(pointer:coarse)").matches) return;
+    const label = el.querySelector(".mag-l");
+    const move = (e) => {
+      const r = el.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      const dist = Math.hypot(dx, dy);
+      const reach = Math.max(r.width, r.height) * 1.5;
+      if (dist > reach) return;
+      const f = 1 - dist / reach;
+      gsap.to(el, { x: dx * strength * f, y: dy * strength * f, duration: .5, ease: "power3.out", overwrite: "auto" });
+      if (label) gsap.to(label, { x: dx * strength * f * .4, y: dy * strength * f * .4, duration: .5, ease: "power3.out", overwrite: "auto" });
+    };
+    const out = () => {
+      gsap.to(el, { x: 0, y: 0, duration: .9, ease: "elastic.out(1,.4)" });
+      if (label) gsap.to(label, { x: 0, y: 0, duration: .9, ease: "elastic.out(1,.4)" });
+    };
+    window.addEventListener("mousemove", move, { passive: true });
+    el.addEventListener("mouseleave", out);
+    return () => { window.removeEventListener("mousemove", move); el.removeEventListener("mouseleave", out); };
+  }, [strength]);
+  return <T ref={ref} className={`mag ${className}`} {...rest}><span className="mag-l">{children}</span></T>;
 }
 
 const LB = ({ children, style }) => <p className="lb" style={style}>{children}</p>;
@@ -1594,7 +1613,7 @@ function Hero() {
   }, 9);
 
   return (
-    <section className="hero" ref={sec}>
+    <section className="hero" id="hero" ref={sec}>
       <div className="plate" ref={plate}><Media a={M.hero.plate} eager style={{ height: "100%" }} /></div>
       <div className="hwash" ref={wash} />
 
@@ -2502,157 +2521,373 @@ function PlotYourself({ you, setYou }) {
     This computes it live — and shows the count collapse when a piece stops
     relating to the others, which is the whole argument for a system. */
 /* ===========================================================================
-   THE THREAD
-   One continuous line, drawn once, that never breaks for the length of the
-   document. It is the same stroke throughout — we only ever change the shape
-   it is bent into:
+   THE SPINE  —  one thread, WebGL, document-length
+   ---------------------------------------------------------------------------
+   A single continuous cord rendered as real 3D geometry: a TubeGeometry swept
+   along a Catmull-Rom curve, lit by three lights, shaded with a physical
+   material. Not a stroke pretending to have depth — actual geometry that
+   catches light on its top surface and falls into shadow underneath.
 
-     stitch  →  the income curve  →  one day's pulse  →  the outline of a man
-             →  the wardrobe grid  →  a signature
+   It lives in a fixed full-viewport canvas BEHIND the content and persists for
+   the entire document. Each section registers a waypoint; as you scroll, the
+   cord morphs from one form to the next and never breaks:
 
-   Depth is faked the way a real thread has depth, not with WebGL:
-     · TWO strokes. A dark under-stroke offset a few px down and right reads
-       as the shadow side of a round cord; the light one rides on top.
-     · A specular highlight path with a short dash pattern that slides along
-       the curve, so light appears to travel the twist.
-     · The whole group takes a gentle 3D rotation from the pointer, and each
-       layer moves a different amount — real parallax, not a filter.
-     · Depth-of-field: the shadow blurs slightly more than the highlight.
+     stitch → the money curve → one day's pulse → A SHIRT → the wardrobe grid
+            → a signature
 
-   Everything is one <path> morphing between six coordinate sets of identical
-   command structure, which is what lets it tween without a plugin.
+   Every shape is generated parametrically at exactly SPINE_N points, which is
+   what makes the morph safe — no hand-authored point lists to fall out of sync.
    =========================================================================== */
-const THREAD_SHAPES = {
-  /* every path has the SAME command signature: M + 5 C curves. That is the
-     requirement for a plugin-free morph — GSAP interpolates the numbers. */
-  stitch:  "M 40,300 C 140,300 180,240 260,240 C 340,240 380,360 460,360 C 540,360 580,240 660,240 C 740,240 780,300 860,300 C 940,300 960,300 1160,300",
-  curve:   "M 40,520 C 200,516 300,500 420,470 C 540,440 600,400 700,330 C 800,260 840,200 900,150 C 960,100 1000,80 1060,64 C 1100,54 1130,50 1160,48",
-  pulse:   "M 40,300 C 120,300 150,140 200,300 C 260,480 300,120 380,300 C 460,470 520,90 600,300 C 700,560 760,60 840,300 C 920,520 980,300 1160,300",
-  figure:  "M 600,60 C 690,80 716,190 690,300 C 664,410 646,500 626,600 C 600,572 600,572 574,600 C 554,500 536,410 510,300 C 484,190 510,80 600,60",
-  grid:    "M 200,140 C 500,140 900,140 1000,140 C 1000,260 1000,380 1000,460 C 700,460 300,460 200,460 C 200,380 200,260 200,140 C 400,140 800,140 1000,140",
-  sign:    "M 120,400 C 220,300 260,460 340,380 C 420,300 460,440 540,360 C 620,280 660,420 740,340 C 820,260 860,400 940,330 C 1000,280 1040,320 1080,300",
-};
-const THREAD_ORDER = ["stitch", "curve", "pulse", "figure", "grid", "sign"];
-const THREAD_CAPTIONS = {
-  stitch: "One stitch.",
-  curve:  "The money that arrived.",
-  pulse:  "One day of being read.",
-  figure: "The man it all hangs on.",
-  grid:   "Nine pieces. Forty outfits.",
-  sign:   "One point of view, signed.",
+const SPINE_N = 190;
+
+/* resample any polyline (open or closed) to exactly n evenly-spaced points */
+function resample(pts, n, closed = true) {
+  const P = closed ? [...pts, pts[0]] : pts;
+  const seg = [], cum = [0];
+  let total = 0;
+  for (let i = 0; i < P.length - 1; i++) {
+    const d = Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1], (P[i + 1][2] || 0) - (P[i][2] || 0));
+    seg.push(d); total += d; cum.push(total);
+  }
+  const out = [];
+  for (let k = 0; k < n; k++) {
+    const target = (k / n) * total;
+    let i = 0;
+    while (i < cum.length - 2 && cum[i + 1] < target) i++;
+    const t = seg[i] ? (target - cum[i]) / seg[i] : 0;
+    out.push([
+      P[i][0] + (P[i + 1][0] - P[i][0]) * t,
+      P[i][1] + (P[i + 1][1] - P[i][1]) * t,
+      (P[i][2] || 0) + ((P[i + 1][2] || 0) - (P[i][2] || 0)) * t,
+    ]);
+  }
+  return out;
+}
+
+/* ---- the six forms ------------------------------------------------------ */
+
+/* 1. a running stitch — the cord at rest, before it is asked to be anything */
+const formStitch = () => Array.from({ length: SPINE_N }, (_, i) => {
+  const t = i / (SPINE_N - 1);
+  return [(t - .5) * 26, Math.sin(t * Math.PI * 9) * 1.15, Math.cos(t * Math.PI * 7) * .85];
+});
+
+/* 2. the money curve — income and market, climbing */
+const formCurve = () => Array.from({ length: SPINE_N }, (_, i) => {
+  const t = i / (SPINE_N - 1);
+  return [(t - .5) * 26, -5.5 + Math.pow(t, 2.1) * 12.5, Math.sin(t * Math.PI * 2) * 1.6];
+});
+
+/* 3. one day — six spikes, four of them decided by something he wears */
+const formPulse = () => Array.from({ length: SPINE_N }, (_, i) => {
+  const t = i / (SPINE_N - 1);
+  const spikes = [.08, .26, .44, .62, .80, .94];
+  const h = [.55, .85, .45, 1, .95, .3];
+  let y = 0;
+  spikes.forEach((c, k) => {
+    const d = (t - c) / .028;
+    y += Math.exp(-d * d * .55) * Math.cos(d * 1.1) * h[k] * 7.5;
+  });
+  return [(t - .5) * 26, y, Math.sin(t * Math.PI * 4) * 1.1];
+});
+
+/* 4. THE SHIRT — the cord finally becomes the thing it was always for.
+   Traced as one unbroken outline: collar, shoulder, sleeve, body, hem. */
+const SHIRT = [
+  [0, 7.6, 0], [1.5, 7.9, .5], [2.4, 7.2, .6],        // right collar
+  [5.2, 6.6, .5], [7.4, 5.2, .2],                      // right shoulder
+  [8.9, 1.6, -.2], [7.0, .7, -.1],                     // right sleeve
+  [5.6, 3.1, .3], [5.2, -1.2, .5],                     // armpit into body
+  [5.0, -7.4, .4], [2.2, -7.9, .5], [0, -8.0, .6],     // right hem to centre
+  [-2.2, -7.9, .5], [-5.0, -7.4, .4],                  // left hem
+  [-5.2, -1.2, .5], [-5.6, 3.1, .3],                   // left body
+  [-7.0, .7, -.1], [-8.9, 1.6, -.2],                   // left sleeve
+  [-7.4, 5.2, .2], [-5.2, 6.6, .5],                    // left shoulder
+  [-2.4, 7.2, .6], [-1.5, 7.9, .5],                    // left collar
+];
+const formShirt = () => resample(SHIRT, SPINE_N, true);
+
+/* 5. the wardrobe — nine pieces, one system */
+const GRID = [
+  [-8, 6, 0], [8, 6, 0], [8, 2, .4], [-8, 2, .4],
+  [-8, -2, 0], [8, -2, 0], [8, -6, .4], [-8, -6, .4],
+];
+const formGrid = () => resample(GRID, SPINE_N, true);
+
+/* 6. signed — a point of view with a name on it */
+const formSign = () => Array.from({ length: SPINE_N }, (_, i) => {
+  const t = i / (SPINE_N - 1);
+  const x = (t - .5) * 24;
+  const y = Math.sin(t * Math.PI * 5.5) * 3.4 * (1 - t * .55) + Math.sin(t * Math.PI * 1.4) * 1.6;
+  return [x, y, Math.sin(t * Math.PI * 3) * 1.4];
+});
+
+const SPINE_FORMS = {
+  stitch: formStitch, curve: formCurve, pulse: formPulse,
+  shirt: formShirt, grid: formGrid, sign: formSign,
 };
 
-function Thread() {
-  const root = useRef(null), pin = useRef(null);
-  const [label, setLabel] = useState(THREAD_CAPTIONS.stitch);
+/* which section pulls the cord into which shape */
+const SPINE_WAYPOINTS = [
+  { id: "hero",    form: "stitch", label: "one stitch" },
+  { id: "thesis",  form: "stitch", label: "one stitch" },
+  { id: "money",   form: "curve",  label: "the money that arrived" },
+  { id: "man",     form: "curve",  label: "the money that arrived" },
+  { id: "roles",   form: "pulse",  label: "one day of being read" },
+  { id: "market",  form: "shirt",  label: "the thing it was always for" },
+  { id: "price",   form: "shirt",  label: "the thing it was always for" },
+  { id: "rumoar",  form: "grid",   label: "nine pieces, one system" },
+  { id: "chamber", form: "grid",   label: "nine pieces, one system" },
+  { id: "risks",   form: "sign",   label: "signed" },
+  { id: "ask",     form: "sign",   label: "signed" },
+];
+
+
+/* The renderer. One tube, three lights, a physical material. Mobile gets a
+   lower tube resolution and a capped pixel ratio; reduced-motion gets nothing
+   at all and the document reads perfectly well without it. */
+function Spine() {
+  const host = useRef(null);
+  const [label, setLabel] = useState(SPINE_WAYPOINTS[0].label);
+  const inkTok = useToken("--ink", "#F5F3EF");
+  const markTok = useToken("--mark", "#FF3B47");
+  const api = useRef(null);
 
   useEffect(() => {
-    const el = root.current, box = pin.current;
-    if (!el || !box || reduced()) return;
+    if (reduced() || !host.current) return;
+    const el = host.current;
+    const mobile = window.matchMedia("(max-width:720px)").matches;
+    let disposed = false, teardown = null;
 
-    const ctx = gsap.context(() => {
-      const core = el.querySelector(".th-core");
-      const shade = el.querySelector(".th-shade");
-      const spec = el.querySelector(".th-spec");
-      const layers = [shade, core, spec];
-      const group = el.querySelector(".th-group");
+    /* three is ~180kB gzipped. Loading it on demand keeps it out of the
+       critical path — the document is readable long before the cord arrives. */
+    import("three").then((THREE) => {
+      if (disposed) return;
+      teardown = boot(THREE);
+    });
 
-      /* the light travelling along the twist — runs forever, independent of
-         scroll, so the cord looks alive even when the page is still */
-      gsap.to(spec, {
-        strokeDashoffset: -400, duration: 5.5,
-        ease: "none", repeat: -1,
-      });
+    function boot(THREE) {
+    const TUBE_SEG = mobile ? 110 : 190;
+    const RAD_SEG = mobile ? 6 : 10;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: el, start: "top top", end: "+=4200",
-          scrub: 1, pin: box, pinSpacing: true,
-          anticipatePin: 1, invalidateOnRefresh: true,
-        },
-      });
+    const scene = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(42, 1, .1, 200);
+    cam.position.set(0, 0, 30);
 
-      THREAD_ORDER.slice(1).forEach((key, i) => {
-        const at = i * 1.2;
-        /* all three strokes morph together, but the shadow lags a beat —
-           that lag is most of what sells the roundness */
-        tl.to(layers, {
-          attr: { d: THREAD_SHAPES[key] },
-          duration: 1, ease: "power2.inOut",
-          stagger: { each: .04, from: "start" },
-        }, at)
-          .add(() => setLabel(THREAD_CAPTIONS[key]), at + .4)
-          /* the cord tightens as it takes each new shape */
-          .to(core, { strokeWidth: key === "figure" ? 2.4 : 3.2, duration: 1 }, at)
-          .to(group, {
-            rotateZ: (i % 2 ? 1.6 : -1.6), duration: 1, ease: "power2.inOut",
-          }, at);
-      });
-      tl.to({}, { duration: .8 });
-    }, el);
+    const renderer = new THREE.WebGLRenderer({ antialias: !mobile, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
+    el.appendChild(renderer.domElement);
 
-    /* pointer tilt — each layer moves a different amount, which is what makes
-       it read as three planes rather than one flat drawing */
+    /* light comes from the upper left, the way it does in every studio photo,
+       so the cord has a bright top edge and a dark underside */
+    const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(-6, 9, 8);
+    const rim = new THREE.PointLight(0xff3b47, 40, 60); rim.position.set(9, -4, 6);
+    const fill = new THREE.PointLight(0x35e0d0, 16, 70); fill.position.set(-10, -6, 10);
+    scene.add(key, rim, fill, new THREE.AmbientLight(0xffffff, .28));
+
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(inkTok || "#F5F3EF"),
+      roughness: .34, metalness: .16,
+      emissive: new THREE.Color(markTok || "#FF3B47"), emissiveIntensity: .1,
+    });
+
+    const group = new THREE.Group();
+    scene.add(group);
+    let mesh = null;
+
+    /* current + target control points, lerped every frame */
+    let cur = SPINE_FORMS.stitch().map((p) => new THREE.Vector3(...p));
+    let tgt = cur.map((v) => v.clone());
+    let dirty = true;
+
+    const rebuild = () => {
+      const curve = new THREE.CatmullRomCurve3(cur, false, "catmullrom", .5);
+      const geo = new THREE.TubeGeometry(curve, TUBE_SEG, .17, RAD_SEG, false);
+      if (mesh) { group.remove(mesh); mesh.geometry.dispose(); }
+      mesh = new THREE.Mesh(geo, mat);
+      group.add(mesh);
+    };
+    rebuild();
+
+    const size = () => {
+      const w = el.clientWidth, h = el.clientHeight;
+      renderer.setSize(w, h, false);
+      cam.aspect = w / h; 
+      /* keep the cord the same apparent size on a phone as on a desktop */
+      cam.position.z = mobile ? 40 : 30;
+      cam.updateProjectionMatrix();
+    };
+    size();
+    window.addEventListener("resize", size);
+
+    const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
     const onMove = (e) => {
-      const rx = (e.clientY / window.innerHeight - .5) * -9;
-      const ry = (e.clientX / window.innerWidth - .5) * 14;
-      gsap.to(el.querySelector(".th-tilt"), {
-        rotateX: rx, rotateY: ry, duration: .9, ease: "power2.out", overwrite: "auto",
-      });
-      gsap.to(el.querySelector(".th-shade"), {
-        x: 5 + ry * .35, y: 6 + rx * -.35, duration: .9, ease: "power2.out", overwrite: "auto",
-      });
+      pointer.tx = (e.clientX / window.innerWidth - .5);
+      pointer.ty = (e.clientY / window.innerHeight - .5);
     };
     if (!window.matchMedia("(pointer:coarse)").matches)
       window.addEventListener("mousemove", onMove, { passive: true });
 
-    return () => {
-      ctx.revert();
-      window.removeEventListener("mousemove", onMove);
+    let raf, run = true, spin = 0, vis = true;
+    /* the cord has mass: scrolling fast drags it, stopping lets it settle */
+    let whip = 0, whipT = 0;
+    const velST = ScrollTrigger.create({
+      onUpdate: (self) => { whipT = Math.max(-1, Math.min(1, self.getVelocity() / 2600)); },
+    });
+    const onVis = () => { vis = !document.hidden; };
+    document.addEventListener("visibilitychange", onVis);
+
+    const tick = () => {
+      if (!run) return;
+      raf = requestAnimationFrame(tick);
+      if (!vis) return;
+
+      /* ease control points toward the target — this is the morph */
+      let moved = 0;
+      for (let i = 0; i < cur.length; i++) {
+        const d = cur[i].distanceTo(tgt[i]);
+        if (d > .002) { cur[i].lerp(tgt[i], .07); moved += d; }
+      }
+      if (moved > .01 || dirty) { rebuild(); dirty = false; }
+
+      /* the cord turns slowly on its own, and leans toward the pointer.
+         The slow turn is what makes it read as an object in a room. */
+      spin += .0016;
+      pointer.x += (pointer.tx - pointer.x) * .05;
+      pointer.y += (pointer.ty - pointer.y) * .05;
+      whip += (whipT - whip) * .06;
+      whipT *= .92;
+      group.rotation.y = Math.sin(spin) * .28 + pointer.x * .5 + whip * .34;
+      group.rotation.x = Math.cos(spin * .8) * .1 + pointer.y * .34;
+      group.rotation.z = Math.sin(spin * .6) * .05 - whip * .16;
+      /* stretched along its own length by the drag, like a real cord */
+      group.scale.set(1 + Math.abs(whip) * .06, 1 - Math.abs(whip) * .05, 1);
+
+      /* the rim light orbits, so the specular travels the length of the cord */
+      rim.position.x = Math.cos(spin * 2.2) * 11;
+      rim.position.z = Math.sin(spin * 2.2) * 11 + 4;
+
+      renderer.render(scene, cam);
     };
+    tick();
+
+    const localApi = {
+      setForm(name) {
+        const f = SPINE_FORMS[name]; if (!f) return;
+        const pts = f();
+        tgt = pts.map((p) => new THREE.Vector3(...p));
+      },
+      setColors(ink, mark) {
+        mat.color.set(ink); mat.emissive.set(mark);
+      },
+    };
+    api.current = localApi;
+
+    return () => {
+      run = false; cancelAnimationFrame(raf); velST.kill();
+      window.removeEventListener("resize", size);
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("visibilitychange", onVis);
+      if (mesh) mesh.geometry.dispose();
+      mat.dispose(); renderer.dispose();
+      if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+      api.current = null;
+    };
+    }
+
+    return () => { disposed = true; if (teardown) teardown(); };
   }, []);
 
+  /* the cord follows the theme */
+  useEffect(() => { api.current && api.current.setColors(inkTok, markTok); }, [inkTok, markTok]);
+
+  /* each section pulls it into shape */
+  useEffect(() => {
+    if (reduced()) return;
+    const trigs = SPINE_WAYPOINTS.map((w) => {
+      const target = document.getElementById(w.id);
+      if (!target) return null;
+      const apply = () => {
+        api.current && api.current.setForm(w.form);
+        setLabel(w.label);
+      };
+      return ScrollTrigger.create({
+        trigger: target, start: "top 62%", end: "bottom 38%",
+        onEnter: apply, onEnterBack: apply,
+      });
+    }).filter(Boolean);
+    ScrollTrigger.refresh();
+    return () => trigs.forEach((t) => t.kill());
+  }, []);
+
+  if (reduced()) return null;
   return (
-    <section className="thread" ref={root} id="thread">
-      <div className="th-pin" ref={pin}>
-        <div className="th-tilt">
-          <svg viewBox="0 0 1200 660" className="th-svg" role="img"
-            aria-label="A single continuous thread that bends through every stage of the argument">
-            <defs>
-              <filter id="th-blur-far" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3.2" />
-              </filter>
-              <filter id="th-glow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="6" result="b" />
-                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-              </filter>
-              <linearGradient id="th-grad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="var(--mark)" stopOpacity=".45" />
-                <stop offset="42%" stopColor="var(--ink)" />
-                <stop offset="100%" stopColor="var(--mark)" stopOpacity=".55" />
-              </linearGradient>
-            </defs>
-            <g className="th-group">
-              {/* 1 — the shadow side of the cord, offset and blurred */}
-              <path className="th-shade" d={THREAD_SHAPES.stitch} fill="none"
-                stroke="var(--cord-shade)" strokeOpacity=".55" strokeWidth="7" strokeLinecap="round"
-                filter="url(#th-blur-far)" />
-              {/* 2 — the cord itself */}
-              <path className="th-core" d={THREAD_SHAPES.stitch} fill="none"
-                stroke="url(#th-grad)" strokeWidth="3.2" strokeLinecap="round"
-                filter="url(#th-glow)" />
-              {/* 3 — light travelling along the twist */}
-              <path className="th-spec" d={THREAD_SHAPES.stitch} fill="none"
-                stroke="var(--paper)" strokeOpacity=".85" strokeWidth="1.1"
-                strokeLinecap="round" strokeDasharray="14 190" />
-            </g>
-          </svg>
-        </div>
-        <p className="th-cap">{label}</p>
-        <p className="th-note">one thread · never cut</p>
-      </div>
-    </section>
+    <>
+      <div className="spine" ref={host} aria-hidden="true" />
+      <span className="spinecap">{label}</span>
+    </>
   );
+}
+
+
+/* ===========================================================================
+   THE SMALL 3D  —  depth applied at component scale
+   The spine gives the document a body. These give its parts weight.
+   All of them are pointer-driven, all skip touch devices and reduced motion.
+   =========================================================================== */
+
+/* Cards that lift and tilt toward the cursor, with a specular sheen that
+   tracks the light source. The sheen is what stops it looking like a
+   cheap CSS rotate — real materials catch light where you point them. */
+function useTilt(active = true) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !active || reduced() || window.matchMedia("(pointer:coarse)").matches) return;
+    const cards = gsap.utils.toArray(":scope > *", el);
+    const cleanups = [];
+    cards.forEach((c) => {
+      c.style.transformStyle = "preserve-3d";
+      const sheen = document.createElement("i");
+      sheen.className = "sheen";
+      c.appendChild(sheen);
+      const enter = () => gsap.to(c, { z: 26, duration: .45, ease: "power3.out" });
+      const move = (e) => {
+        const r = c.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - .5;
+        const py = (e.clientY - r.top) / r.height - .5;
+        gsap.to(c, {
+          rotateY: px * 13, rotateX: -py * 13,
+          duration: .5, ease: "power2.out", overwrite: "auto",
+        });
+        gsap.to(sheen, {
+          opacity: .85, duration: .3,
+          "--mx": `${(px + .5) * 100}%`, "--my": `${(py + .5) * 100}%`,
+          overwrite: "auto",
+        });
+      };
+      const leave = () => {
+        gsap.to(c, { rotateY: 0, rotateX: 0, z: 0, duration: .8, ease: "elastic.out(1,.55)" });
+        gsap.to(sheen, { opacity: 0, duration: .4 });
+      };
+      c.addEventListener("mouseenter", enter);
+      c.addEventListener("mousemove", move);
+      c.addEventListener("mouseleave", leave);
+      cleanups.push(() => {
+        c.removeEventListener("mouseenter", enter);
+        c.removeEventListener("mousemove", move);
+        c.removeEventListener("mouseleave", leave);
+        sheen.remove();
+      });
+    });
+    return () => cleanups.forEach((f) => f());
+  }, [active]);
+  return ref;
+}
+
+function TiltGrid({ className = "", children, ...rest }) {
+  const ref = useTilt(true);
+  return <div ref={ref} className={`tiltgrid ${className}`} {...rest}>{children}</div>;
 }
 
 /* ---------------------------------------------------------------------------
@@ -3124,7 +3359,7 @@ function IncomeCurve() {
 
       <p className="body" style={{ marginTop: 18, maxWidth: "52ch" }}>{d.note}</p>
 
-      <div className="facts gs-stagger">
+      <TiltGrid className="facts gs-stagger">
         {incomeFacts.map((f) => (
           <div className="fact" key={f.k}>
             <p className="v num">{f.v}</p>
@@ -3132,7 +3367,7 @@ function IncomeCurve() {
             <p className="s">{f.s}</p>
           </div>
         ))}
-      </div>
+      </TiltGrid>
     </div>
   );
 }
@@ -3165,7 +3400,7 @@ function RoleGrid() {
         </div>
       </div>
 
-      <div className="roles gs-stagger">
+      <TiltGrid className="roles gs-stagger">
         {personaData.map((r) => {
           const live = r.from <= era;
           return (
@@ -3182,7 +3417,7 @@ function RoleGrid() {
             </div>
           );
         })}
-      </div>
+      </TiltGrid>
     </>
   );
 }
@@ -3568,7 +3803,7 @@ function TheAsk() {
       <div className="g" style={{ marginTop: "clamp(40px,7vh,80px)" }}>
         <div style={{ gridColumn: "1 / 13" }}>
           <div>
-            <div className="ask gs-stagger">
+            <TiltGrid className="ask gs-stagger">
               {ASK_CARDS.map((c) => (
                 <div className="askc" key={c.k}>
                   <p className="v num">{c.v}</p>
@@ -3576,7 +3811,7 @@ function TheAsk() {
                   <p className="s">{c.s}</p>
                 </div>
               ))}
-            </div>
+            </TiltGrid>
           </div>
         </div>
       </div>
@@ -3792,9 +4027,10 @@ export default function Rumoar() {
       {!introDone ? <Loader onDone={() => setIntroDone(true)} /> : null}
       <EdgeStrip />
       {introDone ? <Lamp day={day} onPull={() => setDay((d) => !d)} /> : null}
+      {introDone && route === "site" ? <Spine /> : null}
 
       {route === "site" ? (
-        <>
+        <div className="rt-content">
           <Progress />
           <button className="skip" onClick={() => {
             const el = document.getElementById("man");
@@ -3803,22 +4039,17 @@ export default function Rumoar() {
           }}>Skip to the argument</button>
           <Nav active={active} onLab={() => goto("lab")} />
           <Hero />
-          <Thread />
           <Thesis />
 
-          <section style={{ paddingBlock: "clamp(70px,12vh,150px)" }}>
+          <section style={{ paddingBlock: "clamp(56px,9vh,110px)" }}>
             <div className="g">
               <div style={{ gridColumn: "2 / 11" }}>
                 <Reveal>
-                  <p className="mid" style={{ color: "var(--bone)" }}>
-                    A wallet is leather and thread. What a man pays for is the version of
-                    himself who carries it. <span className="it ember">RUMOAR sells the second
-                    thing</span>{" "}and ships the first one in the box.
-                  </p>
-                  <p className="body" style={{ marginTop: 28, maxWidth: "58ch" }}>
-                    Every decision that follows — market, product, price, distribution — flows
-                    from that single inversion. Sell objects and you compete on price. Sell
-                    identity and you compete on meaning. Meaning compounds. Price erodes.
+                  <p className="body gs-up" style={{ maxWidth: "56ch" }}>
+                    Sell objects and you compete on price. Sell identity and you compete on
+                    meaning. <span className="it">Meaning compounds. Price erodes.</span> Every
+                    decision below — market, product, price, distribution — follows from that
+                    one inversion.
                   </p>
                 </Reveal>
               </div>
@@ -3836,7 +4067,7 @@ export default function Rumoar() {
           </section>
 
           <Chapter id="man" n="02 — The Man"
-            title={["Six moments in which clothing", { t: "quietly changed jobs.", dim: true }]}
+            title={["The century in which clothing", { t: "quietly changed jobs.", dim: true }]}
             note="From survival, to provision, to status, to supply, to fragmentation — and then to something that still has no name. Select a year. Everything below moves with it." />
           <Timeline />
 
@@ -3844,31 +4075,27 @@ export default function Rumoar() {
             title={["He is not six men.", { t: "He is one man, in six rooms,", dim: true }, { t: "inside the same week.", dim: true }]}
             note="Research on urban Indian men finds that recalibrating persona across social groups is itself what produces a fragmented sense of identity. So these are not segments. They are registers one person is asked to hold — and the bar under each shows how well the market currently dresses it." />
 
-          <section className="g" style={{ paddingBottom: "clamp(60px,10vh,120px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(40px,7vh,80px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><RoleGrid /></Reveal>
             </div>
           </section>
 
-          <section style={{ paddingBlock: "clamp(80px,14vh,170px)" }}>
-            <div className="g">
-              <div style={{ gridColumn: "1 / 7" }}>
-                <Reveal>
-                  <p className="lb">The same man, at day scale</p>
-                  <h2 className="big" style={{ marginTop: 18 }}>
-                    <span className="msk"><span className="gs-rise">Six moments</span></span>
-                    <span className="msk"><span className="gs-rise it">before he speaks.</span></span>
-                  </h2>
-                  <p className="body" style={{ marginTop: 22, maxWidth: "42ch" }}>
-                    Four of them are settled by an object he chose that morning in about nine
-                    seconds. That nine seconds is the whole category — and nobody is designing
-                    for it.
-                  </p>
-                </Reveal>
-              </div>
-              <div style={{ gridColumn: "7 / 13", alignSelf: "center" }}>
-                <Reveal delay={180}><PulseDay /></Reveal>
-              </div>
+          {/* the same argument at day scale — kept inside this chapter rather
+              than given its own, because it is evidence, not a new claim */}
+          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,170px)" }}>
+            <div style={{ gridColumn: "1 / 5" }}>
+              <Reveal>
+                <p className="lb">The same week, compressed</p>
+                <p className="body" style={{ marginTop: 16, maxWidth: "34ch" }}>
+                  Those registers don&rsquo;t wait for a week to rotate. They all turn up
+                  inside a single Tuesday — and four of them are settled by something he
+                  chose in about nine seconds that morning.
+                </p>
+              </Reveal>
+            </div>
+            <div style={{ gridColumn: "5 / 13", alignSelf: "center" }}>
+              <Reveal delay={140}><PulseDay /></Reveal>
             </div>
           </section>
 
@@ -3951,7 +4178,7 @@ export default function Rumoar() {
           <Threshold onLab={() => goto("lab")} />
           <Colophon />
           <Dive brand={brand} onClose={() => setSelected(null)} />
-        </>
+        </div>
       ) : (
         <Lab onExit={() => goto("site")} />
       )}
