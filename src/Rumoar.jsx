@@ -788,9 +788,9 @@ const CSS = `
 }
 
 /* THE TRAVELLER — one strand, fixed to the left edge, all the way down */
-.ru .traveller{position:fixed;left:calc(26px + clamp(6px,1vw,18px));top:50%;
-  transform:translateY(-50%);z-index:118;pointer-events:none;
-  display:flex;align-items:center;gap:10px}
+.ru .traveller{position:fixed;left:0;top:0;z-index:118;pointer-events:none;
+  display:flex;align-items:center;gap:10px;will-change:transform;
+  margin-left:-42px;margin-top:-42px}
 .ru .tv-box{width:clamp(58px,5vw,86px);will-change:transform}
 .ru .tv-box svg{width:100%;height:auto;display:block;overflow:visible}
 .ru .tv-shade{fill:none;stroke:var(--cord-shade);stroke-opacity:.45;stroke-width:5;
@@ -804,38 +804,62 @@ const CSS = `
 .ru .tv-cap.on{opacity:.8;transform:none}
 @media (max-width:900px){.ru .traveller{display:none}}
 
-/* THE SOUND DIAL — a small object with real planes, under the lamp */
-.ru .sounddial{position:fixed;top:clamp(150px,22vh,230px);right:clamp(16px,2.4vw,44px);
-  z-index:180;display:flex;flex-direction:column;align-items:center;gap:9px;
-  perspective:420px;background:none;border:0;cursor:pointer;will-change:transform}
-.ru .sd-face{position:relative;width:38px;height:38px;transform-style:preserve-3d;
-  display:grid;place-items:center;border-radius:50%;
-  background:linear-gradient(145deg,var(--paper-3),var(--paper-2));
-  border:1px solid var(--line);
-  box-shadow:0 6px 16px -8px rgba(0,0,0,.7),inset 0 1px 0 var(--gl-hi)}
-.ru .sd-rim{position:absolute;inset:4px;border-radius:50%;border:1px solid var(--line);
-  opacity:.7}
-.ru .sd-bars{display:flex;align-items:center;gap:2.5px;height:16px}
-.ru .sd-bar{width:2px;height:100%;background:var(--ink-3);border-radius:1px;
-  transform:scaleY(.3);transition:background var(--ui)}
-.ru .sounddial.on .sd-bar{background:var(--mark)}
-.ru .sounddial.asking .sd-face{border-color:var(--mark)}
-.ru .sd-cap{font-family:'Montserrat',sans-serif;font-size:.44rem;letter-spacing:.2em;
+/* THE RECORD — lower left. Arrives open; collapses only after first use. */
+.ru .vinyl{position:fixed;left:0;bottom:clamp(16px,3vh,34px);z-index:182;
+  display:flex;align-items:flex-end;
+  transition:transform 620ms var(--ez)}
+.ru .vinyl.shut{transform:translateX(calc(-100% + 34px))}
+.ru .vn-deck{display:flex;align-items:center;gap:12px;background:var(--paper-2);
+  border:1px solid var(--line);border-left:0;border-radius:0 100px 100px 0;
+  padding:10px 20px 10px 12px;cursor:pointer;
+  box-shadow:0 14px 34px -18px rgba(0,0,0,.8)}
+.ru .vn-platter{position:relative;width:46px;height:46px;flex:0 0 auto}
+.ru .vn-disc{position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,#15161B 0 22%,#0C0D11 22% 100%);
+  border:1px solid var(--line);will-change:transform}
+.ru .vn-groove{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.07)}
+.ru .vn-groove.g1{inset:5px}.ru .vn-groove.g2{inset:9px}.ru .vn-groove.g3{inset:13px}
+.ru .vn-label{position:absolute;inset:34%;border-radius:50%;background:var(--mark);
+  display:grid;place-items:center}
+.ru .vn-label b{font-family:'Bodoni Moda',Didot,serif;font-size:.6rem;color:#fff;line-height:1}
+.ru .vn-shine{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:linear-gradient(125deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%)}
+.ru .vn-arm{position:absolute;right:-3px;top:-2px;width:30px;height:30px;
+  will-change:transform}
+.ru .vn-arm i{position:absolute;right:3px;top:3px;width:2px;height:26px;
+  background:var(--ink-3);transform-origin:top center;transform:rotate(38deg);border-radius:1px}
+.ru .vn-arm b{position:absolute;right:1px;top:1px;width:7px;height:7px;border-radius:50%;
+  background:var(--ink-3)}
+.ru .vn-txt{font-family:'Montserrat',sans-serif;font-size:.48rem;letter-spacing:.22em;
   text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
-.ru .sounddial.asking .sd-cap{color:var(--mark)}
-@media (max-width:720px){.ru .sounddial{top:auto;bottom:16px;right:14px}}
+.ru .vinyl.on .vn-txt,.ru .vinyl.asking .vn-txt{color:var(--mark)}
+.ru .vinyl.asking .vn-deck{border-color:var(--mark)}
+.ru .vn-tab{width:22px;height:44px;margin-left:-1px;background:var(--paper-2);
+  border:1px solid var(--line);border-left:0;border-radius:0 6px 6px 0;
+  color:var(--ink-3);font-size:.85rem;line-height:1;cursor:pointer}
+.ru .vn-tab:hover{color:var(--ink)}
+@media (max-width:720px){
+  .ru .vinyl{bottom:12px}
+  .ru .vn-deck{padding:8px 14px 8px 10px}
+  .ru .vn-platter{width:36px;height:36px}
+}
 
-/* THE LIGHTER — brushed steel, on a loop */
-.ru .lighterwrap{display:flex;flex-direction:column;align-items:flex-start}
-.ru .lighter{width:88px;perspective:640px;transform-style:preserve-3d;will-change:transform}
-.ru .lighter svg{width:100%;height:auto;display:block;overflow:visible;
-  filter:drop-shadow(0 14px 22px rgba(0,0,0,.5))}
-.ru .lt-mark{font-family:'Bodoni Moda',Didot,serif;font-size:26px;fill:#16181D;
-  opacity:.85}
+/* THE LIGHTER — wireframe, right-hand side */
+.ru .lighterwrap{display:flex;flex-direction:column;align-items:flex-end;text-align:right}
+.ru .lighter{width:clamp(96px,8vw,124px);perspective:700px;transform-style:preserve-3d;
+  will-change:transform}
+.ru .lighter svg{width:100%;height:auto;display:block;overflow:visible}
+.ru .lw-lid path,.ru .lw-shell path,.ru .lw-shell line{
+  fill:none;stroke:var(--ink);stroke-width:1.15;stroke-linejoin:round;stroke-linecap:round;
+  vector-effect:non-scaling-stroke}
+.ru .lw-inner path{fill:none;stroke:#FFB93A;stroke-width:1.1;stroke-linejoin:round}
+.ru .lw-scan{stroke:var(--mark)!important;stroke-width:1.6!important;opacity:.5}
+.ru .lw-mark{font-family:'Bodoni Moda',Didot,serif;font-size:22px;fill:none;
+  stroke:var(--ink);stroke-width:.8;opacity:.6}
 .ru .lightercap{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
-  text-transform:uppercase;color:var(--ink-3);margin-top:18px}
+  text-transform:uppercase;color:var(--ink-3);margin-top:20px}
 .ru .lightercap b{color:var(--mark);font-weight:500}
-@media (max-width:900px){.ru .lighterwrap{align-items:center}}
+@media (max-width:900px){.ru .lighterwrap{align-items:center;text-align:center}}
 
 /* THE DECK — a live hand, shuffling in the corner */
 .ru .deck{position:relative;width:126px;height:168px;margin:0;
@@ -2879,89 +2903,104 @@ function EraCollage({ year }) {
 
 /* ===========================================================================
    THE TRAVELLER
-   The freight idea, at the scale it actually belongs at.
+   One strand that actually crosses the page.
 
-   A single small strand lives at the left edge of the viewport for the entire
-   document. Between sections it is just that — a strand, travelling. When a
-   section takes the centre of the screen, the strand runs into it and takes
-   that section's form. When you leave, it lets go and becomes a strand again,
-   carrying on to the next one.
+   For each section it runs a scrubbed diagonal: it enters from one corner,
+   drives through the empty space between the text and the artwork, MERGES
+   into that section's form at the midpoint — holding it while the section
+   owns the screen — then lets go, becomes a strand again, and exits toward
+   the opposite corner on its way to the next one.
 
-   Same cord, same three strokes, all the way down. It is never cut and it is
-   never duplicated — there is exactly one of these on the page.
+   The diagonal alternates every section, so read end to end it zigzags down
+   the document. Scroll drives it directly (scrub), so it is never doing
+   something the page isn't.
    =========================================================================== */
 const TRAVEL_STRAND = [[120,10],[120,25],[121,40],[119,56],[120,72],[121,88],[119,104],
                        [120,120],[121,136],[119,152],[120,166],[121,178],[120,188],[120,196]];
 
-const TRAVEL_STOPS = [
-  { id: "thesis",  form: "stitch", label: "one stitch" },
-  { id: "money",   form: "curve",  label: "the money" },
-  { id: "roles",   form: "pulse",  label: "one day" },
-  { id: "market",  form: "shirt",  label: "the shirt" },
-  { id: "rumoar",  form: "grid",   label: "the system" },
-  { id: "ask",     form: "sign",   label: "signed" },
+/* xy are viewport percentages. `merge` is where it meets the section's own
+   component — biased toward the side that section leaves empty. */
+const TRAVEL_LEGS = [
+  { id: "thesis", form: "stitch", label: "one stitch",
+    from: [6, 94],  merge: [17, 52], to: [92, 8] },
+  { id: "money",  form: "curve",  label: "the money",
+    from: [92, 92], merge: [83, 44], to: [8, 10] },
+  { id: "roles",  form: "pulse",  label: "one day",
+    from: [6, 90],  merge: [15, 46], to: [90, 12] },
+  { id: "market", form: "shirt",  label: "the shirt",
+    from: [92, 90], merge: [84, 50], to: [8, 12] },
+  { id: "rumoar", form: "grid",   label: "the system",
+    from: [8, 92],  merge: [16, 48], to: [90, 10] },
+  { id: "ask",    form: "sign",   label: "signed",
+    from: [92, 90], merge: [82, 46], to: [10, 14] },
 ];
 
 function Traveller() {
   const wrap = useRef(null);
-  const [stop, setStop] = useState(null);
+  const [leg, setLeg] = useState(null);
 
   useEffect(() => {
     const el = wrap.current;
     if (!el || reduced() || window.matchMedia("(max-width:900px)").matches) return;
 
+    const box = el.querySelector(".tv-box");
     const paths = el.querySelectorAll(".tv-shade, .tv-core, .tv-spec");
     const strandD = smoothPath(TRAVEL_STRAND);
+    const vw = () => window.innerWidth, vh = () => window.innerHeight;
 
-    /* the cord is always travelling downward; scroll only changes how fast */
-    const drift = gsap.to(el.querySelector(".tv-g"), {
-      y: 14, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1,
-    });
+    const ctx = gsap.context(() => {
+      const trigs = TRAVEL_LEGS.map((L) => {
+        const target = document.getElementById(L.id);
+        if (!target) return null;
 
-    const setForm = (formKey, arriving) => {
-      const d = formKey ? smoothPath(MARK_FORMS[formKey]) : strandD;
-      /* it arrives by tightening into the shape, and leaves by relaxing out —
-         the ease is what makes it read as one object doing two things */
-      gsap.to(paths, {
-        attr: { d },
-        duration: arriving ? .85 : .7,
-        ease: arriving ? "power3.inOut" : "power2.inOut",
-        stagger: { each: .045, from: "start" },
-        overwrite: "auto",
-      });
-      gsap.to(el, {
-        scale: arriving ? 1 : .58,
-        x: arriving ? 0 : -14,
-        duration: arriving ? .8 : .65,
-        ease: arriving ? "back.out(1.5)" : "power2.inOut",
-        overwrite: "auto",
-      });
-    };
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: target, start: "top 88%", end: "bottom 12%",
+            scrub: 1.1, invalidateOnRefresh: true,
+          },
+        });
 
-    const trigs = TRAVEL_STOPS.map((s) => {
-      const target = document.getElementById(s.id);
-      if (!target) return null;
-      return ScrollTrigger.create({
-        trigger: target, start: "top 58%", end: "bottom 42%",
-        onEnter:     () => { setForm(s.form, true);  setStop(s); },
-        onEnterBack: () => { setForm(s.form, true);  setStop(s); },
-        onLeave:     () => { setForm(null, false);   setStop(null); },
-        onLeaveBack: () => { setForm(null, false);   setStop(null); },
-      });
-    }).filter(Boolean);
+        /* IN — driving through the section's empty diagonal */
+        tl.fromTo(el,
+          { x: () => L.from[0] / 100 * vw(), y: () => L.from[1] / 100 * vh(), scale: .5, rotate: -18 },
+          { x: () => L.merge[0] / 100 * vw(), y: () => L.merge[1] / 100 * vh(),
+            scale: 1, rotate: 0, duration: 1, ease: "power2.inOut" });
+        /* MERGE — it takes the section's shape and holds it */
+        tl.to(paths, {
+          attr: { d: () => smoothPath(MARK_FORMS[L.form]) },
+          duration: .5, ease: "power2.inOut", stagger: { each: .04 },
+        }, .28);
+        tl.to({}, { duration: .55 });          // held while the section reads
+        /* OUT — lets go, and carries on */
+        tl.to(paths, {
+          attr: { d: strandD }, duration: .45,
+          ease: "power2.inOut", stagger: { each: .04 },
+        });
+        tl.to(el, {
+          x: () => L.to[0] / 100 * vw(), y: () => L.to[1] / 100 * vh(),
+          scale: .5, rotate: 18, duration: 1, ease: "power2.inOut",
+        }, "-=.45");
 
-    /* it starts as a strand, small, travelling */
-    gsap.set(el, { scale: .58, x: -14 });
-    ScrollTrigger.refresh();
+        return ScrollTrigger.create({
+          trigger: target, start: "top 62%", end: "bottom 38%",
+          onEnter: () => setLeg(L), onEnterBack: () => setLeg(L),
+          onLeave: () => setLeg(null), onLeaveBack: () => setLeg(null),
+        });
+      }).filter(Boolean);
 
-    return () => { trigs.forEach((t) => t.kill()); drift.kill(); };
+      gsap.set(el, { x: () => .06 * vw(), y: () => .9 * vh(), scale: .5 });
+      ScrollTrigger.refresh();
+      return () => trigs.forEach((t) => t && t.kill());
+    }, el);
+
+    return () => ctx.revert();
   }, []);
 
   if (reduced()) return null;
   const d = smoothPath(TRAVEL_STRAND);
   return (
-    <div className="traveller" aria-hidden="true">
-      <div className="tv-box" ref={wrap}>
+    <div className="traveller" ref={wrap} aria-hidden="true">
+      <div className="tv-box">
         <svg viewBox="0 0 240 200">
           <g className="tv-g">
             <path className="tv-shade" d={d} />
@@ -2970,154 +3009,10 @@ function Traveller() {
           </g>
         </svg>
       </div>
-      <span className={`tv-cap ${stop ? "on" : ""}`}>{stop ? stop.label : ""}</span>
+      <span className={`tv-cap ${leg ? "on" : ""}`}>{leg ? leg.label : ""}</span>
     </div>
   );
 }
-
-
-/* ===========================================================================
-   THE LIGHTER
-   A brushed-steel flip lighter on a loop: it drops in, the lid springs open,
-   the flint catches, the flame settles, it turns once to show its edge, then
-   the lid snaps shut and it falls away. Then again.
-
-   The metal is four stacked gradients rather than a photograph: a vertical
-   brushed sheen, a bright specular band that travels as it turns, a dark
-   bevel, and a warm bounce from the flame once it is lit. That layering is
-   what reads as steel instead of grey plastic.
-   =========================================================================== */
-function Lighter() {
-  const root = useRef(null);
-
-  useEffect(() => {
-    const el = root.current; if (!el || reduced()) return;
-    let tl = null, live = false;
-
-    const ctx = gsap.context(() => {
-      const body = el.querySelector(".lt-body");
-      const lid = el.querySelector(".lt-lid");
-      const flame = el.querySelector(".lt-flame");
-      const glow = el.querySelector(".lt-glow");
-      const spark = el.querySelectorAll(".lt-spark");
-      const sheen = el.querySelector(".lt-sheen");
-
-      tl = gsap.timeline({ repeat: -1, repeatDelay: .5 });
-      tl.set(el, { y: -140, rotate: -22, opacity: 0 })
-        .set(lid, { rotate: 0, transformOrigin: "14% 92%" })
-        .set([flame, glow], { opacity: 0, scaleY: .2, transformOrigin: "50% 100%" })
-        .set(spark, { opacity: 0 })
-
-        /* the drop — it lands with weight and settles */
-        .to(el, { y: 0, rotate: 0, opacity: 1, duration: .72, ease: "bounce.out" })
-        .to(el, { y: -3, duration: .16, ease: "power2.out" })
-        .to(el, { y: 0, duration: .2, ease: "power2.in" })
-
-        /* the lid springs */
-        .to(lid, { rotate: -128, duration: .38, ease: "back.out(2.2)" }, "+=.1")
-
-        /* flint sparks, then the flame catches and settles into a breathe */
-        .to(spark, { opacity: 1, duration: .06, stagger: .03 }, "+=.06")
-        .to(spark, { opacity: 0, y: -7, duration: .18, stagger: .03 })
-        .to([flame, glow], { opacity: 1, scaleY: 1, duration: .3, ease: "power3.out" }, "-=.12")
-        .to(flame, {
-          scaleY: 1.14, scaleX: .93, duration: .34,
-          ease: "sine.inOut", yoyo: true, repeat: 3,
-        })
-
-        /* one slow turn — the specular band sweeps across the steel */
-        .to(el, { rotateY: 360, duration: 1.5, ease: "power2.inOut" }, "-=.9")
-        .fromTo(sheen, { x: -34 }, { x: 34, duration: 1.5, ease: "power2.inOut" }, "<")
-
-        /* snuffed, shut, gone */
-        .to([flame, glow], { opacity: 0, scaleY: .2, duration: .22, ease: "power2.in" })
-        .to(lid, { rotate: 0, duration: .26, ease: "power3.in" }, "-=.06")
-        .to(el, { y: 150, rotate: 16, opacity: 0, duration: .6, ease: "power2.in" }, "+=.2");
-
-      tl.pause();
-      ScrollTrigger.create({
-        trigger: el, start: "top 92%", end: "bottom 8%",
-        onEnter: () => { live = true; tl.play(); },
-        onEnterBack: () => { live = true; tl.play(); },
-        onLeave: () => { live = false; tl.pause(); },
-        onLeaveBack: () => { live = false; tl.pause(); },
-      });
-    }, el);
-
-    const onVis = () => {
-      if (!tl) return;
-      if (document.hidden) tl.pause(); else if (live) tl.play();
-    };
-    document.addEventListener("visibilitychange", onVis);
-    return () => {
-      document.removeEventListener("visibilitychange", onVis);
-      if (tl) tl.kill();
-      ctx.revert();
-    };
-  }, []);
-
-  return (
-    <div className="lighterwrap">
-      <div className="lighter" ref={root}>
-        <svg viewBox="0 0 120 190" aria-hidden="true">
-          <defs>
-            <linearGradient id="lt-steel" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3A3D44" /><stop offset="18%" stopColor="#9AA0A8" />
-              <stop offset="38%" stopColor="#5C6169" /><stop offset="58%" stopColor="#C3C8CE" />
-              <stop offset="78%" stopColor="#61666E" /><stop offset="100%" stopColor="#2F323A" />
-            </linearGradient>
-            <linearGradient id="lt-brush" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fff" stopOpacity=".16" />
-              <stop offset="50%" stopColor="#fff" stopOpacity="0" />
-              <stop offset="100%" stopColor="#000" stopOpacity=".26" />
-            </linearGradient>
-            <radialGradient id="lt-fl" cx="50%" cy="72%" r="62%">
-              <stop offset="0%" stopColor="#FFF4CF" /><stop offset="42%" stopColor="#FFB93A" />
-              <stop offset="100%" stopColor="#FF3B47" stopOpacity=".18" />
-            </radialGradient>
-            <radialGradient id="lt-gl" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#FFC46A" stopOpacity=".62" />
-              <stop offset="100%" stopColor="#FFC46A" stopOpacity="0" />
-            </radialGradient>
-            <clipPath id="lt-clip"><rect x="22" y="74" width="76" height="104" rx="7" /></clipPath>
-          </defs>
-
-          <ellipse className="lt-glow" cx="60" cy="60" rx="52" ry="46" fill="url(#lt-gl)" />
-          <g className="lt-flame">
-            <path d="M60,20 C71,38 78,48 78,60 C78,74 70,82 60,82 C50,82 42,74 42,60 C42,48 49,38 60,20 Z"
-              fill="url(#lt-fl)" />
-            <path d="M60,44 C65,54 67,59 67,64 C67,71 64,75 60,75 C56,75 53,71 53,64 C53,59 55,54 60,44 Z"
-              fill="#FFF8E2" opacity=".85" />
-          </g>
-          {[[48, 66], [70, 64], [59, 58]].map(([cx, cy], i) => (
-            <circle className="lt-spark" key={i} cx={cx} cy={cy} r="2.1" fill="#FFD98A" />
-          ))}
-
-          <g className="lt-lid">
-            <rect x="22" y="40" width="76" height="40" rx="7" fill="url(#lt-steel)" />
-            <rect x="22" y="40" width="76" height="40" rx="7" fill="url(#lt-brush)" />
-            <rect x="30" y="48" width="60" height="2" rx="1" fill="#fff" opacity=".22" />
-          </g>
-
-          <g className="lt-body">
-            <rect x="22" y="74" width="76" height="104" rx="7" fill="url(#lt-steel)" />
-            <rect x="22" y="74" width="76" height="104" rx="7" fill="url(#lt-brush)" />
-            <g clipPath="url(#lt-clip)">
-              <rect className="lt-sheen" x="44" y="70" width="16" height="114"
-                fill="#fff" opacity=".3" />
-            </g>
-            <rect x="22" y="74" width="76" height="104" rx="7" fill="none"
-              stroke="#1A1C21" strokeOpacity=".8" strokeWidth="1.4" />
-            <path d="M34,96 h52 M34,104 h52 M34,112 h52" stroke="#20232A" strokeOpacity=".5" strokeWidth="1.2" />
-            <text x="60" y="150" textAnchor="middle" className="lt-mark">R</text>
-          </g>
-        </svg>
-      </div>
-      <span className="lightercap">Every rumour <b>needs a spark</b></span>
-    </div>
-  );
-}
-
 
 /* ===========================================================================
    THE ROOM TONE  +  ITS SWITCH
@@ -3248,49 +3143,289 @@ function useRoomTone(enabled) {
   return { on, blocked, start, stop };
 }
 
-/* The switch: a WebGL-free 3D object built from stacked CSS planes — a small
-   brushed dial that turns and sinks when the sound goes off. Real depth, no
-   second renderer to pay for. */
-function SoundDial({ on, blocked, onToggle }) {
-  const ref = useRef(null);
+/* ===========================================================================
+   THE RECORD
+   ---------------------------------------------------------------------------
+   TO USE YOUR OWN MUSIC — this is the only line you need to touch:
+
+       const AUDIO_SRC = "audio/room.mp3";
+
+   Drop the file into  public/assets/audio/  on GitHub (make the folder if it
+   isn't there), put its name above, commit. That's it. Anything a browser can
+   play works: .mp3, .m4a, .ogg, .wav. Leave AUDIO_SRC empty and the site falls
+   back to the synthesised room tone, so it is never silent while you decide.
+
+   Keep it under about 8 MB or the first load drags on a phone.
+   =========================================================================== */
+const AUDIO_SRC = "";          //  <-- e.g. "audio/room.mp3"
+
+function useAudio(enabled) {
+  const elRef = useRef(null);
+  const tone = useRoomTone(false);       // built, but only started if no file
+  const [on, setOn] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const usingFile = !!AUDIO_SRC;
+
+  const start = useCallback(async () => {
+    if (usingFile) {
+      const a = elRef.current; if (!a) return false;
+      try {
+        a.volume = 0;
+        await a.play();
+        gsap.to(a, { volume: .55, duration: 2.4, ease: "power1.out" });
+        setOn(true); setBlocked(false);
+        return true;
+      } catch { return false; }
+    }
+    const ok = await tone.start();
+    setOn(ok);
+    return ok;
+  }, [usingFile, tone]);
+
+  const stop = useCallback(() => {
+    if (usingFile) {
+      const a = elRef.current; if (!a) return;
+      gsap.to(a, { volume: 0, duration: .6, onComplete: () => a.pause() });
+      setOn(false);
+      return;
+    }
+    tone.stop(); setOn(false);
+  }, [usingFile, tone]);
+
+  /* try on arrival; if the browser refuses, the first click anywhere starts it */
   useEffect(() => {
-    const el = ref.current; if (!el || reduced()) return;
-    const bars = el.querySelectorAll(".sd-bar");
-    const tw = gsap.to(bars, {
-      scaleY: () => .3 + Math.random() * .8,
-      duration: .42, ease: "sine.inOut", stagger: { each: .06, repeat: -1, yoyo: true },
-      repeat: -1, yoyo: true, transformOrigin: "50% 50%",
-    });
-    if (!on) tw.pause();
-    return () => tw.kill();
+    if (!enabled || reduced()) return;
+    let dead = false;
+    (async () => {
+      const ok = await start();
+      if (dead || ok) return;
+      setBlocked(true);
+      const kick = async () => {
+        if (await start()) {
+          setBlocked(false);
+          window.removeEventListener("pointerdown", kick);
+          window.removeEventListener("keydown", kick);
+        }
+      };
+      window.addEventListener("pointerdown", kick);
+      window.addEventListener("keydown", kick);
+    })();
+    return () => { dead = true; };
+  }, [enabled, start]);
+
+  const audioEl = usingFile
+    ? <audio ref={elRef} src={url(AUDIO_SRC)} loop preload="auto" playsInline />
+    : null;
+
+  return { on, blocked, start, stop, audioEl };
+}
+
+/* The player: a record on a deck. Collapsed it is the disc edge peeking out of
+   the corner; open it is the full platter with the arm down. It arrives open
+   so it is seen once — after the first click it behaves like a normal control. */
+function RecordPlayer({ on, blocked, onToggle }) {
+  const [open, setOpen] = useState(true);
+  const [touched, setTouched] = useState(false);
+  const disc = useRef(null), arm = useRef(null);
+
+  /* the platter spins only while there is sound on it */
+  useEffect(() => {
+    const d = disc.current; if (!d || reduced()) return;
+    const spin = gsap.to(d, { rotate: 360, duration: 3.6, ease: "none", repeat: -1 });
+    if (!on) spin.pause();
+    return () => spin.kill();
   }, [on]);
 
+  /* the arm drops onto the record when it plays, lifts when it stops */
   useEffect(() => {
-    const el = ref.current; if (!el || reduced()) return;
-    gsap.to(el.querySelector(".sd-face"), {
-      rotateY: on ? 0 : -34, rotateX: on ? 0 : 12, z: on ? 0 : -10,
-      duration: .7, ease: "power3.out",
-    });
-    /* if the browser blocked us, the dial breathes to ask for one click */
-    const pulse = gsap.to(el, {
-      scale: 1.07, duration: .9, ease: "sine.inOut", yoyo: true, repeat: -1,
-    });
-    if (!blocked) { pulse.kill(); gsap.set(el, { scale: 1 }); }
-    return () => pulse.kill();
-  }, [on, blocked]);
+    const a = arm.current; if (!a || reduced()) return;
+    gsap.to(a, { rotate: on ? 22 : -6, duration: .8, ease: "power3.inOut", transformOrigin: "84% 16%" });
+  }, [on]);
+
+  const handle = () => {
+    if (!touched) setTouched(true);   // first press unlocks collapsing
+    onToggle();
+  };
 
   return (
-    <button className={`sounddial ${on ? "on" : ""} ${blocked ? "asking" : ""}`}
-      ref={ref} onClick={onToggle} aria-pressed={on}
-      aria-label={on ? "Turn the room tone off" : "Turn the room tone on"}>
-      <span className="sd-face">
-        <span className="sd-rim" />
-        <span className="sd-bars">
-          {[0, 1, 2, 3, 4].map((i) => <i className="sd-bar" key={i} />)}
+    <div className={`vinyl ${open ? "open" : "shut"} ${on ? "on" : ""} ${blocked ? "asking" : ""}`}>
+      <button className="vn-deck" onClick={handle} aria-pressed={on}
+        aria-label={on ? "Stop the music" : "Play the music"}>
+        <span className="vn-platter">
+          <span className="vn-disc" ref={disc}>
+            <i className="vn-groove g1" /><i className="vn-groove g2" /><i className="vn-groove g3" />
+            <i className="vn-label"><b>R</b></i>
+            <i className="vn-shine" />
+          </span>
+          <span className="vn-arm" ref={arm}><i /><b /></span>
         </span>
-      </span>
-      <span className="sd-cap">{blocked ? "click for sound" : on ? "sound on" : "sound off"}</span>
-    </button>
+        <span className="vn-txt">
+          {blocked ? "click to play" : on ? "now playing" : "paused"}
+        </span>
+      </button>
+
+      {/* the collapse handle only appears once the player has been used once */}
+      {touched ? (
+        <button className="vn-tab" onClick={() => setOpen((o) => !o)}
+          aria-expanded={open} aria-label={open ? "Collapse the player" : "Open the player"}>
+          {open ? "\u2039" : "\u203A"}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+
+/* ===========================================================================
+   THE LIGHTER  —  wireframe
+   Drawn only in line, the way the deck is: no fills, no fake steel. Every
+   edge is a stroke, and the whole object is built on a real isometric box so
+   the lid opens on a believable hinge and you can see through the shell to
+   the far edges — a blueprint of a lighter rather than a picture of one.
+
+   The glow is the only warm thing: an SVG blur beneath the flame that lifts
+   as it catches, plus a light that spills onto the inside faces. It loops —
+   drop, flip, spark, burn, turn, snuff, fall.
+   =========================================================================== */
+function Lighter() {
+  const root = useRef(null);
+
+  useEffect(() => {
+    const el = root.current; if (!el || reduced()) return;
+    let tl = null, live = false;
+
+    const ctx = gsap.context(() => {
+      const lid = el.querySelector(".lw-lid");
+      const flame = el.querySelector(".lw-flame");
+      const halo = el.querySelector(".lw-halo");
+      const sparks = el.querySelectorAll(".lw-spark");
+      const shell = el.querySelectorAll(".lw-shell path, .lw-shell line");
+      const inner = el.querySelector(".lw-inner");
+      const scan = el.querySelector(".lw-scan");
+
+      tl = gsap.timeline({ repeat: -1, repeatDelay: .45 });
+      tl.set(el, { y: -150, rotate: -20, opacity: 0 })
+        .set(lid, { rotate: 0, transformOrigin: "22% 96%" })
+        .set([flame, halo, inner], { opacity: 0 })
+        .set(flame, { scaleY: .15, transformOrigin: "50% 100%" })
+        .set(sparks, { opacity: 0, scale: 0 })
+        .set(shell, { drawSVG: undefined })
+
+        /* drops in and settles */
+        .to(el, { y: 0, rotate: 0, opacity: 1, duration: .8, ease: "bounce.out" })
+        .to(el, { y: -4, duration: .14 }).to(el, { y: 0, duration: .18 })
+
+        /* the lid swings on its hinge */
+        .to(lid, { rotate: -122, duration: .4, ease: "back.out(2.4)" }, "+=.08")
+
+        /* flint */
+        .to(sparks, { opacity: 1, scale: 1, duration: .07, stagger: .035 }, "+=.05")
+        .to(sparks, { opacity: 0, y: -9, scale: .4, duration: .2, stagger: .03 })
+
+        /* catches — and the inside of the shell lights up */
+        .to([flame, halo], { opacity: 1, duration: .26, ease: "power3.out" }, "-=.14")
+        .to(flame, { scaleY: 1, duration: .3, ease: "back.out(2)" }, "<")
+        .to(inner, { opacity: .9, duration: .35 }, "<")
+        .to(flame, { scaleY: 1.16, scaleX: .92, duration: .3, ease: "sine.inOut", yoyo: true, repeat: 3 })
+        .to(halo, { scale: 1.18, opacity: .75, duration: .6, ease: "sine.inOut", yoyo: true, repeat: 1,
+          transformOrigin: "50% 62%" }, "<")
+
+        /* one turn — a scan line sweeps the wireframe as it rotates */
+        .to(el, { rotateY: 360, duration: 1.6, ease: "power2.inOut" }, "-=1")
+        .fromTo(scan, { attr: { x1: 6, x2: 6 } }, { attr: { x1: 118, x2: 118 }, duration: 1.6, ease: "power2.inOut" }, "<")
+
+        /* out */
+        .to([flame, halo, inner], { opacity: 0, duration: .24, ease: "power2.in" })
+        .to(lid, { rotate: 0, duration: .28, ease: "power3.in" }, "-=.08")
+        .to(el, { y: 160, rotate: 14, opacity: 0, duration: .62, ease: "power2.in" }, "+=.18");
+
+      tl.pause();
+      ScrollTrigger.create({
+        trigger: el, start: "top 92%", end: "bottom 8%",
+        onEnter: () => { live = true; tl.play(); },
+        onEnterBack: () => { live = true; tl.play(); },
+        onLeave: () => { live = false; tl.pause(); },
+        onLeaveBack: () => { live = false; tl.pause(); },
+      });
+    }, el);
+
+    const onVis = () => { if (tl) { document.hidden ? tl.pause() : (live && tl.play()); } };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      if (tl) tl.kill();
+      ctx.revert();
+    };
+  }, []);
+
+  return (
+    <div className="lighterwrap">
+      <div className="lighter" ref={root}>
+        <svg viewBox="0 0 124 200" aria-hidden="true">
+          <defs>
+            <filter id="lw-glow" x="-120%" y="-120%" width="340%" height="340%">
+              <feGaussianBlur stdDeviation="7" result="b" />
+              <feMerge><feMergeNode in="b" /><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <radialGradient id="lw-halo-g" cx="50%" cy="62%" r="50%">
+              <stop offset="0%" stopColor="#FFB93A" stopOpacity=".55" />
+              <stop offset="55%" stopColor="#FF3B47" stopOpacity=".18" />
+              <stop offset="100%" stopColor="#FF3B47" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="lw-fl-g" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="#FF3B47" /><stop offset="45%" stopColor="#FFB93A" />
+              <stop offset="100%" stopColor="#FFF3CE" />
+            </linearGradient>
+          </defs>
+
+          <ellipse className="lw-halo" cx="62" cy="66" rx="54" ry="50" fill="url(#lw-halo-g)" />
+
+          <g className="lw-flame" filter="url(#lw-glow)">
+            <path d="M62,22 C74,44 82,54 82,68 C82,82 73,90 62,90 C51,90 42,82 42,68 C42,54 50,44 62,22 Z"
+              fill="none" stroke="url(#lw-fl-g)" strokeWidth="1.6" />
+            <path d="M62,46 C68,58 70,63 70,69 C70,77 66,81 62,81 C58,81 54,77 54,69 C54,63 56,58 62,46 Z"
+              fill="none" stroke="#FFF3CE" strokeWidth="1.1" opacity=".9" />
+            <path d="M62,62 C64,70 65,73 65,76 C65,79 64,81 62,81 C60,81 59,79 59,76 C59,73 60,70 62,62 Z"
+              fill="#FFF8E4" opacity=".55" />
+          </g>
+
+          {[[48, 74], [76, 71], [62, 64], [54, 62]].map(([cx, cy], i) => (
+            <circle className="lw-spark" key={i} cx={cx} cy={cy} r="1.9"
+              fill="none" stroke="#FFD98A" strokeWidth="1.2" />
+          ))}
+
+          {/* lid — an isometric box lid on a real hinge */}
+          <g className="lw-lid">
+            <path d="M24,44 L62,28 L100,44 L62,60 Z" />
+            <path d="M24,44 L24,80 L62,96 L62,60 Z" />
+            <path d="M100,44 L100,80 L62,96 L62,60 Z" opacity=".55" />
+            <line x1="24" y1="44" x2="100" y2="44" opacity=".35" />
+          </g>
+
+          {/* body */}
+          <g className="lw-shell">
+            <path d="M24,86 L62,70 L100,86 L62,102 Z" />
+            <path d="M24,86 L24,164 L62,180 L62,102 Z" />
+            <path d="M100,86 L100,164 L62,180 L62,102 Z" opacity=".55" />
+            <path d="M24,164 L62,180 L100,164" opacity=".8" />
+            <line x1="38" y1="118" x2="62" y2="128" opacity=".45" />
+            <line x1="38" y1="130" x2="62" y2="140" opacity=".45" />
+            <line x1="86" y1="118" x2="62" y2="128" opacity=".28" />
+            <line x1="86" y1="130" x2="62" y2="140" opacity=".28" />
+            <line className="lw-scan" x1="6" y1="66" x2="6" y2="186" />
+          </g>
+
+          {/* the inside faces, lit only while it burns */}
+          <g className="lw-inner">
+            <path d="M32,90 L62,77 L92,90 L62,103 Z" />
+            <path d="M40,100 L62,110 L84,100" />
+          </g>
+
+          <text x="62" y="150" textAnchor="middle" className="lw-mark">R</text>
+        </svg>
+      </div>
+      <span className="lightercap">Every rumour <b>needs a spark</b></span>
+    </div>
   );
 }
 
@@ -4558,7 +4693,7 @@ export default function Rumoar() {
   const [era, setEra] = useState(0);      // shared timeline index — drives every chart
   const [introDone, setIntroDone] = useState(() => reduced());
   const [day, setDay] = useState(false);   // the lamp. Off by default.
-  const tone = useRoomTone(introDone && route === "site");
+  const audio = useAudio(introDone && route === "site");
   const eraCtx = useMemo(() => ({ era, setEra }), [era]);
 
   const brand = useMemo(() => brandData.find((b) => b.id === selected) || null, [selected]);
@@ -4627,8 +4762,11 @@ export default function Rumoar() {
       <EdgeStrip />
       {introDone && route === "site" ? <Traveller /> : null}
       {introDone ? (
-        <SoundDial on={tone.on} blocked={tone.blocked}
-          onToggle={() => (tone.on ? tone.stop() : tone.start())} />
+        <>
+          {audio.audioEl}
+          <RecordPlayer on={audio.on} blocked={audio.blocked}
+            onToggle={() => (audio.on ? audio.stop() : audio.start())} />
+        </>
       ) : null}
       {introDone ? <Lamp day={day} onPull={() => setDay((d) => !d)} /> : null}
 
@@ -4809,10 +4947,7 @@ export default function Rumoar() {
               </div>
             </div>
             <div className="g" style={{ marginTop: "clamp(38px,6vh,72px)" }}>
-              <div style={{ gridColumn: "1 / 3" }}>
-                <Reveal delay={120}><Lighter /></Reveal>
-              </div>
-              <div style={{ gridColumn: "4 / 10", alignSelf: "center" }}>
+              <div style={{ gridColumn: "2 / 9", alignSelf: "center" }}>
                 <Reveal delay={220}>
                   <p className="body" style={{ maxWidth: "46ch" }}>
                     Distribution isn&rsquo;t a budget line, it&rsquo;s a chain reaction. One
@@ -4820,6 +4955,9 @@ export default function Rumoar() {
                     whether it spreads is whether the thing you gave them was worth repeating.
                   </p>
                 </Reveal>
+              </div>
+              <div style={{ gridColumn: "10 / 13" }}>
+                <Reveal delay={120}><Lighter /></Reveal>
               </div>
             </div>
           </section>
