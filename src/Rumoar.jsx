@@ -495,15 +495,26 @@ const CHAPTERS = [
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&family=Montserrat:wght@300;400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&display=swap');
 
+/* ===========================================================================
+   ONE ROOM, TWO LIGHT LEVELS
+   The document is dark. Full stop. The lamp is the only thing that changes
+   that, and the visitor pulls it — the site never decides on its own.
+
+   Every component reads these six tokens, so flipping the class inverts the
+   entire site with no per-section overrides and no flip-flopping mid-scroll.
+   =========================================================================== */
 .ru{
-  /* PAPER — the argument register. Warm, archival, not clinical white. */
-  --paper:#FBFAF7; --paper-2:#F4F2ED; --paper-3:#EAE7E0;
-  --ink:#111014; --ink-2:#5A5760; --ink-3:#95919C; --line:#E2DED6;
-  --mark:#B3121F;
-  --glass:rgba(255,255,255,.55); --gl-hi:rgba(255,255,255,.8); --gl-edge:rgba(12,12,11,.06);
+  --paper:#0A0A0E; --paper-2:#121218; --paper-3:#1A1A22;
+  --ink:#F5F3EF; --ink-2:#A6A2AE; --ink-3:#66626F;
+  --line:rgba(245,243,239,.13);
+  --mark:#FF3B47;
+  --glass-bg:rgba(255,255,255,.045);
+  color-scheme:dark;
+  --glass:var(--glass-bg); --gl-hi:rgba(255,255,255,.10); --gl-edge:rgba(245,243,239,.14);
   --micro:180ms; --ui:420ms; --content:820ms; --cine:1400ms;
   --ez:cubic-bezier(.22,.68,.16,1); --ez-out:cubic-bezier(.16,1,.3,1);
   --gut:clamp(14px,1.8vw,26px); --marg:clamp(20px,6vw,116px);
+  transition:background 700ms var(--ez),color 700ms var(--ez);
   font-family:'Poppins',-apple-system,system-ui,sans-serif;color:var(--ink);background:var(--paper);
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:clip;
   scrollbar-gutter:stable;
@@ -541,7 +552,7 @@ const CSS = `
 .ru .dim{color:var(--ink-3)}
 .ru .rule{height:1px;background:var(--line)}
 
-.ru .glass{background:var(--glass);backdrop-filter:blur(30px) saturate(1.8);
+.ru .glass{background:var(--glass-bg);backdrop-filter:blur(30px) saturate(1.8);
   -webkit-backdrop-filter:blur(30px) saturate(1.8);border:.5px solid var(--gl-edge);
   box-shadow:inset 0 .5px 0 var(--gl-hi),0 24px 64px -36px rgba(12,12,11,.5)}
 
@@ -609,18 +620,22 @@ const CSS = `
    NIGHT — the narrative sections run dark. The argument sections stay on
    paper. The document moves between the two, and the lamp is the switch.
    =========================================================================== */
-/* NIGHT — the narrative register. One accent (ember) carries all the way
-   through to paper as --mark, so the two halves of the document are the same
-   brand rather than two skins bolted together. */
-.ru{--night:#0A0A0E;--night-2:#121218;--night-3:#1A1A22;
-  --bone:#F5F3EF;--bone-2:#A6A2AE;--bone-3:#66626F;
+/* DAY — what the lamp switches on. Warm archival paper, never clinical white. */
+.ru.day{
+  --paper:#FBFAF7; --paper-2:#F4F2ED; --paper-3:#EAE7E0;
+  --ink:#111014; --ink-2:#5A5760; --ink-3:#95919C;
+  --line:#E2DED6;
+  --mark:#B3121F;
+  --glass-bg:rgba(255,255,255,.55);
+  color-scheme:light;
+}
+/* legacy aliases — a few components still name these directly */
+.ru{--night:var(--paper);--night-2:var(--paper-2);--night-3:var(--paper-3);
+  --bone:var(--ink);--bone-2:var(--ink-2);--bone-3:var(--ink-3);
   --ember:#FF3B47;--ember-soft:#FF6B74;--ember-deep:#B3121F;
-  --cold:#35E0D0;--nline:rgba(245,243,239,.13);--nline-2:rgba(245,243,239,.06)}
-.ru .night{background:var(--night);color:var(--bone);position:relative}
-.ru .night .body,.ru .night .lede{color:var(--bone-2)}
-.ru .night .lb,.ru .night .dim{color:var(--bone-3)}
-.ru .night .rule{background:var(--nline)}
-.ru .night .num{color:var(--bone)}
+  --cold:#35E0D0;--nline:var(--line);--nline-2:var(--line)}
+.ru.day{--ember:#B3121F;--ember-soft:#D4323E;--cold:#0A9C90;
+  --gl-hi:rgba(255,255,255,.8);--gl-edge:rgba(12,12,11,.06)}
 .ru .ember{color:var(--ember)}
 .ru .it{font-style:italic}
 
@@ -658,8 +673,6 @@ const CSS = `
   animation:eroll 42s linear infinite;padding-block:10px}
 .ru .estrip .etrack b{color:var(--ember);font-weight:500}
 @keyframes eroll{to{transform:translateY(-50%)}}
-body.ru-night .ru .estrip,.ru .estrip.night{background:var(--night);border-left-color:var(--nline)}
-.ru .estrip.night .etrack{color:var(--bone-3)}
 @media (max-width:720px){.ru .estrip{display:none}}
 
 /* the thesis stage — GSAP pins this. Each phase is a full-bleed grid layer,
@@ -693,13 +706,6 @@ body.ru-night .ru .estrip,.ru .estrip.night{background:var(--night);border-left-
 .ru .msk{display:block;overflow:hidden;padding-bottom:.08em}
 .ru .msk > span{display:block}
 
-/* night sections get depth: a faint two-tone wash so black isn't flat */
-.ru .night{background:
-  radial-gradient(ellipse 70% 50% at 15% 0%,rgba(255,59,71,.055),transparent 60%),
-  radial-gradient(ellipse 60% 50% at 88% 100%,rgba(53,224,208,.04),transparent 58%),
-  var(--night)}
-.ru .night .rv{will-change:opacity,transform}
-.ru .night .big,.ru .night .mid,.ru .night .mega{color:var(--bone)}
 
 @media (prefers-reduced-motion:reduce){
   .ru .tstage{height:auto}
@@ -728,30 +734,41 @@ body.ru-night .ru .estrip,.ru .estrip.night{background:var(--night);border-left-
   color:var(--bone-3);flex-wrap:wrap}
 .ru .pfoot b{color:var(--cold)}
 
-/* the lamp — scrutiny deserves daylight */
-.ru .lampsec{position:relative;background:var(--night);color:var(--bone);
-  transition:background 900ms var(--ez),color 900ms var(--ez)}
-.ru .lampsec.lit{background:var(--paper);color:var(--ink)}
-.ru .lampsec.lit .body,.ru .lampsec.lit .lede{color:var(--ink-2)}
-.ru .lampsec.lit .lb{color:var(--ink-3)}
-.ru .lampsec.lit .risk{border-color:var(--line)}
-.ru .lampsec.lit .rq{color:var(--ink)}
-.ru .lamp{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:5;
+/* THE LAMP — a fixed fixture in the top-left, hanging all the time.
+   It is the only light switch in the building, and the visitor owns it.
+   Pull the cord: the whole document goes from night to daylight. */
+.ru .lamp{position:fixed;top:0;left:clamp(22px,4vw,64px);z-index:180;
   display:flex;flex-direction:column;align-items:center;pointer-events:none}
-.ru .lamp .cord{width:1px;height:0;background:var(--bone-3);transition:height 620ms var(--ez-out)}
-.ru .lamp.on .cord{height:clamp(48px,9vh,110px)}
-.ru .lamp .fix{opacity:0;transform:translateY(-140px);color:var(--bone-3);
-  transition:opacity 620ms var(--ez-out),transform 620ms var(--ez-out)}
-.ru .lamp.on .fix{opacity:1;transform:none}
-.ru .lamp svg{width:110px;height:76px;display:block}
-.ru .lamp .bulb{fill:#22262E;transition:fill 260ms var(--ez)}
-.ru .lamp.on .bulb{fill:#FFE9B0;filter:drop-shadow(0 0 14px rgba(255,220,140,.9))}
-.ru .lamp .beam{position:absolute;top:clamp(48px,9vh,110px);left:50%;transform:translateX(-50%);
-  width:min(78vw,900px);height:70vh;opacity:0;transition:opacity 700ms var(--ez);
-  background:radial-gradient(ellipse 50% 60% at 50% 0%,rgba(255,228,170,.30),transparent 70%);
-  clip-path:polygon(42% 0,58% 0,100% 100%,0 100%)}
-.ru .lamp.on .beam{opacity:1}
-.ru .risk{border:1px solid var(--nline);padding:clamp(18px,2.4vw,28px);
+.ru .lamp .cord{width:1px;height:clamp(34px,6vh,72px);background:var(--ink-3);opacity:.5}
+.ru .lamp .fix{color:var(--ink-3);position:relative;transform-origin:50% -300%}
+.ru .lamp svg{width:clamp(52px,5vw,78px);height:auto;display:block}
+.ru .lamp .bulb{fill:#26262E;transition:fill 420ms var(--ez),filter 420ms var(--ez)}
+.ru.day .lamp .bulb{fill:#FFE9B0;filter:drop-shadow(0 0 16px rgba(255,222,150,.95))}
+.ru.day .lamp .fix{color:#8A8578}
+/* the pull cord is the affordance — it is the only thing you can grab */
+.ru .lamp .pull{pointer-events:auto;cursor:pointer;width:34px;
+  display:flex;flex-direction:column;align-items:center;padding-bottom:14px;
+  background:none;border:0;margin-top:-2px}
+.ru .lamp .pull i{width:1px;height:clamp(26px,4vh,44px);background:var(--ink-3);opacity:.55;
+  transition:height 220ms var(--ez)}
+.ru .lamp .pull b{width:7px;height:7px;border-radius:50%;background:var(--ink-3);
+  margin-top:-1px;transition:transform 220ms var(--ez),background 320ms var(--ez)}
+.ru .lamp .pull:hover i{height:clamp(32px,5vh,54px)}
+.ru .lamp .pull:hover b{transform:scale(1.5);background:var(--mark)}
+.ru .lamp .pull:active i{height:clamp(40px,6.5vh,68px)}
+.ru .lamp .beam{position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  width:min(60vw,620px);height:74vh;opacity:0;pointer-events:none;
+  transition:opacity 700ms var(--ez);
+  background:radial-gradient(ellipse 50% 62% at 50% 0%,rgba(255,228,170,.24),transparent 72%);
+  clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)}
+.ru.day .lamp .beam{opacity:1}
+.ru .lamphint{position:fixed;top:clamp(96px,15vh,168px);left:clamp(14px,3vw,52px);z-index:180;
+  font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-3);writing-mode:vertical-rl;opacity:.55;pointer-events:none;
+  transition:opacity var(--ui)}
+@media (max-width:720px){.ru .lamp{left:14px}.ru .lamphint{display:none}}
+
+.ru .risk{border:1px solid var(--line);padding:clamp(18px,2.4vw,28px);
   transition:border-color var(--ui)}
 .ru .risk+.risk{margin-top:-1px}
 .ru .rsev{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.24em;
@@ -849,13 +866,16 @@ body.ru-night .ru .estrip,.ru .estrip.night{background:var(--night);border-left-
 .ru .cta:hover::before{transform:none}
 
 .ru .hero{height:100svh;min-height:600px;position:relative;overflow:hidden;
-  background:var(--night);color:var(--bone)}
-.ru .hero .lb{color:var(--bone-3)}
-.ru .plate{position:absolute;inset:-8% -5%;will-change:transform}
+  background:var(--paper)}
+.ru .plate{position:absolute;inset:-8% -5%;will-change:transform;
+  filter:grayscale(.35) brightness(.62) contrast(1.08);transition:filter 700ms var(--ez)}
+.ru.day .plate{filter:none}
 .ru .cut{position:absolute;right:-3%;bottom:0;width:min(50vw,720px);height:86%;will-change:transform}
 .ru .hwash{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(96deg,var(--night) 0%,rgba(10,10,14,.94) 30%,rgba(10,10,14,.62) 58%,rgba(10,10,14,.12) 100%),
-    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(255,59,71,.10),transparent 62%)}
+  background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 34%,transparent 100%),
+    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(255,59,71,.09),transparent 62%)}
+.ru.day .hwash{background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 34%,transparent 100%),
+    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(179,18,31,.06),transparent 62%)}
 /* the hero headline rises after the loader clears, not on a fixed timer */
 .ru .hero .hl{display:block;overflow:hidden;padding-bottom:.06em}
 .ru .hero .hl > span{display:block;will-change:transform}
@@ -1455,11 +1475,11 @@ function Loader({ onDone }) {
 }
 
 /* the rumour, running the length of the page down the right-hand edge */
-function EdgeStrip({ night }) {
+function EdgeStrip() {
   const words = ["Identity", "Status", "Belonging", "Confidence"];
   const run = [...words, ...words, ...words, ...words];
   return (
-    <div className={`estrip ${night ? "night" : ""}`} aria-hidden="true">
+    <div className="estrip" aria-hidden="true">
       <div className="etrack">
         {run.map((w, i) => (
           <React.Fragment key={i}>{w}<b> · </b></React.Fragment>
@@ -1504,7 +1524,7 @@ function Nav({ active, onLab }) {
 }
 
 function Hero() {
-  const sec = useRef(null), plate = useRef(null), cut = useRef(null),
+  const sec = useRef(null), plate = useRef(null),
     type = useRef(null), wash = useRef(null), cue = useRef(null);
 
   /* Pointer target, read by the same loop that reads scroll.
@@ -1532,8 +1552,6 @@ function Hero() {
 
     if (plate.current) plate.current.style.transform =
       `translate3d(${q.x * .22}px,${p * 9}%,0) scale(${1 + p * .1})`;
-    if (cut.current) cut.current.style.transform =
-      `translate3d(${q.x * -.6}px,calc(${p * -7}% + ${q.y * -.3}px),0)`;
     if (type.current) {
       type.current.style.transform = `translate3d(${q.x * .12}px,${p * -84}px,0)`;
       type.current.style.opacity = `${1 - p * 1.6}`;
@@ -1546,9 +1564,6 @@ function Hero() {
     <section className="hero" ref={sec}>
       <div className="plate" ref={plate}><Media a={M.hero.plate} eager style={{ height: "100%" }} /></div>
       <div className="hwash" ref={wash} />
-      <div className="cut" ref={cut}>
-        <Media a={M.hero.figure} style={{ height: "100%", background: "transparent" }} />
-      </div>
 
       <div className="full" ref={type} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center" }}>
         <div>
@@ -2476,7 +2491,7 @@ function useGsapMotion(active) {
         gsap.from(heroLines, {
           yPercent: 112, duration: 1.35, ease: "expo.out", stagger: .085, delay: .15,
         });
-        gsap.from(".hero .lb, .hero .cut", { autoAlpha: 0, duration: 1.4, ease: "power2.out", delay: .5 });
+        gsap.from(".hero .lb", { autoAlpha: 0, duration: 1.4, ease: "power2.out", delay: .5 });
       }
 
       /* headline mask-reveal — lines rise out of their own baseline */
@@ -2655,7 +2670,7 @@ function Thesis() {
   }, []);
 
   return (
-    <section className="tstage night" ref={root} id="thesis">
+    <section className="tstage" ref={root} id="thesis">
       <div className="tpin">
         <div className="tgrain" aria-hidden="true" />
         <div className="manwrap">
@@ -3064,54 +3079,66 @@ const RISKS = [
     ans: "The point of view has to be written down as rules before it is scaled — which is what the wardrobe logic in this document is. If it can be taught to a merchandiser it can be scaled; if it can't, the brand should stay small deliberately." },
 ];
 
-function LampAct() {
-  const sec = useRef(null);
-  const [lit, setLit] = useState(false);
-  const [open, setOpen] = useState(0);
-  useEffect(() => {
-    const el = sec.current; if (!el) return;
-    const io = new IntersectionObserver(([e]) => setLit(e.isIntersecting),
-      { rootMargin: "-38% 0px -40% 0px" });
-    io.observe(el); return () => io.disconnect();
-  }, []);
+function Lamp({ day, onPull }) {
+  const fix = useRef(null);
+  const pull = () => {
+    if (!reduced() && fix.current) {
+      /* the fixture takes the tug, then settles — the weight is the detail
+         that makes it read as an object rather than a button */
+      gsap.fromTo(fix.current, { rotate: -4.5 },
+        { rotate: 0, duration: 1.5, ease: "elastic.out(1,.25)" });
+    }
+    onPull();
+  };
   return (
-    <section className={`lampsec ${lit ? "lit" : ""}`} ref={sec} id="risks"
-      style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
-      <div className={`lamp ${lit ? "on" : ""}`}>
+    <>
+      <div className="lamp">
         <i className="cord" />
-        <div className="fix">
+        <div className="fix" ref={fix}>
           <svg viewBox="0 0 140 96" aria-hidden="true">
             <path d="M70,6 L70,18" stroke="currentColor" strokeWidth="4" />
             <path d="M34,58 Q34,22 70,20 Q106,22 106,58 Z" fill="currentColor" />
             <rect x="30" y="56" width="80" height="7" rx="3.5" fill="currentColor" />
             <circle className="bulb" cx="70" cy="76" r="13" />
           </svg>
+          <i className="beam" />
         </div>
-        <i className="beam" />
+        <button className="pull" onClick={pull}
+          aria-pressed={day}
+          aria-label={day ? "Turn the lamp off — return to night" : "Turn the lamp on — daylight"}>
+          <i /><b />
+        </button>
       </div>
+      <span className="lamphint">{day ? "lights on" : "pull the cord"}</span>
+    </>
+  );
+}
 
-      <div className="g" style={{ position: "relative", zIndex: 2 }}>
+function RiskRegister() {
+  const [open, setOpen] = useState(0);
+  return (
+    <section id="risks" style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
+      <div className="g">
         <div style={{ gridColumn: "1 / 8" }}>
           <Reveal>
             <p className="lb">08 — Where this breaks</p>
             <h2 className="big" style={{ marginTop: 18 }}>
-              <span className="msk"><span className="gs-rise">Now the lights</span></span>
-              <span className="msk"><span className="gs-rise it">come on.</span></span>
+              <span className="msk"><span className="gs-rise">Every deck has a page</span></span>
+              <span className="msk"><span className="gs-rise it">where the founder stops selling.</span></span>
             </h2>
             <p className="lede" style={{ marginTop: 22, maxWidth: "46ch" }}>
-              Every deck has a page where the founder stops selling. This is that page, taken
-              seriously. Below are the five most credible ways this company dies — attacked
-              honestly first, then answered.
+              This is that page. The five most credible ways this company dies — attacked
+              honestly first, then answered. If you want to read them in daylight, the lamp
+              is in the corner.
             </p>
-            <p className="lb gs-up" style={{ marginTop: 18 }}>The room changed on purpose</p>
           </Reveal>
         </div>
       </div>
 
-      <div className="g" style={{ marginTop: "clamp(40px,7vh,80px)", position: "relative", zIndex: 2 }}>
+      <div className="g" style={{ marginTop: "clamp(40px,7vh,80px)" }}>
         <div style={{ gridColumn: "1 / 13" }}>
           {RISKS.map((r, i) => (
-            <Reveal key={r.n} delay={i * 80}>
+            <Reveal key={r.n} delay={i * 70}>
               <div className="risk">
                 <button style={{ width: "100%", textAlign: "left" }}
                   aria-expanded={open === i}
@@ -3292,7 +3319,7 @@ const ASK_CARDS = [
 
 function TheAsk() {
   return (
-    <section className="night" id="ask" style={{ paddingBlock: "clamp(100px,18vh,220px)" }}>
+    <section id="ask" style={{ paddingBlock: "clamp(100px,18vh,220px)" }}>
       <div className="g">
         <div style={{ gridColumn: "1 / 8" }}>
           <Reveal>
@@ -3481,7 +3508,7 @@ export default function Rumoar() {
   const [active, setActive] = useState("money");
   const [era, setEra] = useState(0);      // shared timeline index — drives every chart
   const [introDone, setIntroDone] = useState(() => reduced());
-  const [nightZone, setNightZone] = useState(true);
+  const [day, setDay] = useState(false);   // the lamp. Off by default.
   const eraCtx = useMemo(() => ({ era, setEra }), [era]);
 
   const brand = useMemo(() => brandData.find((b) => b.id === selected) || null, [selected]);
@@ -3534,30 +3561,13 @@ export default function Rumoar() {
     return () => io.disconnect();
   }, [route]);
 
-  /* the edge strip inverts with whatever section is behind it */
-  useEffect(() => {
-    if (route !== "site") return;
-    const onScroll = () => {
-      const mid = window.innerHeight * .5;
-      const els = document.querySelectorAll(".night, .lampsec");
-      let inNight = false;
-      els.forEach((el) => {
-        const r = el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom >= mid) inNight = !el.classList.contains("lit");
-      });
-      setNightZone((n) => (n === inNight ? n : inNight));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [route]);
-
   return (
     <EraContext.Provider value={eraCtx}>
-    <div className="ru">
+    <div className={`ru ${day ? "day" : ""}`}>
       <style>{CSS}</style>
       {!introDone ? <Loader onDone={() => setIntroDone(true)} /> : null}
-      <EdgeStrip night={nightZone} />
+      <EdgeStrip />
+      {introDone ? <Lamp day={day} onPull={() => setDay((d) => !d)} /> : null}
 
       {route === "site" ? (
         <>
@@ -3571,7 +3581,7 @@ export default function Rumoar() {
           <Hero />
           <Thesis />
 
-          <section className="night" style={{ paddingBlock: "clamp(70px,12vh,150px)" }}>
+          <section style={{ paddingBlock: "clamp(70px,12vh,150px)" }}>
             <div className="g">
               <div style={{ gridColumn: "2 / 11" }}>
                 <Reveal>
@@ -3615,7 +3625,7 @@ export default function Rumoar() {
             </div>
           </section>
 
-          <section className="night" style={{ paddingBlock: "clamp(80px,14vh,170px)" }}>
+          <section style={{ paddingBlock: "clamp(80px,14vh,170px)" }}>
             <div className="g">
               <div style={{ gridColumn: "1 / 7" }}>
                 <Reveal>
@@ -3687,7 +3697,7 @@ export default function Rumoar() {
           <RumoarAct />
           <WardrobeMath />
 
-          <section className="night" id="chamber" style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
+          <section id="chamber" style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
             <div className="g" style={{ marginBottom: "clamp(28px,5vh,56px)" }}>
               <div style={{ gridColumn: "1 / 8" }}>
                 <Reveal>
@@ -3711,7 +3721,7 @@ export default function Rumoar() {
             </div>
           </section>
 
-          <LampAct />
+          <RiskRegister />
           <TheAsk />
           <Threshold onLab={() => goto("lab")} />
           <Colophon />
