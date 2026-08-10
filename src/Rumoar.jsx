@@ -787,23 +787,6 @@ const CSS = `
   .ru .pl-line{width:12px}
 }
 
-/* THE TRAVELLER — one strand, fixed to the left edge, all the way down */
-.ru .traveller{position:fixed;left:0;top:0;z-index:118;pointer-events:none;
-  display:flex;align-items:center;gap:10px;will-change:transform;
-  margin-left:-42px;margin-top:-42px}
-.ru .tv-box{width:clamp(58px,5vw,86px);will-change:transform}
-.ru .tv-box svg{width:100%;height:auto;display:block;overflow:visible}
-.ru .tv-shade{fill:none;stroke:var(--cord-shade);stroke-opacity:.45;stroke-width:5;
-  stroke-linecap:round;stroke-linejoin:round;filter:blur(2.6px);transform:translate(3px,4px)}
-.ru .tv-core{fill:none;stroke:var(--ink);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.ru .tv-spec{fill:none;stroke:var(--paper);stroke-opacity:.85;stroke-width:.75;stroke-linecap:round;
-  stroke-dasharray:8 120}
-.ru .tv-cap{font-family:'Montserrat',sans-serif;font-size:.46rem;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--ink-3);writing-mode:vertical-rl;
-  opacity:0;transform:translateY(8px);transition:opacity .5s var(--ez),transform .5s var(--ez)}
-.ru .tv-cap.on{opacity:.8;transform:none}
-@media (max-width:900px){.ru .traveller{display:none}}
-
 /* THE RECORD — lower left. Arrives open; collapses only after first use. */
 .ru .vinyl{position:fixed;left:0;bottom:clamp(16px,3vh,34px);z-index:182;
   display:flex;align-items:flex-end;
@@ -2902,142 +2885,13 @@ function EraCollage({ year }) {
 }
 
 /* ===========================================================================
-   THE TRAVELLER
-   One strand that actually crosses the page.
-
-   For each section it runs a scrubbed diagonal: it enters from one corner,
-   drives through the empty space between the text and the artwork, MERGES
-   into that section's form at the midpoint — holding it while the section
-   owns the screen — then lets go, becomes a strand again, and exits toward
-   the opposite corner on its way to the next one.
-
-   The diagonal alternates every section, so read end to end it zigzags down
-   the document. Scroll drives it directly (scrub), so it is never doing
-   something the page isn't.
+   THE ROOM TONE  —  the fallback when there is no audio file
+   Synthesised, not played back: four detuned partials, a slow filter sweep
+   and a quiet noise bed. Nothing to upload, nothing to licence, and because
+   it is generated it never audibly loops.
    =========================================================================== */
-const TRAVEL_STRAND = [[120,10],[120,25],[121,40],[119,56],[120,72],[121,88],[119,104],
-                       [120,120],[121,136],[119,152],[120,166],[121,178],[120,188],[120,196]];
-
-/* xy are viewport percentages. `merge` is where it meets the section's own
-   component — biased toward the side that section leaves empty. */
-const TRAVEL_LEGS = [
-  { id: "thesis", form: "stitch", label: "one stitch",
-    from: [6, 94],  merge: [17, 52], to: [92, 8] },
-  { id: "money",  form: "curve",  label: "the money",
-    from: [92, 92], merge: [83, 44], to: [8, 10] },
-  { id: "roles",  form: "pulse",  label: "one day",
-    from: [6, 90],  merge: [15, 46], to: [90, 12] },
-  { id: "market", form: "shirt",  label: "the shirt",
-    from: [92, 90], merge: [84, 50], to: [8, 12] },
-  { id: "rumoar", form: "grid",   label: "the system",
-    from: [8, 92],  merge: [16, 48], to: [90, 10] },
-  { id: "ask",    form: "sign",   label: "signed",
-    from: [92, 90], merge: [82, 46], to: [10, 14] },
-];
-
-function Traveller() {
-  const wrap = useRef(null);
-  const [leg, setLeg] = useState(null);
-
-  useEffect(() => {
-    const el = wrap.current;
-    if (!el || reduced() || window.matchMedia("(max-width:900px)").matches) return;
-
-    const box = el.querySelector(".tv-box");
-    const paths = el.querySelectorAll(".tv-shade, .tv-core, .tv-spec");
-    const strandD = smoothPath(TRAVEL_STRAND);
-    const vw = () => window.innerWidth, vh = () => window.innerHeight;
-
-    const ctx = gsap.context(() => {
-      const trigs = TRAVEL_LEGS.map((L) => {
-        const target = document.getElementById(L.id);
-        if (!target) return null;
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: target, start: "top 88%", end: "bottom 12%",
-            scrub: 1.1, invalidateOnRefresh: true,
-          },
-        });
-
-        /* IN — driving through the section's empty diagonal */
-        tl.fromTo(el,
-          { x: () => L.from[0] / 100 * vw(), y: () => L.from[1] / 100 * vh(), scale: .5, rotate: -18 },
-          { x: () => L.merge[0] / 100 * vw(), y: () => L.merge[1] / 100 * vh(),
-            scale: 1, rotate: 0, duration: 1, ease: "power2.inOut" });
-        /* MERGE — it takes the section's shape and holds it */
-        tl.to(paths, {
-          attr: { d: () => smoothPath(MARK_FORMS[L.form]) },
-          duration: .5, ease: "power2.inOut", stagger: { each: .04 },
-        }, .28);
-        tl.to({}, { duration: .55 });          // held while the section reads
-        /* OUT — lets go, and carries on */
-        tl.to(paths, {
-          attr: { d: strandD }, duration: .45,
-          ease: "power2.inOut", stagger: { each: .04 },
-        });
-        tl.to(el, {
-          x: () => L.to[0] / 100 * vw(), y: () => L.to[1] / 100 * vh(),
-          scale: .5, rotate: 18, duration: 1, ease: "power2.inOut",
-        }, "-=.45");
-
-        return ScrollTrigger.create({
-          trigger: target, start: "top 62%", end: "bottom 38%",
-          onEnter: () => setLeg(L), onEnterBack: () => setLeg(L),
-          onLeave: () => setLeg(null), onLeaveBack: () => setLeg(null),
-        });
-      }).filter(Boolean);
-
-      gsap.set(el, { x: () => .06 * vw(), y: () => .9 * vh(), scale: .5 });
-      ScrollTrigger.refresh();
-      return () => trigs.forEach((t) => t && t.kill());
-    }, el);
-
-    return () => ctx.revert();
-  }, []);
-
-  if (reduced()) return null;
-  const d = smoothPath(TRAVEL_STRAND);
-  return (
-    <div className="traveller" ref={wrap} aria-hidden="true">
-      <div className="tv-box">
-        <svg viewBox="0 0 240 200">
-          <g className="tv-g">
-            <path className="tv-shade" d={d} />
-            <path className="tv-core" d={d} />
-            <path className="tv-spec" d={d} />
-          </g>
-        </svg>
-      </div>
-      <span className={`tv-cap ${leg ? "on" : ""}`}>{leg ? leg.label : ""}</span>
-    </div>
-  );
-}
-
-/* ===========================================================================
-   THE ROOM TONE  +  ITS SWITCH
-   ---------------------------------------------------------------------------
-   IMPORTANT, AND NOT A CHOICE I MADE: every current browser blocks audio that
-   starts without a user gesture. Chrome, Safari and Firefox all suspend a new
-   AudioContext until the person clicks, taps or presses a key. There is no
-   flag, no trick and no library that changes this — autoplaying sound is the
-   single most aggressively policed thing on the web.
-
-   So this does the only honest version of "starts on its own":
-     · it tries to start immediately, and on the rare permissive setup it will
-     · if the browser refuses, the switch pulses to invite one click, and the
-       first click ANYWHERE on the page starts it
-   Either way the person never has to hunt for a play button.
-
-   The sound itself is synthesised, not a file — three detuned sine partials, a
-   slow filter sweep and a soft noise bed. Nothing to upload, nothing to
-   licence, about 2kB of code, and it never loops audibly because it is
-   generated rather than played back.
-   =========================================================================== */
-function useRoomTone(enabled) {
+function useRoomTone() {
   const nodes = useRef(null);
-  const [blocked, setBlocked] = useState(false);
-  const [on, setOn] = useState(false);
 
   const build = useCallback(() => {
     if (nodes.current) return nodes.current;
@@ -3048,7 +2902,6 @@ function useRoomTone(enabled) {
     out.gain.value = 0;
     out.connect(ac.destination);
 
-    /* a low chord that never quite resolves */
     const filt = ac.createBiquadFilter();
     filt.type = "lowpass"; filt.frequency.value = 460; filt.Q.value = 1.4;
     filt.connect(out);
@@ -3056,26 +2909,24 @@ function useRoomTone(enabled) {
     const oscs = [55, 82.5, 110, 164.8].map((f, i) => {
       const o = ac.createOscillator();
       o.type = i % 2 ? "sine" : "triangle";
-      o.frequency.value = f * (1 + (i - 1.5) * .0016);   // slight detune = movement
+      o.frequency.value = f * (1 + (i - 1.5) * .0016);
       const g = ac.createGain();
       g.gain.value = [.5, .26, .3, .12][i];
       o.connect(g); g.connect(filt); o.start();
       return o;
     });
 
-    /* an lfo opens and closes the filter, so it breathes */
     const lfo = ac.createOscillator(), lfoGain = ac.createGain();
     lfo.frequency.value = .045; lfoGain.gain.value = 210;
     lfo.connect(lfoGain); lfoGain.connect(filt.frequency); lfo.start();
 
-    /* a quiet bed of noise, filtered down to almost air */
     const len = ac.sampleRate * 3;
     const buf = ac.createBuffer(1, len, ac.sampleRate);
     const ch = buf.getChannelData(0);
     let last = 0;
     for (let i = 0; i < len; i++) {
-      const w = Math.random() * 2 - 1;
-      last = (last + w * .02) * .995;
+      const wv = Math.random() * 2 - 1;
+      last = (last + wv * .02) * .995;
       ch[i] = last * 2.4;
     }
     const noise = ac.createBufferSource();
@@ -3097,42 +2948,18 @@ function useRoomTone(enabled) {
       n.out.gain.cancelScheduledValues(n.ac.currentTime);
       n.out.gain.setValueAtTime(n.out.gain.value, n.ac.currentTime);
       n.out.gain.linearRampToValueAtTime(.16, n.ac.currentTime + 2.6);
-      setOn(true); setBlocked(false);
       return true;
     } catch { return false; }
   }, [build]);
 
   const stop = useCallback(() => {
     const n = nodes.current; if (!n) return;
-    n.out.gain.cancelScheduledValues(n.ac.currentTime);
-    n.out.gain.setValueAtTime(n.out.gain.value, n.ac.currentTime);
-    n.out.gain.linearRampToValueAtTime(0, n.ac.currentTime + .7);
-    setOn(false);
+    try {
+      n.out.gain.cancelScheduledValues(n.ac.currentTime);
+      n.out.gain.setValueAtTime(n.out.gain.value, n.ac.currentTime);
+      n.out.gain.linearRampToValueAtTime(0, n.ac.currentTime + .7);
+    } catch {}
   }, []);
-
-  /* try immediately; fall back to the first gesture anywhere on the page */
-  useEffect(() => {
-    if (!enabled || reduced()) return;
-    let cancelled = false;
-    (async () => {
-      const ok = await start();
-      if (cancelled || ok) return;
-      setBlocked(true);
-      const kick = async () => {
-        const good = await start();
-        if (good) offAll();
-      };
-      const offAll = () => {
-        window.removeEventListener("pointerdown", kick);
-        window.removeEventListener("keydown", kick);
-        window.removeEventListener("touchstart", kick);
-      };
-      window.addEventListener("pointerdown", kick);
-      window.addEventListener("keydown", kick);
-      window.addEventListener("touchstart", kick);
-    })();
-    return () => { cancelled = true; };
-  }, [enabled, start]);
 
   useEffect(() => () => {
     const n = nodes.current; if (!n) return;
@@ -3140,84 +2967,123 @@ function useRoomTone(enabled) {
     nodes.current = null;
   }, []);
 
-  return { on, blocked, start, stop };
+  /* stable identity — this object is read through a ref by useAudio, and a
+     new literal each render is what caused the pause bug in the first place */
+  const api = useRef(null);
+  if (!api.current) api.current = {};
+  api.current.start = start;
+  api.current.stop = stop;
+  return api.current;
 }
 
 /* ===========================================================================
    THE RECORD
    ---------------------------------------------------------------------------
-   TO USE YOUR OWN MUSIC — this is the only line you need to touch:
+   TO USE YOUR OWN MUSIC:
+     1. rename your file to exactly   theme.mp3
+     2. upload it to   public/assets/audio/   via GitHub's "Upload files"
+        (drag the file in — do NOT use "Create new file", that makes an empty
+        placeholder, which is why a 2-byte file plays nothing)
+     3. that's it. The line below already points at it.
 
-       const AUDIO_SRC = "audio/room.mp3";
+   To use a different name or format, change AUDIO_SRC. Any format a browser
+   plays works: .mp3, .m4a, .ogg, .wav. One extension only — "x.mp3.mpeg" is
+   served with the wrong content type and will refuse to play.
 
-   Drop the file into  public/assets/audio/  on GitHub (make the folder if it
-   isn't there), put its name above, commit. That's it. Anything a browser can
-   play works: .mp3, .m4a, .ogg, .wav. Leave AUDIO_SRC empty and the site falls
-   back to the synthesised room tone, so it is never silent while you decide.
-
-   Keep it under about 8 MB or the first load drags on a phone.
+   If the file is missing, empty or unplayable, this falls back to the
+   synthesised room tone automatically, so the page is never silent.
+   Keep it under ~8 MB; GitHub's web uploader also caps at 25 MB.
    =========================================================================== */
-const AUDIO_SRC = "";          //  <-- e.g. "audio/room.mp3"
+const AUDIO_SRC = "audio/theme.mp3";     //  <-- your file, inside public/assets/
 
 function useAudio(enabled) {
   const elRef = useRef(null);
-  const tone = useRoomTone(false);       // built, but only started if no file
+  const tone = useRoomTone();            // stable ref, started only on demand
   const [on, setOn] = useState(false);
   const [blocked, setBlocked] = useState(false);
-  const usingFile = !!AUDIO_SRC;
+  const [fileDead, setFileDead] = useState(false);
+
+  /* BUG THAT WAS HERE: useRoomTone returns a fresh object every render, so a
+     useCallback depending on it was new every render, so the autostart effect
+     re-ran every render and restarted the audio the moment you paused it.
+     Everything the effect needs now lives behind a ref, so its identity is
+     stable and it runs exactly once. */
+  const api = useRef({});
+  api.current.tone = tone;
+  api.current.fileDead = fileDead;
+
+  const usingFile = !!AUDIO_SRC && !fileDead;
 
   const start = useCallback(async () => {
-    if (usingFile) {
-      const a = elRef.current; if (!a) return false;
-      try {
-        a.volume = 0;
-        await a.play();
-        gsap.to(a, { volume: .55, duration: 2.4, ease: "power1.out" });
-        setOn(true); setBlocked(false);
-        return true;
-      } catch { return false; }
+    if (AUDIO_SRC && !api.current.fileDead) {
+      const a = elRef.current;
+      if (a) {
+        try {
+          a.volume = 0;
+          await a.play();
+          gsap.to(a, { volume: .55, duration: 2.4, ease: "power1.out" });
+          setOn(true); setBlocked(false);
+          return true;
+        } catch (err) {
+          /* a rejected play() is either the autoplay policy (retryable) or a
+             broken file (not). Distinguish, so a bad upload doesn't leave the
+             site silent forever. */
+          if (a.error || a.networkState === 3) { setFileDead(true); api.current.fileDead = true; }
+          else return false;
+        }
+      }
     }
-    const ok = await tone.start();
+    const ok = await api.current.tone.start();
     setOn(ok);
+    if (ok) setBlocked(false);
     return ok;
-  }, [usingFile, tone]);
+  }, []);
 
   const stop = useCallback(() => {
-    if (usingFile) {
-      const a = elRef.current; if (!a) return;
+    const a = elRef.current;
+    if (a && !a.paused) {
       gsap.to(a, { volume: 0, duration: .6, onComplete: () => a.pause() });
-      setOn(false);
-      return;
     }
-    tone.stop(); setOn(false);
-  }, [usingFile, tone]);
+    api.current.tone.stop();
+    setOn(false);
+  }, []);
 
-  /* try on arrival; if the browser refuses, the first click anywhere starts it */
+  /* runs once: try immediately, else wait for the first gesture anywhere */
   useEffect(() => {
     if (!enabled || reduced()) return;
     let dead = false;
+    const kick = async () => {
+      if (dead) return;
+      if (await start()) {
+        window.removeEventListener("pointerdown", kick);
+        window.removeEventListener("keydown", kick);
+        window.removeEventListener("touchstart", kick);
+      }
+    };
     (async () => {
-      const ok = await start();
-      if (dead || ok) return;
+      if (await start()) return;
+      if (dead) return;
       setBlocked(true);
-      const kick = async () => {
-        if (await start()) {
-          setBlocked(false);
-          window.removeEventListener("pointerdown", kick);
-          window.removeEventListener("keydown", kick);
-        }
-      };
       window.addEventListener("pointerdown", kick);
       window.addEventListener("keydown", kick);
+      window.addEventListener("touchstart", kick);
     })();
-    return () => { dead = true; };
+    return () => {
+      dead = true;
+      window.removeEventListener("pointerdown", kick);
+      window.removeEventListener("keydown", kick);
+      window.removeEventListener("touchstart", kick);
+    };
   }, [enabled, start]);
 
-  const audioEl = usingFile
-    ? <audio ref={elRef} src={url(AUDIO_SRC)} loop preload="auto" playsInline />
-    : null;
+  /* a missing or empty file falls back to the synthesised tone rather than
+     leaving the page silent */
+  const audioEl = AUDIO_SRC ? (
+    <audio ref={elRef} src={url(AUDIO_SRC)} loop preload="auto" playsInline
+      onError={() => setFileDead(true)} />
+  ) : null;
 
-  return { on, blocked, start, stop, audioEl };
+  return { on, blocked, start, stop, audioEl, usingFile };
 }
 
 /* The player: a record on a deck. Collapsed it is the disc edge peeking out of
@@ -4760,7 +4626,6 @@ export default function Rumoar() {
       <style>{CSS}</style>
       {!introDone ? <Loader onDone={() => setIntroDone(true)} /> : null}
       <EdgeStrip />
-      {introDone && route === "site" ? <Traveller /> : null}
       {introDone ? (
         <>
           {audio.audioEl}
