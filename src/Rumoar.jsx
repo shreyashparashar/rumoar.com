@@ -511,12 +511,15 @@ const CSS = `
   --glass-bg:rgba(255,255,255,.045);
   color-scheme:dark;
   --glass:var(--glass-bg); --gl-hi:rgba(255,255,255,.10); --gl-edge:rgba(245,243,239,.14);
+  --grid:rgba(245,243,239,.07); --axis:rgba(245,243,239,.22);
+  --fig:#0E1016; --fig-2:#2B1218; --fig-3:#05060A;
+  --pool-cool:#0E3038; --pool-warm:#4A0E18; --cord-shade:#000;
   --micro:180ms; --ui:420ms; --content:820ms; --cine:1400ms;
   --ez:cubic-bezier(.22,.68,.16,1); --ez-out:cubic-bezier(.16,1,.3,1);
   --gut:clamp(14px,1.8vw,26px); --marg:clamp(20px,6vw,116px);
   transition:background 700ms var(--ez),color 700ms var(--ez);
   font-family:'Poppins',-apple-system,system-ui,sans-serif;color:var(--ink);background:var(--paper);
-  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:clip;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   scrollbar-gutter:stable;
 }
 /* keyboard entry point — visible only when focused */
@@ -534,7 +537,7 @@ const CSS = `
 
 .ru .g{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gut);
   padding-inline:var(--marg);max-width:1720px;margin-inline:auto}
-@media (min-width:721px){.ru .g,.ru .full,.ru .nav{padding-right:max(var(--marg),34px)}}
+@media (min-width:721px){.ru .g,.ru .full,.ru .nav{padding-left:max(var(--marg),40px);padding-right:max(var(--marg),96px)}}
 .ru .full{padding-inline:var(--marg);max-width:1720px;margin-inline:auto}
 
 .ru .mega{font-size:clamp(3rem,9.6vw,11rem);line-height:.88;letter-spacing:-.06em;font-weight:200;
@@ -635,7 +638,10 @@ const CSS = `
   --ember:#FF3B47;--ember-soft:#FF6B74;--ember-deep:#B3121F;
   --cold:#35E0D0;--nline:var(--line);--nline-2:var(--line)}
 .ru.day{--ember:#B3121F;--ember-soft:#D4323E;--cold:#0A9C90;
-  --gl-hi:rgba(255,255,255,.8);--gl-edge:rgba(12,12,11,.06)}
+  --gl-hi:rgba(255,255,255,.8);--gl-edge:rgba(12,12,11,.06);
+  --grid:#F2F1EE;--axis:#DFDDD8;
+  --fig:#14131A;--fig-2:#3A2228;--fig-3:#0B0A0F;
+  --pool-cool:#CFE3E6;--pool-warm:#F3D8DC;--cord-shade:#6B4A2F}
 .ru .ember{color:var(--ember)}
 .ru .it{font-style:italic}
 
@@ -665,8 +671,8 @@ const CSS = `
 .ru .ld.can-skip .ldskip{opacity:1}
 
 /* the edge strip — a rumour running the length of the page, vertically */
-.ru .estrip{position:fixed;top:0;bottom:0;right:0;width:26px;z-index:170;overflow:hidden;
-  border-left:1px solid var(--line);background:var(--paper);pointer-events:none;
+.ru .estrip{position:fixed;top:0;bottom:0;left:0;width:26px;z-index:170;overflow:hidden;
+  border-right:1px solid var(--line);background:var(--paper);pointer-events:none;
   display:flex;align-items:flex-start;justify-content:center;transition:background var(--ui),border-color var(--ui)}
 .ru .estrip .etrack{writing-mode:vertical-rl;white-space:nowrap;font-family:'Montserrat',sans-serif;
   font-size:.56rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-3);
@@ -677,14 +683,16 @@ const CSS = `
 
 /* the thesis stage — GSAP pins this. Each phase is a full-bleed grid layer,
    so nothing can collide: the timeline is the only thing that reveals them. */
-.ru .tstage{position:relative;background:var(--night)}
-.ru .tpin{height:100svh;display:grid;place-items:center;overflow:hidden;position:relative}
+.ru .tstage{position:relative;background:var(--paper)}
+.ru .tpin{height:100svh;display:grid;place-items:center;overflow:hidden;position:relative;
+  contain:layout paint}
 .ru .tgrain{position:absolute;inset:0;pointer-events:none;opacity:.5;z-index:1;
   background-image:radial-gradient(circle at 18% 24%,rgba(255,59,71,.10),transparent 46%),
     radial-gradient(circle at 82% 74%,rgba(53,224,208,.07),transparent 44%)}
 .ru .manwrap,.ru .tquote,.ru .tseq{grid-area:1/1;position:relative;z-index:2}
-.ru .manwrap{display:flex;flex-direction:column;align-items:center;gap:1.4rem;will-change:opacity,filter,transform}
-.ru .manwrap svg{height:min(58svh,500px);width:auto;display:block}
+.ru .manwrap{display:flex;flex-direction:column;align-items:center;gap:clamp(12px,2vh,24px);
+  will-change:opacity,filter,transform;max-height:100%;padding-block:clamp(48px,9vh,90px)}
+.ru .manwrap svg{height:min(52svh,440px);width:auto;display:block;flex:0 0 auto}
 .ru .mancap{font-family:'Montserrat',sans-serif;font-size:.62rem;letter-spacing:.24em;
   text-transform:uppercase;color:var(--bone-2);text-align:center;min-height:1.4em;max-width:32ch}
 .ru .acc{will-change:opacity,transform;opacity:0}
@@ -721,6 +729,31 @@ const CSS = `
   .ru .strike i{transform:scaleX(1)}
 }
 
+/* THE THREAD — the depth is all CSS 3D + layered strokes, no WebGL */
+.ru .thread{position:relative;background:var(--paper)}
+.ru .th-pin{height:100svh;display:grid;place-items:center;position:relative;overflow:hidden;
+  contain:layout paint}
+.ru .th-pin::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 46% 50% at 50% 50%,rgba(255,59,71,.10),transparent 68%)}
+.ru.day .th-pin::before{background:radial-gradient(ellipse 46% 50% at 50% 50%,rgba(179,18,31,.07),transparent 68%)}
+/* the perspective box — this is what turns the tilt into real depth */
+.ru .th-tilt{perspective:1400px;transform-style:preserve-3d;width:min(94vw,1200px);
+  will-change:transform}
+.ru .th-svg{width:100%;height:auto;display:block;transform-style:preserve-3d;
+  overflow:visible}
+.ru .th-group{transform-origin:50% 50%}
+.ru .th-shade,.ru .th-core,.ru .th-spec{will-change:d,transform}
+.ru .th-cap{position:absolute;left:50%;bottom:clamp(76px,13vh,140px);transform:translateX(-50%);
+  font-size:clamp(1.1rem,2.4vw,1.9rem);font-weight:200;letter-spacing:-.04em;color:var(--ink);
+  text-align:center;white-space:nowrap}
+.ru .th-note{position:absolute;left:50%;bottom:clamp(44px,7vh,80px);transform:translateX(-50%);
+  font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){
+  .ru .thread{height:auto}
+  .ru .th-pin{height:auto;padding-block:clamp(60px,10vh,120px)}
+}
+
 /* the pulse — one day, drawn as one line */
 .ru .pulse{border:1px solid var(--nline);padding:clamp(16px,2.4vw,28px);background:var(--night-2)}
 .ru .phead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
@@ -737,7 +770,7 @@ const CSS = `
 /* THE LAMP — a fixed fixture in the top-left, hanging all the time.
    It is the only light switch in the building, and the visitor owns it.
    Pull the cord: the whole document goes from night to daylight. */
-.ru .lamp{position:fixed;top:0;left:clamp(22px,4vw,64px);z-index:180;
+.ru .lamp{position:fixed;top:0;right:clamp(46px,5vw,84px);z-index:180;
   display:flex;flex-direction:column;align-items:center;pointer-events:none}
 .ru .lamp .cord{width:1px;height:clamp(34px,6vh,72px);background:var(--ink-3);opacity:.5}
 .ru .lamp .fix{color:var(--ink-3);position:relative;transform-origin:50% -300%}
@@ -762,11 +795,11 @@ const CSS = `
   background:radial-gradient(ellipse 50% 62% at 50% 0%,rgba(255,228,170,.24),transparent 72%);
   clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)}
 .ru.day .lamp .beam{opacity:1}
-.ru .lamphint{position:fixed;top:clamp(96px,15vh,168px);left:clamp(14px,3vw,52px);z-index:180;
+.ru .lamphint{position:fixed;top:clamp(96px,15vh,168px);right:clamp(16px,2.4vw,44px);z-index:180;
   font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;
   color:var(--ink-3);writing-mode:vertical-rl;opacity:.55;pointer-events:none;
   transition:opacity var(--ui)}
-@media (max-width:720px){.ru .lamp{left:14px}.ru .lamphint{display:none}}
+@media (max-width:720px){.ru .lamp{right:16px}.ru .lamphint{display:none}}
 
 .ru .risk{border:1px solid var(--line);padding:clamp(18px,2.4vw,28px);
   transition:border-color var(--ui)}
@@ -1015,11 +1048,11 @@ const CSS = `
 .ru .dvk{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;
   border-radius:100px;display:grid;place-items:center;font-size:.62rem;letter-spacing:.12em}
 
-.ru .veil{position:fixed;inset:0;z-index:350;background:#fff;display:grid;place-items:center;
-  pointer-events:none;opacity:0;transition:opacity 460ms var(--ez)}
+.ru .veil{position:fixed;inset:0;z-index:350;background:var(--paper);display:grid;place-items:center;
+  pointer-events:none;opacity:0;transition:opacity 200ms var(--ez)}
 .ru .veil.on{opacity:1;pointer-events:auto}
-.ru .vm{font-family:'Montserrat',sans-serif;font-weight:600;
-  transition:letter-spacing var(--cine) var(--ez-out),transform var(--cine) var(--ez-out),
+.ru .vm{font-family:'Montserrat',sans-serif;font-weight:600;color:var(--ink);
+  transition:letter-spacing 320ms var(--ez-out),transform 320ms var(--ez-out),
     opacity var(--content) var(--ez),font-size var(--cine) var(--ez-out)}
 
 /* ——————————————————————————————————————————————————————————————
@@ -1779,7 +1812,7 @@ function Film() {
           position: "absolute", inset: 0,
           background: "linear-gradient(0deg,#fff 0%,rgba(255,255,255,.5) 24%,transparent 54%)"
         }} />
-        <div ref={veil} style={{ position: "absolute", inset: 0, background: "#fff", opacity: 0 }} />
+        <div ref={veil} style={{ position: "absolute", inset: 0, background: "var(--paper)", opacity: 0 }} />
         <div className="full" style={{
           position: "absolute", inset: 0, display: "flex", alignItems: "flex-end",
           paddingBottom: "clamp(52px,11vh,140px)"
@@ -1838,7 +1871,7 @@ function Plot({ selected, hovered, onSelect, onHover, isolate = false, quiet = f
       <svg viewBox={`0 0 ${FIELD.w} ${FIELD.h}`} style={{ width: "100%", display: "block" }}
         role="img" aria-label="Indian menswear positioning field">
         {[25, 50, 75, 100].map((g) => (
-          <g key={g} stroke="#F2F1EE" strokeWidth="1">
+          <g key={g} stroke="var(--grid)" strokeWidth="1">
             <line x1={fx(g)} y1={fy(0)} x2={fx(g)} y2={fy(100)} />
             <line x1={fx(0)} y1={fy(g)} x2={fx(100)} y2={fy(g)} />
           </g>
@@ -1846,16 +1879,16 @@ function Plot({ selected, hovered, onSelect, onHover, isolate = false, quiet = f
 
         <rect x={wsX} y={wsY} width={wsW} height={wsH} rx="2"
           fill={isolate ? "rgba(27,42,59,.05)" : "transparent"}
-          stroke={isolate ? "#1B2A3B" : "#E8E6E1"} strokeWidth="1" strokeDasharray="6 7"
+          stroke={isolate ? "var(--mark)" : "var(--axis)"} strokeWidth="1" strokeDasharray="6 7"
           style={{ transition: "all 1.4s cubic-bezier(.22,.68,.16,1)" }} />
         {isolate ? (
-          <text x={wsX + wsW / 2} y={wsY + wsH / 2 + 4} textAnchor="middle" className="ax" fill="#1B2A3B">
+          <text x={wsX + wsW / 2} y={wsY + wsH / 2 + 4} textAnchor="middle" className="ax" fill="var(--mark)">
             THE WHITE SPACE
           </text>
         ) : null}
 
-        <line x1={fx(0)} y1={fy(0)} x2={fx(100)} y2={fy(0)} stroke="#DFDDD8" strokeWidth="1" />
-        <line x1={fx(0)} y1={fy(0)} x2={fx(0)} y2={fy(100)} stroke="#DFDDD8" strokeWidth="1" />
+        <line x1={fx(0)} y1={fy(0)} x2={fx(100)} y2={fy(0)} stroke="var(--axis)" strokeWidth="1" />
+        <line x1={fx(0)} y1={fy(0)} x2={fx(0)} y2={fy(100)} stroke="var(--axis)" strokeWidth="1" />
         <text x={fx(0)} y={FIELD.h - 28} className="ax">{axes.x.low}</text>
         <text x={fx(100)} y={FIELD.h - 28} className="ax" textAnchor="end">{axes.x.high}</text>
         <text x={34} y={fy(0)} className="ax" transform={`rotate(-90 34 ${fy(0)})`}>{axes.y.low}</text>
@@ -1876,11 +1909,11 @@ function Plot({ selected, hovered, onSelect, onHover, isolate = false, quiet = f
             }}>
               {(on || br.isBrand) ? (
                 <circle cx={cx} cy={cy} r={on ? 26 : 18} fill="none"
-                  stroke={br.isBrand ? "#1B2A3B" : "#0C0C0B"} strokeWidth="1" opacity=".35"
+                  stroke={br.isBrand ? "var(--mark)" : "var(--ink)"} strokeWidth="1" opacity=".35"
                   style={{ transition: "r 420ms cubic-bezier(.16,1,.3,1)" }} />
               ) : null}
               <circle className="pt" cx={cx} cy={cy} r={r}
-                fill={br.isBrand ? "#1B2A3B" : "#0C0C0B"}
+                fill={br.isBrand ? "var(--mark)" : "var(--ink)"}
                 onMouseEnter={() => !quiet && onHover(br.id)} onMouseLeave={() => !quiet && onHover(null)}
                 onClick={() => !quiet && onSelect(br.id)}
                 tabIndex={quiet ? -1 : 0} role={quiet ? undefined : "button"} aria-label={br.name}
@@ -1899,13 +1932,13 @@ function Plot({ selected, hovered, onSelect, onHover, isolate = false, quiet = f
         {/* the visitor, once they've plotted themselves */}
         {you ? (
           <g style={{ pointerEvents: "none" }}>
-            <circle cx={fx(you.x)} cy={fy(you.y)} r="34" fill="none" stroke="#1B2A3B" strokeWidth="1"
+            <circle cx={fx(you.x)} cy={fy(you.y)} r="34" fill="none" stroke="var(--mark)" strokeWidth="1"
               opacity=".5" className="youring" />
             <line x1={fx(you.x)} y1={fy(you.y)} x2={fx(you.nearest.x)} y2={fy(you.nearest.y)}
-              stroke="#1B2A3B" strokeWidth="1" strokeDasharray="3 5" opacity=".45" />
-            <circle cx={fx(you.x)} cy={fy(you.y)} r="7" fill="#fff" stroke="#1B2A3B" strokeWidth="2.5" />
+              stroke="var(--mark)" strokeWidth="1" strokeDasharray="3 5" opacity=".45" />
+            <circle cx={fx(you.x)} cy={fy(you.y)} r="7" fill="var(--paper)" stroke="var(--mark)" strokeWidth="2.5" />
             <text className="ptl" x={fx(you.x)} y={fy(you.y) - 26} textAnchor="middle"
-              fill="#1B2A3B" style={{ fontWeight: 600 }}>YOU</text>
+              fill="var(--mark)" style={{ fontWeight: 600 }}>YOU</text>
           </g>
         ) : null}
       </svg>
@@ -2216,7 +2249,7 @@ function Compare({ a, b }) {
         <LookRender look={a} active />
         <p className="lb" style={{ position: "absolute", left: 24, top: 22 }}>Generic — {a.name}</p>
       </div>
-      <div ref={clip} style={{ position: "absolute", inset: 0, background: "#fff", clipPath: "inset(0 0 0 50%)" }}>
+      <div ref={clip} style={{ position: "absolute", inset: 0, background: "var(--paper)", clipPath: "inset(0 0 0 50%)" }}>
         <LookRender look={b} active />
         <p className="lb" style={{ position: "absolute", right: 24, top: 22, color: "var(--mark)" }}>RUMOAR</p>
       </div>
@@ -2468,6 +2501,160 @@ function PlotYourself({ you, setYou }) {
     "Nine pieces, forty outfits" is the kind of line every brand asserts.
     This computes it live — and shows the count collapse when a piece stops
     relating to the others, which is the whole argument for a system. */
+/* ===========================================================================
+   THE THREAD
+   One continuous line, drawn once, that never breaks for the length of the
+   document. It is the same stroke throughout — we only ever change the shape
+   it is bent into:
+
+     stitch  →  the income curve  →  one day's pulse  →  the outline of a man
+             →  the wardrobe grid  →  a signature
+
+   Depth is faked the way a real thread has depth, not with WebGL:
+     · TWO strokes. A dark under-stroke offset a few px down and right reads
+       as the shadow side of a round cord; the light one rides on top.
+     · A specular highlight path with a short dash pattern that slides along
+       the curve, so light appears to travel the twist.
+     · The whole group takes a gentle 3D rotation from the pointer, and each
+       layer moves a different amount — real parallax, not a filter.
+     · Depth-of-field: the shadow blurs slightly more than the highlight.
+
+   Everything is one <path> morphing between six coordinate sets of identical
+   command structure, which is what lets it tween without a plugin.
+   =========================================================================== */
+const THREAD_SHAPES = {
+  /* every path has the SAME command signature: M + 5 C curves. That is the
+     requirement for a plugin-free morph — GSAP interpolates the numbers. */
+  stitch:  "M 40,300 C 140,300 180,240 260,240 C 340,240 380,360 460,360 C 540,360 580,240 660,240 C 740,240 780,300 860,300 C 940,300 960,300 1160,300",
+  curve:   "M 40,520 C 200,516 300,500 420,470 C 540,440 600,400 700,330 C 800,260 840,200 900,150 C 960,100 1000,80 1060,64 C 1100,54 1130,50 1160,48",
+  pulse:   "M 40,300 C 120,300 150,140 200,300 C 260,480 300,120 380,300 C 460,470 520,90 600,300 C 700,560 760,60 840,300 C 920,520 980,300 1160,300",
+  figure:  "M 600,60 C 690,80 716,190 690,300 C 664,410 646,500 626,600 C 600,572 600,572 574,600 C 554,500 536,410 510,300 C 484,190 510,80 600,60",
+  grid:    "M 200,140 C 500,140 900,140 1000,140 C 1000,260 1000,380 1000,460 C 700,460 300,460 200,460 C 200,380 200,260 200,140 C 400,140 800,140 1000,140",
+  sign:    "M 120,400 C 220,300 260,460 340,380 C 420,300 460,440 540,360 C 620,280 660,420 740,340 C 820,260 860,400 940,330 C 1000,280 1040,320 1080,300",
+};
+const THREAD_ORDER = ["stitch", "curve", "pulse", "figure", "grid", "sign"];
+const THREAD_CAPTIONS = {
+  stitch: "One stitch.",
+  curve:  "The money that arrived.",
+  pulse:  "One day of being read.",
+  figure: "The man it all hangs on.",
+  grid:   "Nine pieces. Forty outfits.",
+  sign:   "One point of view, signed.",
+};
+
+function Thread() {
+  const root = useRef(null), pin = useRef(null);
+  const [label, setLabel] = useState(THREAD_CAPTIONS.stitch);
+
+  useEffect(() => {
+    const el = root.current, box = pin.current;
+    if (!el || !box || reduced()) return;
+
+    const ctx = gsap.context(() => {
+      const core = el.querySelector(".th-core");
+      const shade = el.querySelector(".th-shade");
+      const spec = el.querySelector(".th-spec");
+      const layers = [shade, core, spec];
+      const group = el.querySelector(".th-group");
+
+      /* the light travelling along the twist — runs forever, independent of
+         scroll, so the cord looks alive even when the page is still */
+      gsap.to(spec, {
+        strokeDashoffset: -400, duration: 5.5,
+        ease: "none", repeat: -1,
+      });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el, start: "top top", end: "+=4200",
+          scrub: 1, pin: box, pinSpacing: true,
+          anticipatePin: 1, invalidateOnRefresh: true,
+        },
+      });
+
+      THREAD_ORDER.slice(1).forEach((key, i) => {
+        const at = i * 1.2;
+        /* all three strokes morph together, but the shadow lags a beat —
+           that lag is most of what sells the roundness */
+        tl.to(layers, {
+          attr: { d: THREAD_SHAPES[key] },
+          duration: 1, ease: "power2.inOut",
+          stagger: { each: .04, from: "start" },
+        }, at)
+          .add(() => setLabel(THREAD_CAPTIONS[key]), at + .4)
+          /* the cord tightens as it takes each new shape */
+          .to(core, { strokeWidth: key === "figure" ? 2.4 : 3.2, duration: 1 }, at)
+          .to(group, {
+            rotateZ: (i % 2 ? 1.6 : -1.6), duration: 1, ease: "power2.inOut",
+          }, at);
+      });
+      tl.to({}, { duration: .8 });
+    }, el);
+
+    /* pointer tilt — each layer moves a different amount, which is what makes
+       it read as three planes rather than one flat drawing */
+    const onMove = (e) => {
+      const rx = (e.clientY / window.innerHeight - .5) * -9;
+      const ry = (e.clientX / window.innerWidth - .5) * 14;
+      gsap.to(el.querySelector(".th-tilt"), {
+        rotateX: rx, rotateY: ry, duration: .9, ease: "power2.out", overwrite: "auto",
+      });
+      gsap.to(el.querySelector(".th-shade"), {
+        x: 5 + ry * .35, y: 6 + rx * -.35, duration: .9, ease: "power2.out", overwrite: "auto",
+      });
+    };
+    if (!window.matchMedia("(pointer:coarse)").matches)
+      window.addEventListener("mousemove", onMove, { passive: true });
+
+    return () => {
+      ctx.revert();
+      window.removeEventListener("mousemove", onMove);
+    };
+  }, []);
+
+  return (
+    <section className="thread" ref={root} id="thread">
+      <div className="th-pin" ref={pin}>
+        <div className="th-tilt">
+          <svg viewBox="0 0 1200 660" className="th-svg" role="img"
+            aria-label="A single continuous thread that bends through every stage of the argument">
+            <defs>
+              <filter id="th-blur-far" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.2" />
+              </filter>
+              <filter id="th-glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="6" result="b" />
+                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <linearGradient id="th-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="var(--mark)" stopOpacity=".45" />
+                <stop offset="42%" stopColor="var(--ink)" />
+                <stop offset="100%" stopColor="var(--mark)" stopOpacity=".55" />
+              </linearGradient>
+            </defs>
+            <g className="th-group">
+              {/* 1 — the shadow side of the cord, offset and blurred */}
+              <path className="th-shade" d={THREAD_SHAPES.stitch} fill="none"
+                stroke="var(--cord-shade)" strokeOpacity=".55" strokeWidth="7" strokeLinecap="round"
+                filter="url(#th-blur-far)" />
+              {/* 2 — the cord itself */}
+              <path className="th-core" d={THREAD_SHAPES.stitch} fill="none"
+                stroke="url(#th-grad)" strokeWidth="3.2" strokeLinecap="round"
+                filter="url(#th-glow)" />
+              {/* 3 — light travelling along the twist */}
+              <path className="th-spec" d={THREAD_SHAPES.stitch} fill="none"
+                stroke="var(--paper)" strokeOpacity=".85" strokeWidth="1.1"
+                strokeLinecap="round" strokeDasharray="14 190" />
+            </g>
+          </svg>
+        </div>
+        <p className="th-cap">{label}</p>
+        <p className="th-note">one thread · never cut</p>
+      </div>
+    </section>
+  );
+}
+
 /* ---------------------------------------------------------------------------
    GSAP MOTION LAYER
    Applied once, at the app root. Everything here is opt-in by class name so
@@ -2580,6 +2767,7 @@ const CREED_POS = ["Identity.", "Status.", "Belonging.", "Confidence."];
 
 function Thesis() {
   const root = useRef(null);
+  const pin = useRef(null);
   const [cap, setCap] = useState("A man walks in with nothing.");
 
   useEffect(() => {
@@ -2616,11 +2804,13 @@ function Thesis() {
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: el, start: "top top", end: "+=4200",
-          scrub: .7, pin: true, anticipatePin: 1,
-          /* .ru sets overflow-x:clip, which clips position:fixed descendants
-             in Chrome. Transform pinning sidesteps that entirely. */
-          pinType: "transform",
+          trigger: el, start: "top top", end: "+=3600",
+          /* scrub:1 damps the scroll wheel's step quantisation — the "jumpy"
+             feel is the wheel arriving in ~100px chunks, not the timeline. */
+          scrub: 1,
+          pin: pin.current,          // pin the inner box, not the tall section
+          pinSpacing: true,
+          anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       });
@@ -2671,53 +2861,53 @@ function Thesis() {
 
   return (
     <section className="tstage" ref={root} id="thesis">
-      <div className="tpin">
+      <div className="tpin" ref={pin}>
         <div className="tgrain" aria-hidden="true" />
         <div className="manwrap">
           <svg viewBox="0 0 400 640" role="img"
             aria-label="A silhouette of a man gradually acquiring a wallet, watch, chain, sunglasses, bag and fragrance, while only the light around him changes">
             <defs>
               <radialGradient id="lgc" cx="50%" cy="42%" r="60%">
-                <stop offset="0%" stopColor="#0E3038" stopOpacity=".9" />
-                <stop offset="100%" stopColor="#0A0A0E" stopOpacity="0" />
+                <stop offset="0%" stopColor="var(--pool-cool)" stopOpacity=".9" />
+                <stop offset="100%" stopColor="var(--paper)" stopOpacity="0" />
               </radialGradient>
               <radialGradient id="lgw" cx="50%" cy="42%" r="62%">
-                <stop offset="0%" stopColor="#4A0E18" stopOpacity=".95" />
-                <stop offset="100%" stopColor="#0A0A0E" stopOpacity="0" />
+                <stop offset="0%" stopColor="var(--pool-warm)" stopOpacity=".95" />
+                <stop offset="100%" stopColor="var(--paper)" stopOpacity="0" />
               </radialGradient>
             </defs>
             <ellipse cx="200" cy="290" rx="185" ry="270" fill="url(#lgc)" />
             <ellipse className="warmlight" cx="200" cy="290" rx="185" ry="270" fill="url(#lgw)" />
             <ellipse cx="200" cy="618" rx="118" ry="11" fill="#000" opacity=".55" />
             <g className="manfig">
-              <circle cx="200" cy="82" r="33" fill="#0E1016" />
-              <path fill="#0E1016" d="M167,120 L233,120 C257,127 273,138 281,156 C292,181 295,222 293,256 L287,334 C286,348 279,356 269,356 L261,356 C253,356 249,348 250,336 L255,270 L249,300 L246,346 C245,466 243,538 239,594 C238,608 229,614 220,614 L214,614 C206,614 202,606 203,594 L206,470 L200,404 L194,470 L197,594 C198,606 194,614 186,614 L180,614 C171,614 162,608 161,594 C157,538 155,466 154,346 L151,300 L145,270 L150,336 C151,348 147,356 139,356 L131,356 C121,356 114,348 113,334 L107,256 C105,222 108,181 119,156 C127,138 143,127 167,120 Z" />
+              <circle cx="200" cy="82" r="33" fill="var(--fig)" />
+              <path fill="var(--fig)" d="M167,120 L233,120 C257,127 273,138 281,156 C292,181 295,222 293,256 L287,334 C286,348 279,356 269,356 L261,356 C253,356 249,348 250,336 L255,270 L249,300 L246,346 C245,466 243,538 239,594 C238,608 229,614 220,614 L214,614 C206,614 202,606 203,594 L206,470 L200,404 L194,470 L197,594 C198,606 194,614 186,614 L180,614 C171,614 162,608 161,594 C157,538 155,466 154,346 L151,300 L145,270 L150,336 C151,348 147,356 139,356 L131,356 C121,356 114,348 113,334 L107,256 C105,222 108,181 119,156 C127,138 143,127 167,120 Z" />
             </g>
             <g className="acc">
-              <rect x="252" y="342" width="24" height="16" rx="3" fill="#2B1218" stroke="#35E0D0" strokeWidth="1" />
-              <path d="M252,348 h24" stroke="#35E0D0" strokeWidth=".8" />
+              <rect x="252" y="342" width="24" height="16" rx="3" fill="var(--fig-2)" stroke="var(--cold)" strokeWidth="1" />
+              <path d="M252,348 h24" stroke="var(--cold)" strokeWidth=".8" />
             </g>
             <g className="acc">
-              <rect x="120" y="330" width="18" height="12" rx="3" fill="#101823" stroke="#35E0D0" strokeWidth="1.1" />
-              <circle cx="129" cy="336" r="2.4" fill="#35E0D0" />
+              <rect x="120" y="330" width="18" height="12" rx="3" fill="var(--fig-2)" stroke="var(--cold)" strokeWidth="1.1" />
+              <circle cx="129" cy="336" r="2.4" fill="var(--cold)" />
             </g>
             <g className="acc">
-              <path d="M176,138 Q200,166 224,138" fill="none" stroke="#35E0D0" strokeWidth="1.6" />
-              <circle cx="200" cy="154" r="3.2" fill="#35E0D0" />
+              <path d="M176,138 Q200,166 224,138" fill="none" stroke="var(--cold)" strokeWidth="1.6" />
+              <circle cx="200" cy="154" r="3.2" fill="var(--cold)" />
             </g>
             <g className="acc">
-              <rect x="172" y="70" width="56" height="13" rx="6.5" fill="#05060A" stroke="#3A4150" strokeWidth="1" />
+              <rect x="172" y="70" width="56" height="13" rx="6.5" fill="var(--fig-3)" stroke="var(--ink-3)" strokeWidth="1" />
               <path d="M178,74 h18" stroke="rgba(245,243,239,.35)" strokeWidth="1.4" />
             </g>
             <g className="acc">
-              <path d="M162,132 L258,296" stroke="#2B1218" strokeWidth="9" strokeLinecap="round" />
-              <rect x="238" y="286" width="46" height="32" rx="7" fill="#2B1218" stroke="#35E0D0"
+              <path d="M162,132 L258,296" stroke="var(--fig-2)" strokeWidth="9" strokeLinecap="round" />
+              <rect x="238" y="286" width="46" height="32" rx="7" fill="var(--fig-2)" stroke="var(--cold)"
                 strokeWidth="1" transform="rotate(-8 261 302)" />
             </g>
             <g className="acc">
-              {[[286, 150, 1.8, "#FF6B74", 1], [302, 128, 1.3, "#F5F3EF", .6], [312, 168, 1.6, "#FF6B74", .7],
-                [296, 192, 1.2, "#F5F3EF", .5], [322, 142, 1.1, "#FF6B74", .6], [306, 210, 1.5, "#F5F3EF", .45],
-                [278, 176, 1.2, "#FF6B74", .55], [318, 196, 1, "#F5F3EF", .4]].map(([cx, cy, r, f, o], i) => (
+              {[[286, 150, 1.8, "var(--ember-soft)", 1], [302, 128, 1.3, "var(--ink)", .6], [312, 168, 1.6, "var(--ember-soft)", .7],
+                [296, 192, 1.2, "var(--ink)", .5], [322, 142, 1.1, "var(--ember-soft)", .6], [306, 210, 1.5, "var(--ink)", .45],
+                [278, 176, 1.2, "var(--ember-soft)", .55], [318, 196, 1, "var(--ink)", .4]].map(([cx, cy, r, f, o], i) => (
                 <circle key={i} cx={cx} cy={cy} r={r} fill={f} opacity={o}>
                   <animate attributeName="cy" values={`${cy};${cy - 7 - (i % 3) * 3};${cy}`}
                     dur={`${2.2 + i * .25}s`} repeatCount="indefinite" />
@@ -2765,9 +2955,31 @@ const DAY_MOMENTS = [
   { at: .93, h: .30, t: "23:50", l: "the feed, learning what he wants next", worn: false },
 ];
 
+/* canvases can't read CSS variables, so sample them from the DOM each frame */
+function useToken(name, fallback) {
+  const [v, setV] = useState(fallback);
+  useEffect(() => {
+    const read = () => {
+      const el = document.querySelector(".ru");
+      if (!el) return;
+      const got = getComputedStyle(el).getPropertyValue(name).trim();
+      if (got) setV(got);
+    };
+    read();
+    const mo = new MutationObserver(read);
+    const el = document.querySelector(".ru");
+    if (el) mo.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => mo.disconnect();
+  }, [name]);
+  return v;
+}
+
 function PulseDay() {
   const cv = useRef(null);
   const [now, setNow] = useState(DAY_MOMENTS[0]);
+  const inkTok = useToken("--ink", "#F5F3EF");
+  const markTok = useToken("--mark", "#FF3B47");
+  const coldTok = useToken("--cold", "#35E0D0");
 
   useEffect(() => {
     const c = cv.current; if (!c) return;
@@ -2798,14 +3010,15 @@ function PulseDay() {
       if (vis && W) {
         ctx.clearRect(0, 0, W, H);
         const head = ((t * .00013) % 1) * W;
-        ctx.strokeStyle = "rgba(242,244,247,.07)"; ctx.lineWidth = 1;
+        ctx.globalAlpha = .09; ctx.strokeStyle = inkTok; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(0, H * .58); ctx.lineTo(W, H * .58); ctx.stroke();
+        ctx.globalAlpha = 1;
         ctx.lineWidth = 1.6; ctx.lineJoin = "round";
         for (let x = 0; x < W; x += 2) {
           const age = (head - x + W) % W;
           const a = Math.max(0, 1 - age / (W * .92));
           if (a <= .02) continue;
-          ctx.strokeStyle = `rgba(255,59,71,${(a * .85).toFixed(3)})`;
+          ctx.globalAlpha = a * .85; ctx.strokeStyle = markTok;
           ctx.beginPath(); ctx.moveTo(x, yAt(x, t)); ctx.lineTo(x + 2, yAt(x + 2, t)); ctx.stroke();
         }
         DAY_MOMENTS.forEach((m, i) => {
@@ -2813,21 +3026,23 @@ function PulseDay() {
           const dist = ((head - cx) + W) % W;
           if (dist < W * .02 && active !== i) { active = i; setNow(m); }
           const lit = Math.max(0, 1 - dist / (W * .22));
-          ctx.fillStyle = m.worn ? `rgba(53,224,208,${.3 + lit * .7})` : `rgba(242,244,247,${.14 + lit * .3})`;
+          ctx.globalAlpha = m.worn ? .3 + lit * .7 : .14 + lit * .3;
+          ctx.fillStyle = m.worn ? coldTok : inkTok;
           ctx.beginPath(); ctx.arc(cx, yAt(cx, t), m.worn ? 2.4 + lit * 2.6 : 1.8 + lit * 1.4, 0, 6.283); ctx.fill();
           if (m.worn && lit > .05) {
-            ctx.strokeStyle = `rgba(53,224,208,${lit * .35})`; ctx.lineWidth = 1;
+            ctx.globalAlpha = lit * .35; ctx.strokeStyle = coldTok; ctx.lineWidth = 1;
             ctx.beginPath(); ctx.arc(cx, yAt(cx, t), 6 + (1 - lit) * 16, 0, 6.283); ctx.stroke();
           }
         });
-        ctx.fillStyle = "rgba(242,244,247,.9)";
+        ctx.globalAlpha = .9; ctx.fillStyle = inkTok;
         ctx.beginPath(); ctx.arc(head, yAt(head, t), 2.6, 0, 6.283); ctx.fill();
+        ctx.globalAlpha = 1;
       }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     return () => { run = false; cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener("resize", size); };
-  }, []);
+  }, [inkTok, markTok, coldTok]);
 
   return (
     <div className="pulse">
@@ -2872,23 +3087,23 @@ function IncomeCurve() {
       <svg viewBox={`0 0 ${W} ${H}`} className="ic" role="img"
         aria-label="Income, market size and available wardrobe systems, 1900 to 2026">
         {[25, 50, 75, 100].map((g) => (
-          <line key={g} x1={L} y1={py(g)} x2={W - R} y2={py(g)} stroke="#F2F1EE" strokeWidth="1" />
+          <line key={g} x1={L} y1={py(g)} x2={W - R} y2={py(g)} stroke="var(--grid)" strokeWidth="1" />
         ))}
-        <line x1={L} y1={py(0)} x2={W - R} y2={py(0)} stroke="#DFDDD8" strokeWidth="1" />
+        <line x1={L} y1={py(0)} x2={W - R} y2={py(0)} stroke="var(--axis)" strokeWidth="1" />
 
         {/* the two that rise */}
         {["income", "market"].map((k, ki) => (
-          <path key={k} d={path(k)} fill="none" stroke="#0C0C0B"
+          <path key={k} d={path(k)} fill="none" stroke="var(--ink)"
             strokeWidth={ki ? 1 : 1.6} opacity={ki ? .32 : 1}
             strokeDasharray={live ? "none" : "2000"} strokeDashoffset={live ? 0 : 2000}
             style={{ transition: `stroke-dashoffset 1800ms cubic-bezier(.16,1,.3,1) ${ki * 220}ms` }} />
         ))}
 
         {/* the one that doesn't */}
-        <path d={path("systems")} fill="none" stroke="#B4413C" strokeWidth="2"
+        <path d={path("systems")} fill="none" stroke="var(--mark)" strokeWidth="2"
           strokeDasharray={live ? "none" : "2000"} strokeDashoffset={live ? 0 : 2000}
           style={{ transition: "stroke-dashoffset 1800ms cubic-bezier(.16,1,.3,1) 500ms" }} />
-        <text x={W - R} y={py(1) - 14} className="ptl" textAnchor="end" fill="#B4413C"
+        <text x={W - R} y={py(1) - 14} className="ptl" textAnchor="end" fill="var(--mark)"
           style={{ opacity: live ? 1 : 0, transition: "opacity 700ms 1600ms" }}>
           WARDROBE SYSTEMS AVAILABLE — 1
         </text>
@@ -2899,10 +3114,10 @@ function IncomeCurve() {
         {incomeSeries.map((s, n) => (
           <g key={s.year} style={{ cursor: "pointer" }} onClick={() => setEra(n)}>
             <circle className="icdot" cx={px(n)} cy={py(s.income)} r={n === era ? 6 : 3.5}
-              fill={n === era ? "#0C0C0B" : "#9C9C94"} />
+              fill={n === era ? "var(--ink)" : "var(--ink-3)"} />
             <circle cx={px(n)} cy={py(s.income)} r="24" fill="transparent" />
             <text x={px(n)} y={H - 26} className="ax" textAnchor="middle"
-              style={{ fill: n === era ? "#0C0C0B" : "#9C9C94" }}>{s.year}</text>
+              style={{ fill: n === era ? "var(--ink)" : "var(--ink-3)" }}>{s.year}</text>
           </g>
         ))}
       </svg>
@@ -3004,21 +3219,21 @@ function PriceGap() {
             <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 26} className="bandl" textAnchor="middle">{b.name}</text>
             <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 44} className="ax" textAnchor="middle">{b.range}</text>
             <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 62} className="ax" textAnchor="middle"
-              style={{ fill: b.cagr.includes("%") ? "#1B2A3B" : "#C8C7C1" }}>{b.cagr}</text>
+              style={{ fill: b.cagr.includes("%") ? "var(--mark)" : "#C8C7C1" }}>{b.cagr}</text>
           </g>
         ))}
 
         {/* the empty quadrant: everything above the garment floor, at any price */}
         <rect x={gx(28)} y={T} width={gx(100) - gx(28)} height={gy(4.6) - T}
-          fill="rgba(27,42,59,.04)" stroke="#1B2A3B" strokeWidth="1" strokeDasharray="6 7"
+          fill="rgba(27,42,59,.04)" stroke="var(--mark)" strokeWidth="1" strokeDasharray="6 7"
           style={{ opacity: live ? 1 : 0, transition: "opacity 1200ms 900ms" }} />
-        <text x={gx(44)} y={gy(7.4)} className="ax" fill="#1B2A3B"
+        <text x={gx(44)} y={gy(7.4)} className="ax" fill="var(--mark)"
           style={{ opacity: live ? 1 : 0, transition: "opacity 700ms 1500ms" }}>
           NOBODY SELLS A SYSTEM AT ANY PRICE
         </text>
 
-        <line x1={L} y1={gy(0)} x2={W - R} y2={gy(0)} stroke="#DFDDD8" strokeWidth="1" />
-        <line x1={L} y1={T} x2={L} y2={gy(0)} stroke="#DFDDD8" strokeWidth="1" />
+        <line x1={L} y1={gy(0)} x2={W - R} y2={gy(0)} stroke="var(--axis)" strokeWidth="1" />
+        <line x1={L} y1={T} x2={L} y2={gy(0)} stroke="var(--axis)" strokeWidth="1" />
         <text x={34} y={gy(0)} className="ax" transform={`rotate(-90 34 ${gy(0)})`}>A GARMENT</text>
         <text x={34} y={gy(10)} className="ax" textAnchor="end" transform={`rotate(-90 34 ${gy(10)})`}>A SYSTEM</text>
 
@@ -3029,10 +3244,10 @@ function PriceGap() {
           }}>
             {p.isBrand ? (
               <circle cx={gx(p.price)} cy={gy(p.system)} r="18" fill="none"
-                stroke="#1B2A3B" strokeWidth="1" opacity=".4" />
+                stroke="var(--mark)" strokeWidth="1" opacity=".4" />
             ) : null}
             <circle className="pt" cx={gx(p.price)} cy={gy(p.system)} r={p.isBrand ? 8 : 5.5}
-              fill={p.isBrand ? "#1B2A3B" : "#0C0C0B"} />
+              fill={p.isBrand ? "var(--mark)" : "var(--ink)"} />
             <circle cx={gx(p.price)} cy={gy(p.system)} r="26" fill="transparent"
               style={{ cursor: "pointer" }}
               onMouseEnter={() => setHov(p.id)} onMouseLeave={() => setHov(null)} />
@@ -3187,6 +3402,7 @@ function mutateWord(w, heat) {
 
 function Chamber() {
   const stage = useRef(null), cv = useRef(null);
+  const inkTok = useToken("--ink", "#F5F3EF");
   const [val, setVal] = useState("");
   const [words, setWords] = useState([]);
   const [running, setRunning] = useState(false);
@@ -3212,7 +3428,7 @@ function Chamber() {
       ctx.lineWidth = 1;
       for (const e of edges.current) {
         const age = Math.min((t - e.born) / 600, 1);
-        ctx.strokeStyle = `rgba(242,244,247,${(.05 + .09 * age * e.a).toFixed(3)})`;
+        ctx.globalAlpha = .05 + .09 * age * e.a; ctx.strokeStyle = inkTok;
         ctx.beginPath(); ctx.moveTo(e.x1 * W, e.y1 * H);
         const mx = ((e.x1 + e.x2) / 2) * W + Math.sin(t * .0009 + e.s) * 6;
         const my = ((e.y1 + e.y2) / 2) * H + Math.cos(t * .0011 + e.s) * 6;
@@ -3223,7 +3439,7 @@ function Chamber() {
     };
     raf = requestAnimationFrame(frame);
     return () => { run = false; cancelAnimationFrame(raf); window.removeEventListener("resize", size); };
-  }, []);
+  }, [inkTok]);
 
   const rnd = (a, b) => a + Math.random() * (b - a);
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -3527,8 +3743,14 @@ export default function Rumoar() {
 
   const swap = (r) => {
     setRoute(r);
-    window.location.hash = r === "lab" ? "#/lab" : "";
+    /* BUG WAS HERE: assigning location.hash = "" navigates to the bare URL,
+       which reloads the document — which replayed the whole loader. Rewriting
+       the entry in place changes the URL without any navigation. */
+    const url = r === "lab" ? "#/lab" : window.location.pathname + window.location.search;
+    window.history.replaceState(null, "", url);
     window.scrollTo(0, 0);
+    /* pins measured against the old route are meaningless now */
+    requestAnimationFrame(() => ScrollTrigger.refresh());
   };
 
   /* Native View Transitions where available: the browser snapshots both
@@ -3542,12 +3764,14 @@ export default function Rumoar() {
     setVeil(true);
     setTimeout(() => {
       swap(r);
-      setTimeout(() => setVeil(false), 520);
-    }, 660);
+      setTimeout(() => setVeil(false), 200);
+    }, 240);
   };
 
   useEffect(() => {
     const h = () => setRoute(window.location.hash === "#/lab" ? "lab" : "site");
+    /* replaceState doesn't emit hashchange, so this only fires on real
+       back/forward navigation — exactly when we do want to re-sync. */
     window.addEventListener("hashchange", h);
     return () => window.removeEventListener("hashchange", h);
   }, []);
@@ -3579,6 +3803,7 @@ export default function Rumoar() {
           }}>Skip to the argument</button>
           <Nav active={active} onLab={() => goto("lab")} />
           <Hero />
+          <Thread />
           <Thesis />
 
           <section style={{ paddingBlock: "clamp(70px,12vh,150px)" }}>
