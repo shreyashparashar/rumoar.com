@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>RUMOAR — Men changed. Menswear didn't.</title>
     <meta name="description" content="An investigation into what Indian menswear built, what it skipped, and the wardrobe that still has to be invented." />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#0A0A0E" />
     <meta property="og:title" content="RUMOAR — Men changed. Menswear didn't." />
     <meta property="og:description" content="An interactive argument about men's identity." />
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <style>
-      html { scroll-behavior: smooth; background: #fff; }
-      body { margin: 0; }
-      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+      /* NOTE: scroll-behavior:smooth must NOT be set here — it fights
+         GSAP ScrollTrigger's scrub and makes pinned sections stutter.
+         Smooth scrolling for nav jumps is done in JS via scrollIntoView. */
+      html { background: #0A0A0E; }
+      body { margin: 0; background: #0A0A0E; }
     </style>
   </head>
   <body>
