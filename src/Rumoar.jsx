@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from "react";
 
 /* ============================================================================
    RUMOAR — v3
@@ -232,6 +232,114 @@ const eraData = [
 
 const axes = { x: { low: "GENERIC", high: "IDENTITY-LED" }, y: { low: "TRADITIONAL", high: "EVOLVING" } };
 
+/* ---------------------------------------------------------------------------
+   SHARED ERA STATE
+   The timeline is no longer a section that owns its own index. It is the
+   scrubber for the whole argument: income, roles and price all read from here.
+   --------------------------------------------------------------------------- */
+const EraContext = createContext({ era: 0, setEra: () => {} });
+const useEra = () => useContext(EraContext);
+
+/* ---------------------------------------------------------------------------
+   §2b  INCOME & CONSUMPTION          [HYPOTHESIS 1]
+   Sources: IMARC (menswear market), PRICE/Equity Edge (middle class share),
+   Goldman Sachs (affluent cohort), Deloitte India Jan 2026 (premiumisation).
+   `systems` is the flat line: how many wardrobe operating systems a man can buy.
+   It has been 1 for a century, and that is the entire joke.
+   --------------------------------------------------------------------------- */
+const incomeSeries = [
+  { year: 1900, income: 2, market: 1, middle: 2, systems: 1, note: "Cloth is bought by weight and worn until it fails." },
+  { year: 1970, income: 8, market: 5, middle: 8, systems: 1, note: "One good set, kept for occasions. The wardrobe is permanent." },
+  { year: 2000, income: 24, market: 18, middle: 17, systems: 1, note: "Malls, brands and EMI arrive together. Access is solved." },
+  { year: 2010, income: 42, market: 38, middle: 24, systems: 1, note: "Infinite catalogue. A man can buy anything, and does." },
+  { year: 2020, income: 68, market: 62, middle: 31, systems: 1, note: "Occasions collapse into each other. The closet does not adapt." },
+  { year: 2026, income: 100, market: 100, middle: 38, systems: 1, note: "₹21.9B market, 7.24% CAGR, and still one way to build a wardrobe." },
+];
+
+const incomeFacts = [
+  { k: "Menswear market, 2025", v: "$21.9B", s: "IMARC" },
+  { k: "Projected 2034", v: "$42.4B", s: "7.24% CAGR" },
+  { k: "Middle class by 2031", v: "41%", s: "of population" },
+  { k: "Affluent consumers by 2027", v: "100M", s: "Goldman Sachs" },
+  { k: "Branded share of apparel spend by 2030", v: ">50%", s: "OC&C" },
+  { k: "Tried a new fashion brand this year", v: "~40%", s: "Deloitte India" },
+];
+
+/* ---------------------------------------------------------------------------
+   §2c  THE ROLES                     [HYPOTHESIS 2]
+   Not demographic segments. The market already segments by demographic and
+   occasion, and that is precisely what produced the problem.
+
+   Vox Populi Research (QRCA VIEWS, Dec 2025) found that urban Indian men
+   recalibrate persona across social groups, and that the recalibration itself
+   produces a fragmented sense of identity. So these are not different men.
+   They are one man, in different rooms, inside the same week.
+
+   `served` — 0-10, how well the current market dresses that role.
+   `from`   — index into eraData at which the role becomes a distinct register.
+   --------------------------------------------------------------------------- */
+const personaData = [
+  { id: "provider", name: "The Provider", x: 24, y: 24, served: 9, from: 1,
+    room: "Office, client meeting, the commute",
+    reads: "Competent. Reliable. Not to be questioned.",
+    wears: "Formal, or near-formal. The one register the market genuinely solved.",
+    tension: "The role he is thanked for least and dressed for most." },
+  { id: "son", name: "The Son", x: 30, y: 18, served: 6, from: 0,
+    room: "Parents' house, family function, the town he left",
+    reads: "Still theirs. Still respectful. Doing well.",
+    wears: "Ethnic, or formal standing in for ethnic.",
+    tension: "Dressing to prove he hasn't changed, in a life that changed him." },
+  { id: "ceremonial", name: "The Ceremonial Man", x: 20, y: 12, served: 8, from: 0,
+    room: "Weddings, festivals, the extended network watching",
+    reads: "Prosperous. Correct. A credit to the family.",
+    wears: "Occasion wear. Worn twice, stored eleven months.",
+    tension: "Maximum spend, minimum wear, zero carry-over." },
+  { id: "peer", name: "The Peer", x: 46, y: 80, served: 7, from: 3,
+    room: "Friends, the gym, the group chat, the bar",
+    reads: "Current. In on it. Not trying too hard.",
+    wears: "Trend-led, fast, replaced on a cycle.",
+    tension: "The only register where being outdated carries a social cost." },
+  { id: "partner", name: "The Partner", x: 52, y: 64, served: 3, from: 3,
+    room: "Dinner, the flat, a weekend away",
+    reads: "Chosen. Present. Someone she is glad to be seen with.",
+    wears: "Improvised. Borrowed from the office or the gym.",
+    tension: "The most intimate room has the least designed wardrobe." },
+  { id: "self", name: "The Self", x: 70, y: 55, served: 1, from: 4,
+    room: "Alone. The one nobody dresses for.",
+    reads: "Nothing. There is no audience.",
+    wears: "Whatever is soft and nearest.",
+    tension: "The only self that is consistently him — and it has no clothes." },
+];
+
+/* ---------------------------------------------------------------------------
+   §2d  THE PRICE GAP                 [HYPOTHESIS 4]
+   Deloitte India, "Weaving a new India identity", January 2026.
+   Mid-premium ₹3,500–7,000 compounds at ~25%. Premium above it at 45%+ —
+   the highest growth figure in the report.
+
+   The gap is NOT a hole in the price ladder. Brands exist in every band, and
+   claiming otherwise would be false. The gap is in WHAT IS SOLD at a price:
+   every house in the fastest-growing bands sells a garment. None sells a system.
+   `system` — 0-10, how much of what you buy is a method rather than an object.
+   --------------------------------------------------------------------------- */
+const priceBands = [
+  { id: "mass", name: "Mass", range: "under ₹3,500", cagr: "baseline", lo: 0, hi: 28 },
+  { id: "mid", name: "Mid-premium", range: "₹3,500 – ₹7,000", cagr: "~25% CAGR", lo: 28, hi: 58 },
+  { id: "premium", name: "Premium", range: "₹7,000 +", cagr: "45%+ CAGR", lo: 58, hi: 86 },
+  { id: "luxury", name: "Luxury", range: "apex", cagr: "wealth-led", lo: 86, hi: 100 },
+];
+
+const pricePoints = [
+  { id: "us-polo", name: "U.S. Polo Assn.", price: 14, system: 1 },
+  { id: "snitch", name: "Snitch", price: 18, system: 1 },
+  { id: "allen-solly", name: "Allen Solly", price: 30, system: 2 },
+  { id: "van-heusen", name: "Van Heusen", price: 44, system: 3 },
+  { id: "louis-philippe", name: "Louis Philippe", price: 62, system: 2 },
+  { id: "rare-rabbit", name: "Rare Rabbit", price: 72, system: 3 },
+  { id: "rumoar", name: "RUMOAR", price: 70, system: 9, isBrand: true },
+];
+
+
 const brandData = [
   { id: "van-heusen", name: "Van Heusen", x: 22, y: 26,
     audience: "The corporate man, 28–45", style: "Formal, boardroom-led", occasion: "Office, ceremony",
@@ -283,7 +391,7 @@ const brandData = [
     open: "A wardrobe built on cycles cannot compound into a self." },
   { id: "rumoar", name: "RUMOAR", x: 85, y: 88, isBrand: true,
     audience: "The man who is several men in one week", style: "Identity system", occasion: "Full range",
-    price: "[TO BE DEFINED]", personalization: "High", identity: "System-based",
+    price: "Mid-premium to premium", personalization: "High", identity: "System-based",
     serve: "A man moving between roles who wants one recognisable point of view in all of them.",
     solve: "Coherence. Not what to wear — who you are across everything you wear.",
     position: "[POSITIONING — brand team]", stops: "[TO BE DEFINED]",
@@ -366,9 +474,12 @@ const wardrobe = [
 ];
 
 const CHAPTERS = [
+  { id: "money", label: "The Money" },
   { id: "man", label: "The Man" },
+  { id: "roles", label: "The Roles" },
   { id: "evolution", label: "The Evolution" },
   { id: "market", label: "The Market" },
+  { id: "price", label: "The Price" },
   { id: "whitespace", label: "White Space" },
   { id: "rumoar", label: "RUMOAR" },
   { id: "lab", label: "The Lab" },
@@ -427,6 +538,51 @@ const CSS = `
 .ru .glass{background:var(--glass);backdrop-filter:blur(30px) saturate(1.8);
   -webkit-backdrop-filter:blur(30px) saturate(1.8);border:.5px solid var(--gl-edge);
   box-shadow:inset 0 .5px 0 var(--gl-hi),0 24px 64px -36px rgba(12,12,11,.5)}
+
+/* --- sticky era rail: the timeline stops being navigation and becomes a
+   scrubber for the whole argument. Pinned while the linked charts pass under. */
+.ru .railwrap{position:sticky;top:0;z-index:60;padding-top:clamp(12px,2vh,22px);
+  padding-bottom:clamp(12px,2vh,22px);display:flex;justify-content:center;
+  background:linear-gradient(180deg,var(--paper) 58%,rgba(255,255,255,0) 100%)}
+@media (max-width:720px){.ru .railwrap{top:0}}
+
+/* --- income & consumption --- */
+.ru .ic{width:100%;display:block}
+.ru .icdot{transition:opacity var(--ui) var(--ez)}
+.ru .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;background:var(--line);border:1px solid var(--line);margin-top:clamp(24px,4vh,44px)}
+.ru .fact{background:var(--paper);padding:18px 16px}
+.ru .fact .v{font-size:clamp(1.3rem,2.4vw,2rem);font-weight:200;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;line-height:1}
+.ru .fact .k{font-family:'Montserrat',sans-serif;font-size:.55rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-3);margin-top:9px;line-height:1.5}
+.ru .fact .s{font-size:.72rem;color:var(--ink-3);margin-top:3px;font-weight:300}
+
+/* --- roles --- */
+.ru .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:1px;background:var(--line);border:1px solid var(--line)}
+.ru .role{background:var(--paper);padding:clamp(18px,2vw,26px);position:relative;
+  transition:background var(--ui) var(--ez),opacity var(--content) var(--ez),
+    transform var(--content) var(--ez)}
+.ru .role.off{opacity:.16;pointer-events:none}
+.ru .role:hover{background:var(--paper-2)}
+.ru .role .rn{font-size:clamp(1.05rem,1.5vw,1.35rem);font-weight:300;letter-spacing:-.03em}
+.ru .role .rm{font-size:.78rem;color:var(--ink-3);margin-top:7px;font-weight:300;line-height:1.5}
+.ru .role .rt{font-size:.86rem;color:var(--ink-2);margin-top:16px;font-weight:300;line-height:1.6}
+.ru .meter{height:2px;background:var(--line);margin-top:18px;position:relative;overflow:hidden}
+.ru .meter i{position:absolute;inset:0 auto 0 0;background:var(--ink);
+  transition:width var(--cine) var(--ez-out)}
+.ru .meter.low i{background:#B4413C}
+.ru .role .rs{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-3);margin-top:9px;display:flex;
+  justify-content:space-between}
+
+/* --- price gap --- */
+.ru .pg{width:100%;display:block}
+.ru .band{fill:#FAFAF8}
+.ru .band.hot{fill:rgba(27,42,59,.045)}
+.ru .bandl{font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:.2em;
+  text-transform:uppercase;fill:#9C9C94}
 
 .ru .lm{display:block;overflow:hidden}
 .ru .lm>span{display:block;transform:translateY(105%);transition:transform 1.25s var(--ez-out)}
@@ -1080,7 +1236,7 @@ function Chapter({ id, n, title, note }) {
 }
 
 function Timeline() {
-  const [i, setI] = useState(0);
+  const { era: i, setEra } = useEra();
   const [out, setOut] = useState(false);
   const rail = useRef(null), btns = useRef([]), figure = useRef(null), sec = useRef(null);
   const [knob, setKnob] = useState({ left: 0, width: 0 });
@@ -1090,7 +1246,7 @@ function Timeline() {
     if (n === pending.current) return;
     pending.current = n;
     setOut(true);
-    setTimeout(() => { setI(pending.current); setOut(false); }, reduced() ? 60 : 400);
+    setTimeout(() => { setEra(pending.current); setOut(false); }, reduced() ? 60 : 400);
   };
 
   useEffect(() => {
@@ -1123,7 +1279,7 @@ function Timeline() {
   const d = eraData[i];
   return (
     <section ref={sec} style={{ paddingBottom: "clamp(60px,10vh,140px)" }}>
-      <div className="full" style={{ display: "flex", justifyContent: "center", marginBottom: "clamp(36px,7vh,88px)" }}>
+      <div className="railwrap">
         <div className="glass rail" ref={rail} role="tablist" aria-label="Eras" style={{ maxWidth: 900 }}
           onKeyDown={(e) => {
             if (e.key === "ArrowRight") select(Math.min(eraData.length - 1, i + 1));
@@ -1142,7 +1298,7 @@ function Timeline() {
         </div>
       </div>
 
-      <div className={`g era ${out ? "out" : ""}`} style={{ alignItems: "start" }}>
+      <div className={`g era ${out ? "out" : ""}`} style={{ alignItems: "start", marginTop: "clamp(28px,5vh,64px)" }}>
         <div className="zl" style={{ gridColumn: "1 / 4", transitionDelay: out ? "0ms" : "90ms" }}>
           <LB>What he needed</LB>
           <div style={{ marginTop: 20 }}>
@@ -1948,6 +2104,214 @@ function PlotYourself({ you, setYou }) {
     "Nine pieces, forty outfits" is the kind of line every brand asserts.
     This computes it live — and shows the count collapse when a piece stops
     relating to the others, which is the whole argument for a system. */
+/* ---------------------------------------------------------------------------
+   INCOME & CONSUMPTION                                        [HYPOTHESIS 1]
+   Two rising lines and one flat one. Income and market climb together across a
+   century; the number of wardrobe systems available to a man never moves off 1.
+   The flat line is the argument — everything else is context for it.
+   --------------------------------------------------------------------------- */
+function IncomeCurve() {
+  const { era, setEra } = useEra();
+  const ref = useRef(null);
+  const [live, setLive] = useState(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setLive(true), io.disconnect()), { threshold: .2 });
+    io.observe(el); return () => io.disconnect();
+  }, []);
+
+  const W = 1000, H = 460, L = 92, R = 96, T = 40, B = 66;
+  const px = (n) => L + (n / (incomeSeries.length - 1)) * (W - L - R);
+  const py = (v) => H - B - (v / 100) * (H - T - B);
+  const path = (key) => incomeSeries.map((d, n) => `${n ? "L" : "M"}${px(n)},${py(d[key])}`).join(" ");
+  const d = incomeSeries[era];
+
+  return (
+    <div ref={ref} style={{ position: "relative", width: "100%" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="ic" role="img"
+        aria-label="Income, market size and available wardrobe systems, 1900 to 2026">
+        {[25, 50, 75, 100].map((g) => (
+          <line key={g} x1={L} y1={py(g)} x2={W - R} y2={py(g)} stroke="#F2F1EE" strokeWidth="1" />
+        ))}
+        <line x1={L} y1={py(0)} x2={W - R} y2={py(0)} stroke="#DFDDD8" strokeWidth="1" />
+
+        {/* the two that rise */}
+        {["income", "market"].map((k, ki) => (
+          <path key={k} d={path(k)} fill="none" stroke="#0C0C0B"
+            strokeWidth={ki ? 1 : 1.6} opacity={ki ? .32 : 1}
+            strokeDasharray={live ? "none" : "2000"} strokeDashoffset={live ? 0 : 2000}
+            style={{ transition: `stroke-dashoffset 1800ms cubic-bezier(.16,1,.3,1) ${ki * 220}ms` }} />
+        ))}
+
+        {/* the one that doesn't */}
+        <path d={path("systems")} fill="none" stroke="#B4413C" strokeWidth="2"
+          strokeDasharray={live ? "none" : "2000"} strokeDashoffset={live ? 0 : 2000}
+          style={{ transition: "stroke-dashoffset 1800ms cubic-bezier(.16,1,.3,1) 500ms" }} />
+        <text x={W - R} y={py(1) - 14} className="ptl" textAnchor="end" fill="#B4413C"
+          style={{ opacity: live ? 1 : 0, transition: "opacity 700ms 1600ms" }}>
+          WARDROBE SYSTEMS AVAILABLE — 1
+        </text>
+
+        <text x={L} y={py(100) - 12} className="ptl">DISPOSABLE INCOME</text>
+        <text x={L} y={py(72) - 12} className="ptl" style={{ opacity: .55 }}>MENSWEAR MARKET</text>
+
+        {incomeSeries.map((s, n) => (
+          <g key={s.year} style={{ cursor: "pointer" }} onClick={() => setEra(n)}>
+            <circle className="icdot" cx={px(n)} cy={py(s.income)} r={n === era ? 6 : 3.5}
+              fill={n === era ? "#0C0C0B" : "#9C9C94"} />
+            <circle cx={px(n)} cy={py(s.income)} r="24" fill="transparent" />
+            <text x={px(n)} y={H - 26} className="ax" textAnchor="middle"
+              style={{ fill: n === era ? "#0C0C0B" : "#9C9C94" }}>{s.year}</text>
+          </g>
+        ))}
+      </svg>
+
+      <p className="body" style={{ marginTop: 18, maxWidth: "52ch" }}>{d.note}</p>
+
+      <div className="facts">
+        {incomeFacts.map((f) => (
+          <div className="fact" key={f.k}>
+            <p className="v num">{f.v}</p>
+            <p className="k">{f.k}</p>
+            <p className="s">{f.s}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   THE ROLES                                                   [HYPOTHESIS 2]
+   Roles appear as the eras advance. By 2026 there are six, and the bar under
+   each one shows how well the market dresses it. Three are well served. The
+   three that are not are the private, the intimate and the unwatched.
+   --------------------------------------------------------------------------- */
+function RoleGrid() {
+  const { era } = useEra();
+  const on = personaData.filter((r) => r.from <= era);
+  const avg = on.length ? Math.round(on.reduce((a, r) => a + r.served, 0) / on.length * 10) / 10 : 0;
+
+  return (
+    <>
+      <div className="g" style={{ padding: 0, marginBottom: "clamp(22px,4vh,40px)" }}>
+        <div style={{ gridColumn: "1 / 8" }}>
+          <p className="mid">
+            {on.length === 1 ? "One role." : `${["", "One", "Two", "Three", "Four", "Five", "Six"][on.length]} roles.`}{" "}
+            <span className="dim">One wardrobe.</span>
+          </p>
+        </div>
+        <div style={{ gridColumn: "9 / 13", alignSelf: "end" }}>
+          <LB>Average how well served</LB>
+          <p className="num" style={{ fontSize: "clamp(1.6rem,3vw,2.6rem)", fontWeight: 200, letterSpacing: "-.04em", marginTop: 8 }}>
+            {avg.toFixed(1)}<span className="dim" style={{ fontSize: ".5em" }}> / 10</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="roles">
+        {personaData.map((r) => {
+          const live = r.from <= era;
+          return (
+            <div className={`role ${live ? "" : "off"}`} key={r.id}>
+              <p className="rn">{r.name}</p>
+              <p className="rm">{r.room}</p>
+              <p className="rt">{r.tension}</p>
+              <div className={`meter ${r.served <= 3 ? "low" : ""}`}>
+                <i style={{ width: live ? `${r.served * 10}%` : "0%" }} />
+              </div>
+              <div className="rs">
+                <span>Served</span><span className="num">{r.served} / 10</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   THE PRICE GAP                                               [HYPOTHESIS 4]
+   Price on x, garment-versus-system on y. Every house clusters along the floor
+   regardless of what it charges. The gap is not a hole in the price ladder —
+   brands exist in every band — it is that nobody at any price sells a method.
+   --------------------------------------------------------------------------- */
+function PriceGap() {
+  const ref = useRef(null);
+  const [live, setLive] = useState(false);
+  const [hov, setHov] = useState(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setLive(true), io.disconnect()), { threshold: .2 });
+    io.observe(el); return () => io.disconnect();
+  }, []);
+
+  const W = 1000, H = 560, L = 92, R = 96, T = 44, B = 92;
+  const gx = (v) => L + (v / 100) * (W - L - R);
+  const gy = (v) => H - B - (v / 10) * (H - T - B);
+  const h = pricePoints.find((p) => p.id === hov);
+
+  return (
+    <div ref={ref} style={{ position: "relative", width: "100%" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="pg" role="img"
+        aria-label="Indian menswear brands by price band and whether they sell a garment or a system">
+        {priceBands.map((b) => (
+          <g key={b.id}>
+            <rect className={`band ${b.cagr.includes("%") ? "hot" : ""}`}
+              x={gx(b.lo)} y={T} width={gx(b.hi) - gx(b.lo)} height={H - B - T} />
+            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 26} className="bandl" textAnchor="middle">{b.name}</text>
+            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 44} className="ax" textAnchor="middle">{b.range}</text>
+            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 62} className="ax" textAnchor="middle"
+              style={{ fill: b.cagr.includes("%") ? "#1B2A3B" : "#C8C7C1" }}>{b.cagr}</text>
+          </g>
+        ))}
+
+        {/* the empty quadrant: everything above the garment floor, at any price */}
+        <rect x={gx(28)} y={T} width={gx(100) - gx(28)} height={gy(4.6) - T}
+          fill="rgba(27,42,59,.04)" stroke="#1B2A3B" strokeWidth="1" strokeDasharray="6 7"
+          style={{ opacity: live ? 1 : 0, transition: "opacity 1200ms 900ms" }} />
+        <text x={gx(44)} y={gy(7.4)} className="ax" fill="#1B2A3B"
+          style={{ opacity: live ? 1 : 0, transition: "opacity 700ms 1500ms" }}>
+          NOBODY SELLS A SYSTEM AT ANY PRICE
+        </text>
+
+        <line x1={L} y1={gy(0)} x2={W - R} y2={gy(0)} stroke="#DFDDD8" strokeWidth="1" />
+        <line x1={L} y1={T} x2={L} y2={gy(0)} stroke="#DFDDD8" strokeWidth="1" />
+        <text x={34} y={gy(0)} className="ax" transform={`rotate(-90 34 ${gy(0)})`}>A GARMENT</text>
+        <text x={34} y={gy(10)} className="ax" textAnchor="end" transform={`rotate(-90 34 ${gy(10)})`}>A SYSTEM</text>
+
+        {pricePoints.map((p, n) => (
+          <g key={p.id} style={{
+            opacity: live ? 1 : 0,
+            transition: `opacity 800ms cubic-bezier(.22,.68,.16,1) ${n * 90}ms`,
+          }}>
+            {p.isBrand ? (
+              <circle cx={gx(p.price)} cy={gy(p.system)} r="18" fill="none"
+                stroke="#1B2A3B" strokeWidth="1" opacity=".4" />
+            ) : null}
+            <circle className="pt" cx={gx(p.price)} cy={gy(p.system)} r={p.isBrand ? 8 : 5.5}
+              fill={p.isBrand ? "#1B2A3B" : "#0C0C0B"} />
+            <circle cx={gx(p.price)} cy={gy(p.system)} r="26" fill="transparent"
+              style={{ cursor: "pointer" }}
+              onMouseEnter={() => setHov(p.id)} onMouseLeave={() => setHov(null)} />
+            <text className="ptl" x={gx(p.price)} y={gy(p.system) - 18} textAnchor="middle"
+              style={{ opacity: hov === p.id ? 1 : .62, fontWeight: p.isBrand || hov === p.id ? 600 : 400 }}>
+              {p.name}
+            </text>
+          </g>
+        ))}
+      </svg>
+
+      <p className="body" style={{ marginTop: 20, maxWidth: "62ch" }}>
+        {h
+          ? `${h.name} — ${h.system >= 8 ? "sells a method that outlives any single purchase." : "sells excellent objects. Assembly is left to you."}`
+          : "At ₹4,000–8,000 a man can buy an excellent shirt from four houses. He cannot buy a point of view from any of them. He assembles coherence himself, unpaid, and mostly fails."}
+      </p>
+    </div>
+  );
+}
+
 function WardrobeMath() {
   const [on, setOn] = useState(wardrobe.map((w) => w.id));
   const shown = useRef(null);
@@ -2075,7 +2439,9 @@ export default function Rumoar() {
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);
   const [you, setYou] = useState(null);   // the visitor's own point on the field
-  const [active, setActive] = useState("man");
+  const [active, setActive] = useState("money");
+  const [era, setEra] = useState(0);      // shared timeline index — drives every chart
+  const eraCtx = useMemo(() => ({ era, setEra }), [era]);
 
   const brand = useMemo(() => brandData.find((b) => b.id === selected) || null, [selected]);
 
@@ -2118,6 +2484,7 @@ export default function Rumoar() {
   }, [route]);
 
   return (
+    <EraContext.Provider value={eraCtx}>
     <div className="ru">
       <style>{CSS}</style>
       <Intro done={intro} />
@@ -2133,16 +2500,36 @@ export default function Rumoar() {
           <Nav active={active} onLab={() => goto("lab")} />
           <Hero />
 
-          <Chapter id="man" n="01 — The Man"
+          <Chapter id="money" n="01 — The Money"
+            title={["The wallet grew.", { t: "The wardrobe didn't.", dim: true }]}
+            note="Disposable income roughly tripled in twenty years. Household consumption doubled in ten. Branded apparel is about to cross half of all apparel spend. Across the same century, the number of ways an Indian man can build a wardrobe has stayed at one." />
+
+          <section className="g" style={{ paddingBottom: "clamp(60px,10vh,140px)" }}>
+            <div style={{ gridColumn: "1 / 13" }}>
+              <Reveal><IncomeCurve /></Reveal>
+            </div>
+          </section>
+
+          <Chapter id="man" n="02 — The Man"
             title={["Six moments in which clothing", { t: "quietly changed jobs.", dim: true }]}
-            note="From survival, to provision, to status, to supply, to fragmentation — and then to something that still has no name. Select a year." />
+            note="From survival, to provision, to status, to supply, to fragmentation — and then to something that still has no name. Select a year. Everything below moves with it." />
           <Timeline />
 
-          <Silence a={M.editorial.silence1} kicker="02 — The Evolution"
+          <Chapter id="roles" n="03 — The Roles"
+            title={["He is not six men.", { t: "He is one man, in six rooms,", dim: true }, { t: "inside the same week.", dim: true }]}
+            note="Research on urban Indian men finds that recalibrating persona across social groups is itself what produces a fragmented sense of identity. So these are not segments. They are registers one person is asked to hold — and the bar under each shows how well the market currently dresses it." />
+
+          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,170px)" }}>
+            <div style={{ gridColumn: "1 / 13" }}>
+              <Reveal><RoleGrid /></Reveal>
+            </div>
+          </section>
+
+          <Silence a={M.editorial.silence1} kicker="04 — The Evolution"
             line={["Access solved itself.", { t: "Coherence didn't.", dim: true }]} />
           <Film />
 
-          <Chapter id="market" n="03 — The Market"
+          <Chapter id="market" n="05 — The Market"
             title={["There has never been more menswear.",
               { t: "There has never been more of a man left over.", dim: true }]}
             note="Six houses plotted on what they actually optimise for. None of them is wrong. Each is built for one man, in one setting, at one point in his life." />
@@ -2169,7 +2556,17 @@ export default function Rumoar() {
             </div>
           </section>
 
-          <Silence a={M.editorial.silence2} align="right" kicker="04 — The White Space"
+          <Chapter id="price" n="06 — The Price"
+            title={["The gap is not in what it costs.", { t: "It is in what you get for it.", dim: true }]}
+            note="Deloitte puts mid-premium at ₹3,500–7,000 growing 25% a year, and premium above it growing 45% — the fastest figure in their 2026 report. Brands exist in both. Every one of them sells a garment." />
+
+          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,170px)" }}>
+            <div style={{ gridColumn: "1 / 13" }}>
+              <Reveal><PriceGap /></Reveal>
+            </div>
+          </section>
+
+          <Silence a={M.editorial.silence2} align="right" kicker="07 — The White Space"
             line={["A professional at ten. A friend at seven.",
               { t: "A traveller on Saturday. One wardrobe,", dim: true },
               { t: "built for one of them.", dim: true }]} />
@@ -2193,5 +2590,6 @@ export default function Rumoar() {
         }}>RUMOAR</span>
       </div>
     </div>
+    </EraContext.Provider>
   );
 }
