@@ -2735,15 +2735,23 @@ function Deck() {
         onLeaveBack: () => { live = false; tl.pause(); },
       });
 
-      const onVis = () => {
-        if (document.hidden) tl.pause();
-        else if (live) tl.play();
-      };
-      document.addEventListener("visibilitychange", onVis);
-      ctx.add(() => document.removeEventListener("visibilitychange", onVis));
     }, el);
 
-    return () => { if (tl) tl.kill(); ctx.revert(); };
+    /* NOTE: this listener is registered OUT here on purpose. Referencing `ctx`
+       inside the gsap.context() callback reads the binding before the call has
+       returned — a temporal dead zone error that takes the whole app down. */
+    const onVis = () => {
+      if (!tl) return;
+      if (document.hidden) tl.pause();
+      else if (live) tl.play();
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      if (tl) tl.kill();
+      ctx.revert();
+    };
   }, []);
 
   const f = DECK_FACES[face];
