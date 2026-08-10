@@ -116,12 +116,19 @@ const M = {
   },
 
   timeline: {
+    /* Each era is a small stack, not one photograph — the way a research board
+       is actually built. Drop 1900-a.jpg … 1900-d.jpg into public/assets/timeline
+       and the collage fills in. Until then each plate shows its own labelled
+       placeholder, so the sequence is legible while the images are sourced. */
     1900: img("timeline/1900.jpg", "1900 — the man", "50% 26%"),
     1970: img("timeline/1970.jpg", "1970 — the man", "50% 26%"),
     2000: img("timeline/2000.jpg", "2000 — the man", "50% 26%"),
     2010: img("timeline/2010.jpg", "2010 — the man", "50% 26%"),
     2020: img("timeline/2020.jpg", "2020 — the man", "50% 26%"),
     2026: img("timeline/2026.jpg", "2026 — the man", "50% 26%"),
+    plates: Object.fromEntries([1900, 1970, 2000, 2010, 2020, 2026].map((y) => [y,
+      ["a", "b", "c", "d"].map((k) => img(`timeline/${y}-${k}.jpg`, `${y} — plate ${k}`, "50% 30%")),
+    ])),
   },
 
   /* The scroll-scrubbed film. Video preferred; for per-frame control use:
@@ -752,9 +759,83 @@ const CSS = `
 .ru .mk-spec{fill:none;stroke:var(--paper);stroke-opacity:.9;stroke-width:.85;
   stroke-linecap:round}
 .ru.day .mk-spec{stroke:#fff;stroke-opacity:1}
+.ru .mk-nodes circle{fill:var(--paper);stroke:var(--mark);stroke-width:1.6}
 .ru .mark figcaption{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
   text-transform:uppercase;color:var(--ink-3);margin-top:14px}
 @media (max-width:900px){.ru .mark{max-width:190px;margin-inline:auto}}
+
+/* THE ERA COLLAGE — a board assembling itself */
+.ru .collage{position:relative;width:100%;height:100%;min-height:clamp(280px,42vh,460px)}
+.ru .pl{position:absolute;margin:0;will-change:transform,opacity;
+  filter:drop-shadow(0 18px 34px rgba(0,0,0,.45))}
+.ru .pl-img{position:relative;height:100%;overflow:hidden;
+  background:var(--paper-2);border:1px solid var(--line)}
+.ru .pl-img .m{width:100%;height:100%}
+.ru .pl-call{position:absolute;display:flex;align-items:center;gap:0;pointer-events:none;
+  transform:translate(0,-50%)}
+.ru .pl-dot{width:6px;height:6px;border-radius:50%;background:var(--mark);flex:0 0 auto;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--mark) 22%,transparent)}
+.ru .pl-line{height:1px;width:clamp(16px,2.2vw,34px);background:var(--mark);
+  transform-origin:left center;flex:0 0 auto}
+.ru .pl-txt{font-family:'Montserrat',sans-serif;font-size:.46rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink);background:var(--paper);
+  padding:4px 7px;border:1px solid var(--line);white-space:nowrap;font-weight:500;
+  margin-left:-1px}
+@media (max-width:720px){
+  .ru .collage{min-height:300px}
+  .ru .pl-txt{font-size:.4rem;letter-spacing:.1em;padding:3px 5px}
+  .ru .pl-line{width:12px}
+}
+
+/* THE TRAVELLER — one strand, fixed to the left edge, all the way down */
+.ru .traveller{position:fixed;left:calc(26px + clamp(6px,1vw,18px));top:50%;
+  transform:translateY(-50%);z-index:118;pointer-events:none;
+  display:flex;align-items:center;gap:10px}
+.ru .tv-box{width:clamp(58px,5vw,86px);will-change:transform}
+.ru .tv-box svg{width:100%;height:auto;display:block;overflow:visible}
+.ru .tv-shade{fill:none;stroke:var(--cord-shade);stroke-opacity:.45;stroke-width:5;
+  stroke-linecap:round;stroke-linejoin:round;filter:blur(2.6px);transform:translate(3px,4px)}
+.ru .tv-core{fill:none;stroke:var(--ink);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ru .tv-spec{fill:none;stroke:var(--paper);stroke-opacity:.85;stroke-width:.75;stroke-linecap:round;
+  stroke-dasharray:8 120}
+.ru .tv-cap{font-family:'Montserrat',sans-serif;font-size:.46rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--ink-3);writing-mode:vertical-rl;
+  opacity:0;transform:translateY(8px);transition:opacity .5s var(--ez),transform .5s var(--ez)}
+.ru .tv-cap.on{opacity:.8;transform:none}
+@media (max-width:900px){.ru .traveller{display:none}}
+
+/* THE SOUND DIAL — a small object with real planes, under the lamp */
+.ru .sounddial{position:fixed;top:clamp(150px,22vh,230px);right:clamp(16px,2.4vw,44px);
+  z-index:180;display:flex;flex-direction:column;align-items:center;gap:9px;
+  perspective:420px;background:none;border:0;cursor:pointer;will-change:transform}
+.ru .sd-face{position:relative;width:38px;height:38px;transform-style:preserve-3d;
+  display:grid;place-items:center;border-radius:50%;
+  background:linear-gradient(145deg,var(--paper-3),var(--paper-2));
+  border:1px solid var(--line);
+  box-shadow:0 6px 16px -8px rgba(0,0,0,.7),inset 0 1px 0 var(--gl-hi)}
+.ru .sd-rim{position:absolute;inset:4px;border-radius:50%;border:1px solid var(--line);
+  opacity:.7}
+.ru .sd-bars{display:flex;align-items:center;gap:2.5px;height:16px}
+.ru .sd-bar{width:2px;height:100%;background:var(--ink-3);border-radius:1px;
+  transform:scaleY(.3);transition:background var(--ui)}
+.ru .sounddial.on .sd-bar{background:var(--mark)}
+.ru .sounddial.asking .sd-face{border-color:var(--mark)}
+.ru .sd-cap{font-family:'Montserrat',sans-serif;font-size:.44rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
+.ru .sounddial.asking .sd-cap{color:var(--mark)}
+@media (max-width:720px){.ru .sounddial{top:auto;bottom:16px;right:14px}}
+
+/* THE LIGHTER — brushed steel, on a loop */
+.ru .lighterwrap{display:flex;flex-direction:column;align-items:flex-start}
+.ru .lighter{width:88px;perspective:640px;transform-style:preserve-3d;will-change:transform}
+.ru .lighter svg{width:100%;height:auto;display:block;overflow:visible;
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,.5))}
+.ru .lt-mark{font-family:'Bodoni Moda',Didot,serif;font-size:26px;fill:#16181D;
+  opacity:.85}
+.ru .lightercap{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--ink-3);margin-top:18px}
+.ru .lightercap b{color:var(--mark);font-weight:500}
+@media (max-width:900px){.ru .lighterwrap{align-items:center}}
 
 /* THE DECK — a live hand, shuffling in the corner */
 .ru .deck{position:relative;width:126px;height:168px;margin:0;
@@ -1396,8 +1477,13 @@ function Magnetic({ as: T = "button", strength = .34, className = "", children, 
       const reach = Math.max(r.width, r.height) * 1.5;
       if (dist > reach) return;
       const f = 1 - dist / reach;
-      gsap.to(el, { x: dx * strength * f, y: dy * strength * f, duration: .5, ease: "power3.out", overwrite: "auto" });
-      if (label) gsap.to(label, { x: dx * strength * f * .4, y: dy * strength * f * .4, duration: .5, ease: "power3.out", overwrite: "auto" });
+      /* hard cap: whatever strength is passed, the control never leaves its
+         own neighbourhood. A magnetic button that outruns the cursor is a bug. */
+      const CAP = 26;
+      const mx = gsap.utils.clamp(-CAP, CAP, dx * strength * f);
+      const my = gsap.utils.clamp(-CAP, CAP, dy * strength * f);
+      gsap.to(el, { x: mx, y: my, duration: .5, ease: "power3.out", overwrite: "auto" });
+      if (label) gsap.to(label, { x: mx * .4, y: my * .4, duration: .5, ease: "power3.out", overwrite: "auto" });
     };
     const out = () => {
       gsap.to(el, { x: 0, y: 0, duration: .9, ease: "elastic.out(1,.4)" });
@@ -1758,7 +1844,7 @@ function Timeline() {
         }}>
           <div style={{ overflow: "hidden", height: "clamp(430px,70svh,800px)" }}>
             <div ref={figure} style={{ height: "100%", willChange: "transform" }}>
-              <Media a={M.timeline[d.year]} style={{ height: "100%" }} />
+              <EraCollage year={d.year} />
             </div>
           </div>
           <div style={{ display: "flex", gap: "clamp(18px,3vw,54px)", marginTop: 18, flexWrap: "wrap" }}>
@@ -2188,7 +2274,7 @@ function Threshold({ onLab }) {
   return (
     <section id="lab" style={{ position: "relative", height: "100svh", overflow: "hidden", display: "flex", alignItems: "center" }}>
       <div style={{ position: "absolute", inset: 0 }}><Media a={M.editorial.threshold} style={{ height: "100%" }} /></div>
-      <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,.88)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "var(--paper)", opacity: .88 }} />
       <div className="g" style={{ position: "relative", width: "100%" }}>
         <div style={{ gridColumn: "1 / 9" }}>
           <Reveal><LB>06 — The Styling Lab</LB></Reveal>
@@ -2201,7 +2287,7 @@ function Threshold({ onLab }) {
             </p>
           </Reveal>
           <Reveal delay={280}>
-            <Magnetic className="cta" strength={20} onClick={onLab}
+            <Magnetic className="cta" onClick={onLab}
               style={{ padding: "16px 34px", fontSize: ".64rem" }}>
               Enter the RUMOAR Styling Lab
             </Magnetic>
@@ -2588,9 +2674,12 @@ const MARK_FORMS = {
   /* THE SHIRT — collar, shoulder, sleeve, body, hem, and back up */
   shirt:  [[120,30],[146,38],[172,52],[196,86],[176,98],[156,76],[157,168],[120,174],
            [83,168],[84,76],[64,98],[44,86],[68,52],[100,36]],
-  /* nine pieces, one system */
-  grid:   [[40,44],[120,44],[200,44],[200,82],[120,82],[40,82],[40,120],[120,120],
-           [200,120],[200,158],[120,158],[40,158],[40,101],[200,101]],
+  /* THE SYSTEM — nine pieces, and one thread that visits every one of them
+     without ever being lifted. That is what a wardrobe system actually is:
+     not nine good garments, but the single logic that connects them. The path
+     is a true Hamiltonian walk of the 3x3 — every node hit exactly once. */
+  grid:   [[52,52],[120,52],[188,52],[188,104],[120,104],[52,104],[52,156],
+           [120,156],[188,156],[188,120],[120,120],[52,120],[52,68],[188,68]],
   /* signed */
   sign:   [[20,130],[38,96],[54,140],[72,104],[90,146],[108,102],[126,138],[144,98],
            [162,134],[180,100],[196,124],[210,108],[220,116],[228,110]],
@@ -2619,6 +2708,16 @@ function ThreadMark({ form = "stitch", label, className = "", style }) {
         },
       });
 
+      /* the pieces land as the thread reaches them */
+      const nodes = el.querySelectorAll(".mk-nodes circle");
+      if (nodes.length) {
+        gsap.set(nodes, { scale: 0, transformOrigin: "center" });
+        gsap.to(nodes, {
+          scale: 1, duration: .5, ease: "back.out(2.4)", stagger: .09, delay: .5,
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        });
+      }
+
       /* it breathes — a cord under slight tension never sits perfectly still */
       gsap.to(el.querySelector(".mk-g"), {
         rotate: 1.1, y: -3, duration: 4.2, ease: "sine.inOut",
@@ -2639,6 +2738,12 @@ function ThreadMark({ form = "stitch", label, className = "", style }) {
           <path className="mk-shade" d={d} />
           <path className="mk-core" d={d} />
           <path className="mk-spec" d={d} />
+          {form === "grid" ? (
+            <g className="mk-nodes">
+              {[[52,52],[120,52],[188,52],[52,104],[120,104],[188,104],[52,156],[120,156],[188,156]]
+                .map(([cx, cy], i) => <circle key={i} cx={cx} cy={cy} r="4.2" />)}
+            </g>
+          ) : null}
         </g>
       </svg>
       {label ? <figcaption>{label}</figcaption> : null}
@@ -2646,6 +2751,548 @@ function ThreadMark({ form = "stitch", label, className = "", style }) {
   );
 }
 
+
+
+
+/* ===========================================================================
+   THE ERA COLLAGE
+   A research board assembling itself. Plate one lands and an arrow calls out
+   one detail. Plate two slides over it, covering part of the first, and calls
+   out another. Four plates, four callouts, roughly two and a half seconds.
+
+   The overlap is the point: each new plate half-hides the one before it, the
+   way a real board is built by piling references, not by laying them out in a
+   neat row. Changing the era tears the board down and builds the next one.
+
+   Callout coordinates are percentages of their own plate, so they stay pinned
+   to the right part of the image at any size.
+   =========================================================================== */
+/* One layout, reused for every era. Heights are percentages of the collage
+   box rather than an aspect ratio, so the board can never overflow the
+   clipped container it sits in — whatever the viewport does. */
+const PLATE_LAYOUT = [
+  { left: "0%",  top: "5%",  w: "43%", h: "56%", r: -3.0 },
+  { left: "26%", top: "0%",  w: "40%", h: "52%", r: 2.6 },
+  { left: "55%", top: "11%", w: "40%", h: "55%", r: -1.8 },
+  { left: "31%", top: "42%", w: "38%", h: "52%", r: 3.2 },
+];
+
+const ERA_PLATES = {
+  1900: [
+    { cx: 62, cy: 34, note: "Handwoven — no two the same" },
+    { cx: 38, cy: 58, note: "Drape, not tailoring" },
+    { cx: 55, cy: 26, note: "Turban states region" },
+    { cx: 46, cy: 62, note: "Jewellery is the ledger" },
+  ],
+  1970: [
+    { cx: 52, cy: 40, note: "One good set" },
+    { cx: 44, cy: 30, note: "Terrycot — built to survive" },
+    { cx: 58, cy: 52, note: "Safari cut, office to wedding" },
+    { cx: 48, cy: 60, note: "Repaired, not replaced" },
+  ],
+  2000: [
+    { cx: 46, cy: 36, note: "The brand becomes visible" },
+    { cx: 56, cy: 44, note: "Denim arrives" },
+    { cx: 40, cy: 28, note: "Logo as shorthand" },
+    { cx: 52, cy: 58, note: "Mall lighting, mall taste" },
+  ],
+  2010: [
+    { cx: 50, cy: 32, note: "Infinite catalogue" },
+    { cx: 44, cy: 54, note: "Slim fit, borrowed wholesale" },
+    { cx: 58, cy: 38, note: "Accessories as afterthought" },
+    { cx: 46, cy: 62, note: "Everything available, nothing chosen" },
+  ],
+  2020: [
+    { cx: 54, cy: 42, note: "Occasions collapse" },
+    { cx: 42, cy: 30, note: "Home and office, same shirt" },
+    { cx: 56, cy: 50, note: "Camera-up, waist-down" },
+    { cx: 48, cy: 60, note: "The closet stops adapting" },
+  ],
+  2026: [
+    { cx: 48, cy: 34, note: "Six selves, one week" },
+    { cx: 56, cy: 46, note: "Objects do the talking" },
+    { cx: 40, cy: 30, note: "Heritage, quoted not worn" },
+    { cx: 52, cy: 58, note: "Still no system to hold it" },
+  ],
+};
+
+function EraCollage({ year }) {
+  const root = useRef(null);
+  const plates = ERA_PLATES[year] || ERA_PLATES[1900];
+  const media = (M.timeline.plates && M.timeline.plates[year]) || [];
+
+  useEffect(() => {
+    const el = root.current; if (!el) return;
+    const cards = gsap.utils.toArray(".pl", el);
+    if (reduced()) { gsap.set(cards, { autoAlpha: 1, scale: 1, y: 0 }); return; }
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline();
+      cards.forEach((c, i) => {
+        const at = i * .34;
+        const callout = c.querySelector(".pl-call");
+        const line = c.querySelector(".pl-line");
+        const dot = c.querySelector(".pl-dot");
+        const txt = c.querySelector(".pl-txt");
+
+        /* the plate is dealt onto the board */
+        tl.fromTo(c,
+          { autoAlpha: 0, y: 34, scale: .93, rotate: PLATE_LAYOUT[i].r - 6 },
+          { autoAlpha: 1, y: 0, scale: 1, rotate: PLATE_LAYOUT[i].r,
+            duration: .52, ease: "back.out(1.5)" }, at);
+
+        /* then the arrow finds its detail */
+        tl.fromTo(dot, { scale: 0 }, { scale: 1, duration: .22, ease: "back.out(3)" }, at + .26)
+          .fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: .26, ease: "power3.out" }, at + .32)
+          .fromTo(txt, { autoAlpha: 0, x: -8 }, { autoAlpha: 1, x: 0, duration: .26 }, at + .42);
+        if (callout) tl.set(callout, { zIndex: 40 }, at + .26);
+      });
+      /* the callouts fade back once the board is read, so the images breathe */
+      tl.to(el.querySelectorAll(".pl-call"), {
+        autoAlpha: .34, duration: .5, stagger: .05,
+      }, "+=1.5");
+    }, el);
+    return () => ctx.revert();
+  }, [year]);
+
+  return (
+    <div className="collage" ref={root} key={year}>
+      {plates.map((p, i) => (
+        <figure className="pl" key={i}
+          style={{
+            left: PLATE_LAYOUT[i].left, top: PLATE_LAYOUT[i].top,
+            width: PLATE_LAYOUT[i].w, height: PLATE_LAYOUT[i].h, zIndex: 10 + i,
+          }}>
+          <div className="pl-img">
+            <Media a={media[i]} style={{ height: "100%" }} />
+          </div>
+          <span className="pl-call" style={{ left: `${p.cx}%`, top: `${p.cy}%` }}>
+            <i className="pl-dot" />
+            <i className="pl-line" />
+            <b className="pl-txt">{p.note}</b>
+          </span>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+/* ===========================================================================
+   THE TRAVELLER
+   The freight idea, at the scale it actually belongs at.
+
+   A single small strand lives at the left edge of the viewport for the entire
+   document. Between sections it is just that — a strand, travelling. When a
+   section takes the centre of the screen, the strand runs into it and takes
+   that section's form. When you leave, it lets go and becomes a strand again,
+   carrying on to the next one.
+
+   Same cord, same three strokes, all the way down. It is never cut and it is
+   never duplicated — there is exactly one of these on the page.
+   =========================================================================== */
+const TRAVEL_STRAND = [[120,10],[120,25],[121,40],[119,56],[120,72],[121,88],[119,104],
+                       [120,120],[121,136],[119,152],[120,166],[121,178],[120,188],[120,196]];
+
+const TRAVEL_STOPS = [
+  { id: "thesis",  form: "stitch", label: "one stitch" },
+  { id: "money",   form: "curve",  label: "the money" },
+  { id: "roles",   form: "pulse",  label: "one day" },
+  { id: "market",  form: "shirt",  label: "the shirt" },
+  { id: "rumoar",  form: "grid",   label: "the system" },
+  { id: "ask",     form: "sign",   label: "signed" },
+];
+
+function Traveller() {
+  const wrap = useRef(null);
+  const [stop, setStop] = useState(null);
+
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el || reduced() || window.matchMedia("(max-width:900px)").matches) return;
+
+    const paths = el.querySelectorAll(".tv-shade, .tv-core, .tv-spec");
+    const strandD = smoothPath(TRAVEL_STRAND);
+
+    /* the cord is always travelling downward; scroll only changes how fast */
+    const drift = gsap.to(el.querySelector(".tv-g"), {
+      y: 14, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: -1,
+    });
+
+    const setForm = (formKey, arriving) => {
+      const d = formKey ? smoothPath(MARK_FORMS[formKey]) : strandD;
+      /* it arrives by tightening into the shape, and leaves by relaxing out —
+         the ease is what makes it read as one object doing two things */
+      gsap.to(paths, {
+        attr: { d },
+        duration: arriving ? .85 : .7,
+        ease: arriving ? "power3.inOut" : "power2.inOut",
+        stagger: { each: .045, from: "start" },
+        overwrite: "auto",
+      });
+      gsap.to(el, {
+        scale: arriving ? 1 : .58,
+        x: arriving ? 0 : -14,
+        duration: arriving ? .8 : .65,
+        ease: arriving ? "back.out(1.5)" : "power2.inOut",
+        overwrite: "auto",
+      });
+    };
+
+    const trigs = TRAVEL_STOPS.map((s) => {
+      const target = document.getElementById(s.id);
+      if (!target) return null;
+      return ScrollTrigger.create({
+        trigger: target, start: "top 58%", end: "bottom 42%",
+        onEnter:     () => { setForm(s.form, true);  setStop(s); },
+        onEnterBack: () => { setForm(s.form, true);  setStop(s); },
+        onLeave:     () => { setForm(null, false);   setStop(null); },
+        onLeaveBack: () => { setForm(null, false);   setStop(null); },
+      });
+    }).filter(Boolean);
+
+    /* it starts as a strand, small, travelling */
+    gsap.set(el, { scale: .58, x: -14 });
+    ScrollTrigger.refresh();
+
+    return () => { trigs.forEach((t) => t.kill()); drift.kill(); };
+  }, []);
+
+  if (reduced()) return null;
+  const d = smoothPath(TRAVEL_STRAND);
+  return (
+    <div className="traveller" aria-hidden="true">
+      <div className="tv-box" ref={wrap}>
+        <svg viewBox="0 0 240 200">
+          <g className="tv-g">
+            <path className="tv-shade" d={d} />
+            <path className="tv-core" d={d} />
+            <path className="tv-spec" d={d} />
+          </g>
+        </svg>
+      </div>
+      <span className={`tv-cap ${stop ? "on" : ""}`}>{stop ? stop.label : ""}</span>
+    </div>
+  );
+}
+
+
+/* ===========================================================================
+   THE LIGHTER
+   A brushed-steel flip lighter on a loop: it drops in, the lid springs open,
+   the flint catches, the flame settles, it turns once to show its edge, then
+   the lid snaps shut and it falls away. Then again.
+
+   The metal is four stacked gradients rather than a photograph: a vertical
+   brushed sheen, a bright specular band that travels as it turns, a dark
+   bevel, and a warm bounce from the flame once it is lit. That layering is
+   what reads as steel instead of grey plastic.
+   =========================================================================== */
+function Lighter() {
+  const root = useRef(null);
+
+  useEffect(() => {
+    const el = root.current; if (!el || reduced()) return;
+    let tl = null, live = false;
+
+    const ctx = gsap.context(() => {
+      const body = el.querySelector(".lt-body");
+      const lid = el.querySelector(".lt-lid");
+      const flame = el.querySelector(".lt-flame");
+      const glow = el.querySelector(".lt-glow");
+      const spark = el.querySelectorAll(".lt-spark");
+      const sheen = el.querySelector(".lt-sheen");
+
+      tl = gsap.timeline({ repeat: -1, repeatDelay: .5 });
+      tl.set(el, { y: -140, rotate: -22, opacity: 0 })
+        .set(lid, { rotate: 0, transformOrigin: "14% 92%" })
+        .set([flame, glow], { opacity: 0, scaleY: .2, transformOrigin: "50% 100%" })
+        .set(spark, { opacity: 0 })
+
+        /* the drop — it lands with weight and settles */
+        .to(el, { y: 0, rotate: 0, opacity: 1, duration: .72, ease: "bounce.out" })
+        .to(el, { y: -3, duration: .16, ease: "power2.out" })
+        .to(el, { y: 0, duration: .2, ease: "power2.in" })
+
+        /* the lid springs */
+        .to(lid, { rotate: -128, duration: .38, ease: "back.out(2.2)" }, "+=.1")
+
+        /* flint sparks, then the flame catches and settles into a breathe */
+        .to(spark, { opacity: 1, duration: .06, stagger: .03 }, "+=.06")
+        .to(spark, { opacity: 0, y: -7, duration: .18, stagger: .03 })
+        .to([flame, glow], { opacity: 1, scaleY: 1, duration: .3, ease: "power3.out" }, "-=.12")
+        .to(flame, {
+          scaleY: 1.14, scaleX: .93, duration: .34,
+          ease: "sine.inOut", yoyo: true, repeat: 3,
+        })
+
+        /* one slow turn — the specular band sweeps across the steel */
+        .to(el, { rotateY: 360, duration: 1.5, ease: "power2.inOut" }, "-=.9")
+        .fromTo(sheen, { x: -34 }, { x: 34, duration: 1.5, ease: "power2.inOut" }, "<")
+
+        /* snuffed, shut, gone */
+        .to([flame, glow], { opacity: 0, scaleY: .2, duration: .22, ease: "power2.in" })
+        .to(lid, { rotate: 0, duration: .26, ease: "power3.in" }, "-=.06")
+        .to(el, { y: 150, rotate: 16, opacity: 0, duration: .6, ease: "power2.in" }, "+=.2");
+
+      tl.pause();
+      ScrollTrigger.create({
+        trigger: el, start: "top 92%", end: "bottom 8%",
+        onEnter: () => { live = true; tl.play(); },
+        onEnterBack: () => { live = true; tl.play(); },
+        onLeave: () => { live = false; tl.pause(); },
+        onLeaveBack: () => { live = false; tl.pause(); },
+      });
+    }, el);
+
+    const onVis = () => {
+      if (!tl) return;
+      if (document.hidden) tl.pause(); else if (live) tl.play();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      document.removeEventListener("visibilitychange", onVis);
+      if (tl) tl.kill();
+      ctx.revert();
+    };
+  }, []);
+
+  return (
+    <div className="lighterwrap">
+      <div className="lighter" ref={root}>
+        <svg viewBox="0 0 120 190" aria-hidden="true">
+          <defs>
+            <linearGradient id="lt-steel" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#3A3D44" /><stop offset="18%" stopColor="#9AA0A8" />
+              <stop offset="38%" stopColor="#5C6169" /><stop offset="58%" stopColor="#C3C8CE" />
+              <stop offset="78%" stopColor="#61666E" /><stop offset="100%" stopColor="#2F323A" />
+            </linearGradient>
+            <linearGradient id="lt-brush" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fff" stopOpacity=".16" />
+              <stop offset="50%" stopColor="#fff" stopOpacity="0" />
+              <stop offset="100%" stopColor="#000" stopOpacity=".26" />
+            </linearGradient>
+            <radialGradient id="lt-fl" cx="50%" cy="72%" r="62%">
+              <stop offset="0%" stopColor="#FFF4CF" /><stop offset="42%" stopColor="#FFB93A" />
+              <stop offset="100%" stopColor="#FF3B47" stopOpacity=".18" />
+            </radialGradient>
+            <radialGradient id="lt-gl" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFC46A" stopOpacity=".62" />
+              <stop offset="100%" stopColor="#FFC46A" stopOpacity="0" />
+            </radialGradient>
+            <clipPath id="lt-clip"><rect x="22" y="74" width="76" height="104" rx="7" /></clipPath>
+          </defs>
+
+          <ellipse className="lt-glow" cx="60" cy="60" rx="52" ry="46" fill="url(#lt-gl)" />
+          <g className="lt-flame">
+            <path d="M60,20 C71,38 78,48 78,60 C78,74 70,82 60,82 C50,82 42,74 42,60 C42,48 49,38 60,20 Z"
+              fill="url(#lt-fl)" />
+            <path d="M60,44 C65,54 67,59 67,64 C67,71 64,75 60,75 C56,75 53,71 53,64 C53,59 55,54 60,44 Z"
+              fill="#FFF8E2" opacity=".85" />
+          </g>
+          {[[48, 66], [70, 64], [59, 58]].map(([cx, cy], i) => (
+            <circle className="lt-spark" key={i} cx={cx} cy={cy} r="2.1" fill="#FFD98A" />
+          ))}
+
+          <g className="lt-lid">
+            <rect x="22" y="40" width="76" height="40" rx="7" fill="url(#lt-steel)" />
+            <rect x="22" y="40" width="76" height="40" rx="7" fill="url(#lt-brush)" />
+            <rect x="30" y="48" width="60" height="2" rx="1" fill="#fff" opacity=".22" />
+          </g>
+
+          <g className="lt-body">
+            <rect x="22" y="74" width="76" height="104" rx="7" fill="url(#lt-steel)" />
+            <rect x="22" y="74" width="76" height="104" rx="7" fill="url(#lt-brush)" />
+            <g clipPath="url(#lt-clip)">
+              <rect className="lt-sheen" x="44" y="70" width="16" height="114"
+                fill="#fff" opacity=".3" />
+            </g>
+            <rect x="22" y="74" width="76" height="104" rx="7" fill="none"
+              stroke="#1A1C21" strokeOpacity=".8" strokeWidth="1.4" />
+            <path d="M34,96 h52 M34,104 h52 M34,112 h52" stroke="#20232A" strokeOpacity=".5" strokeWidth="1.2" />
+            <text x="60" y="150" textAnchor="middle" className="lt-mark">R</text>
+          </g>
+        </svg>
+      </div>
+      <span className="lightercap">Every rumour <b>needs a spark</b></span>
+    </div>
+  );
+}
+
+
+/* ===========================================================================
+   THE ROOM TONE  +  ITS SWITCH
+   ---------------------------------------------------------------------------
+   IMPORTANT, AND NOT A CHOICE I MADE: every current browser blocks audio that
+   starts without a user gesture. Chrome, Safari and Firefox all suspend a new
+   AudioContext until the person clicks, taps or presses a key. There is no
+   flag, no trick and no library that changes this — autoplaying sound is the
+   single most aggressively policed thing on the web.
+
+   So this does the only honest version of "starts on its own":
+     · it tries to start immediately, and on the rare permissive setup it will
+     · if the browser refuses, the switch pulses to invite one click, and the
+       first click ANYWHERE on the page starts it
+   Either way the person never has to hunt for a play button.
+
+   The sound itself is synthesised, not a file — three detuned sine partials, a
+   slow filter sweep and a soft noise bed. Nothing to upload, nothing to
+   licence, about 2kB of code, and it never loops audibly because it is
+   generated rather than played back.
+   =========================================================================== */
+function useRoomTone(enabled) {
+  const nodes = useRef(null);
+  const [blocked, setBlocked] = useState(false);
+  const [on, setOn] = useState(false);
+
+  const build = useCallback(() => {
+    if (nodes.current) return nodes.current;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    const ac = new AC();
+    const out = ac.createGain();
+    out.gain.value = 0;
+    out.connect(ac.destination);
+
+    /* a low chord that never quite resolves */
+    const filt = ac.createBiquadFilter();
+    filt.type = "lowpass"; filt.frequency.value = 460; filt.Q.value = 1.4;
+    filt.connect(out);
+
+    const oscs = [55, 82.5, 110, 164.8].map((f, i) => {
+      const o = ac.createOscillator();
+      o.type = i % 2 ? "sine" : "triangle";
+      o.frequency.value = f * (1 + (i - 1.5) * .0016);   // slight detune = movement
+      const g = ac.createGain();
+      g.gain.value = [.5, .26, .3, .12][i];
+      o.connect(g); g.connect(filt); o.start();
+      return o;
+    });
+
+    /* an lfo opens and closes the filter, so it breathes */
+    const lfo = ac.createOscillator(), lfoGain = ac.createGain();
+    lfo.frequency.value = .045; lfoGain.gain.value = 210;
+    lfo.connect(lfoGain); lfoGain.connect(filt.frequency); lfo.start();
+
+    /* a quiet bed of noise, filtered down to almost air */
+    const len = ac.sampleRate * 3;
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const ch = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) {
+      const w = Math.random() * 2 - 1;
+      last = (last + w * .02) * .995;
+      ch[i] = last * 2.4;
+    }
+    const noise = ac.createBufferSource();
+    noise.buffer = buf; noise.loop = true;
+    const nf = ac.createBiquadFilter();
+    nf.type = "bandpass"; nf.frequency.value = 900; nf.Q.value = .6;
+    const ng = ac.createGain(); ng.gain.value = .05;
+    noise.connect(nf); nf.connect(ng); ng.connect(out); noise.start();
+
+    nodes.current = { ac, out, oscs, lfo, noise };
+    return nodes.current;
+  }, []);
+
+  const start = useCallback(async () => {
+    const n = build(); if (!n) return false;
+    try {
+      if (n.ac.state === "suspended") await n.ac.resume();
+      if (n.ac.state !== "running") return false;
+      n.out.gain.cancelScheduledValues(n.ac.currentTime);
+      n.out.gain.setValueAtTime(n.out.gain.value, n.ac.currentTime);
+      n.out.gain.linearRampToValueAtTime(.16, n.ac.currentTime + 2.6);
+      setOn(true); setBlocked(false);
+      return true;
+    } catch { return false; }
+  }, [build]);
+
+  const stop = useCallback(() => {
+    const n = nodes.current; if (!n) return;
+    n.out.gain.cancelScheduledValues(n.ac.currentTime);
+    n.out.gain.setValueAtTime(n.out.gain.value, n.ac.currentTime);
+    n.out.gain.linearRampToValueAtTime(0, n.ac.currentTime + .7);
+    setOn(false);
+  }, []);
+
+  /* try immediately; fall back to the first gesture anywhere on the page */
+  useEffect(() => {
+    if (!enabled || reduced()) return;
+    let cancelled = false;
+    (async () => {
+      const ok = await start();
+      if (cancelled || ok) return;
+      setBlocked(true);
+      const kick = async () => {
+        const good = await start();
+        if (good) offAll();
+      };
+      const offAll = () => {
+        window.removeEventListener("pointerdown", kick);
+        window.removeEventListener("keydown", kick);
+        window.removeEventListener("touchstart", kick);
+      };
+      window.addEventListener("pointerdown", kick);
+      window.addEventListener("keydown", kick);
+      window.addEventListener("touchstart", kick);
+    })();
+    return () => { cancelled = true; };
+  }, [enabled, start]);
+
+  useEffect(() => () => {
+    const n = nodes.current; if (!n) return;
+    try { n.oscs.forEach((o) => o.stop()); n.lfo.stop(); n.noise.stop(); n.ac.close(); } catch {}
+    nodes.current = null;
+  }, []);
+
+  return { on, blocked, start, stop };
+}
+
+/* The switch: a WebGL-free 3D object built from stacked CSS planes — a small
+   brushed dial that turns and sinks when the sound goes off. Real depth, no
+   second renderer to pay for. */
+function SoundDial({ on, blocked, onToggle }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current; if (!el || reduced()) return;
+    const bars = el.querySelectorAll(".sd-bar");
+    const tw = gsap.to(bars, {
+      scaleY: () => .3 + Math.random() * .8,
+      duration: .42, ease: "sine.inOut", stagger: { each: .06, repeat: -1, yoyo: true },
+      repeat: -1, yoyo: true, transformOrigin: "50% 50%",
+    });
+    if (!on) tw.pause();
+    return () => tw.kill();
+  }, [on]);
+
+  useEffect(() => {
+    const el = ref.current; if (!el || reduced()) return;
+    gsap.to(el.querySelector(".sd-face"), {
+      rotateY: on ? 0 : -34, rotateX: on ? 0 : 12, z: on ? 0 : -10,
+      duration: .7, ease: "power3.out",
+    });
+    /* if the browser blocked us, the dial breathes to ask for one click */
+    const pulse = gsap.to(el, {
+      scale: 1.07, duration: .9, ease: "sine.inOut", yoyo: true, repeat: -1,
+    });
+    if (!blocked) { pulse.kill(); gsap.set(el, { scale: 1 }); }
+    return () => pulse.kill();
+  }, [on, blocked]);
+
+  return (
+    <button className={`sounddial ${on ? "on" : ""} ${blocked ? "asking" : ""}`}
+      ref={ref} onClick={onToggle} aria-pressed={on}
+      aria-label={on ? "Turn the room tone off" : "Turn the room tone on"}>
+      <span className="sd-face">
+        <span className="sd-rim" />
+        <span className="sd-bars">
+          {[0, 1, 2, 3, 4].map((i) => <i className="sd-bar" key={i} />)}
+        </span>
+      </span>
+      <span className="sd-cap">{blocked ? "click for sound" : on ? "sound on" : "sound off"}</span>
+    </button>
+  );
+}
 
 /* ===========================================================================
    THE DECK
@@ -3514,7 +4161,7 @@ function RiskRegister() {
     <section id="risks" style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
       <div className="g">
         <div style={{ gridColumn: "9 / 13", alignSelf: "center", order: 2 }}>
-          <Reveal delay={220}><ThreadMark form="grid" label="nine pieces, one system" /></Reveal>
+          <Reveal delay={220}><ThreadMark form="grid" label="nine pieces · one unbroken thread" /></Reveal>
         </div>
         <div style={{ gridColumn: "1 / 8" }}>
           <Reveal>
@@ -3911,6 +4558,7 @@ export default function Rumoar() {
   const [era, setEra] = useState(0);      // shared timeline index — drives every chart
   const [introDone, setIntroDone] = useState(() => reduced());
   const [day, setDay] = useState(false);   // the lamp. Off by default.
+  const tone = useRoomTone(introDone && route === "site");
   const eraCtx = useMemo(() => ({ era, setEra }), [era]);
 
   const brand = useMemo(() => brandData.find((b) => b.id === selected) || null, [selected]);
@@ -3977,6 +4625,11 @@ export default function Rumoar() {
       <style>{CSS}</style>
       {!introDone ? <Loader onDone={() => setIntroDone(true)} /> : null}
       <EdgeStrip />
+      {introDone && route === "site" ? <Traveller /> : null}
+      {introDone ? (
+        <SoundDial on={tone.on} blocked={tone.blocked}
+          onToggle={() => (tone.on ? tone.stop() : tone.start())} />
+      ) : null}
       {introDone ? <Lamp day={day} onPull={() => setDay((d) => !d)} /> : null}
 
       {route === "site" ? (
@@ -4153,6 +4806,20 @@ export default function Rumoar() {
             <div className="g">
               <div style={{ gridColumn: "1 / 13" }}>
                 <Reveal><Chamber /></Reveal>
+              </div>
+            </div>
+            <div className="g" style={{ marginTop: "clamp(38px,6vh,72px)" }}>
+              <div style={{ gridColumn: "1 / 3" }}>
+                <Reveal delay={120}><Lighter /></Reveal>
+              </div>
+              <div style={{ gridColumn: "4 / 10", alignSelf: "center" }}>
+                <Reveal delay={220}>
+                  <p className="body" style={{ maxWidth: "46ch" }}>
+                    Distribution isn&rsquo;t a budget line, it&rsquo;s a chain reaction. One
+                    person repeats you to one other person, and the only thing that decides
+                    whether it spreads is whether the thing you gave them was worth repeating.
+                  </p>
+                </Reveal>
               </div>
             </div>
           </section>
