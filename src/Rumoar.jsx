@@ -120,12 +120,8 @@ const M = {
        is actually built. Drop 1900-a.jpg … 1900-d.jpg into public/assets/timeline
        and the collage fills in. Until then each plate shows its own labelled
        placeholder, so the sequence is legible while the images are sourced. */
-    1900: img("timeline/1900.jpg", "1900 — the man", "50% 26%"),
-    1970: img("timeline/1970.jpg", "1970 — the man", "50% 26%"),
-    2000: img("timeline/2000.jpg", "2000 — the man", "50% 26%"),
-    2010: img("timeline/2010.jpg", "2010 — the man", "50% 26%"),
-    2020: img("timeline/2020.jpg", "2020 — the man", "50% 26%"),
-    2026: img("timeline/2026.jpg", "2026 — the man", "50% 26%"),
+    /* The six single-era photographs were removed — each era is a collage of
+       four plates now, so only the -a/-b/-c/-d files are needed. */
     plates: Object.fromEntries([1900, 1970, 2000, 2010, 2020, 2026].map((y) => [y,
       ["a", "b", "c", "d"].map((k) => img(`timeline/${y}-${k}.jpg`, `${y} — plate ${k}`, "50% 30%")),
     ])),
@@ -500,7 +496,7 @@ const CHAPTERS = [
    §3  SYSTEM
 ========================================================================== */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&family=Montserrat:wght@300;400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..800&family=Montserrat:wght@300;400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap');
 
 /* ===========================================================================
    ONE ROOM, TWO LIGHT LEVELS
@@ -511,21 +507,22 @@ const CSS = `
    entire site with no per-section overrides and no flip-flopping mid-scroll.
    =========================================================================== */
 .ru{
-  --paper:#0A0A0E; --paper-2:#121218; --paper-3:#1A1A22;
-  --ink:#F5F3EF; --ink-2:#A6A2AE; --ink-3:#66626F;
-  --line:rgba(245,243,239,.13);
-  --mark:#FF3B47;
-  --glass-bg:rgba(255,255,255,.045);
-  color-scheme:dark;
-  --glass:var(--glass-bg); --gl-hi:rgba(255,255,255,.10); --gl-edge:rgba(245,243,239,.14);
-  --grid:rgba(245,243,239,.07); --axis:rgba(245,243,239,.22);
-  --fig:#0E1016; --fig-2:#2B1218; --fig-3:#05060A;
-  --pool-cool:#0E3038; --pool-warm:#4A0E18; --cord-shade:#000;
+  /* LIGHT IS THE DEFAULT. True white, not off-white. */
+  --paper:#FFFFFF; --paper-2:#F7F7F8; --paper-3:#EFEFF1;
+  --ink:#0B0B0D; --ink-2:#55555E; --ink-3:#8E8E98;
+  --line:#E6E6EA;
+  --mark:#D8232F;
+  --glass-bg:rgba(255,255,255,.62);
+  color-scheme:light;
+  --glass:var(--glass-bg); --gl-hi:rgba(255,255,255,.85); --gl-edge:rgba(11,11,13,.07);
+  --grid:#F0F0F2; --axis:#DCDCE1;
+  --fig:#14131A; --fig-2:#3A2228; --fig-3:#0B0A0F;
+  --pool-cool:#DCEAEC; --pool-warm:#F6DFE2; --cord-shade:#B9B9C2;
   --micro:180ms; --ui:420ms; --content:820ms; --cine:1400ms;
   --ez:cubic-bezier(.22,.68,.16,1); --ez-out:cubic-bezier(.16,1,.3,1);
   --gut:clamp(14px,1.8vw,26px); --marg:clamp(20px,6vw,116px);
   transition:background 700ms var(--ez),color 700ms var(--ez);
-  font-family:'Poppins',-apple-system,system-ui,sans-serif;color:var(--ink);background:var(--paper);
+  font-family:'Space Grotesk','Inter',-apple-system,system-ui,sans-serif;color:var(--ink);background:var(--paper);
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   scrollbar-gutter:stable;
 }
@@ -631,24 +628,25 @@ const CSS = `
    paper. The document moves between the two, and the lamp is the switch.
    =========================================================================== */
 /* DAY — what the lamp switches on. Warm archival paper, never clinical white. */
-.ru.day{
-  --paper:#FBFAF7; --paper-2:#F4F2ED; --paper-3:#EAE7E0;
-  --ink:#111014; --ink-2:#5A5760; --ink-3:#95919C;
-  --line:#E2DED6;
-  --mark:#B3121F;
-  --glass-bg:rgba(255,255,255,.55);
-  color-scheme:light;
+.ru.night{
+  /* what the lamp switches OFF to */
+  --paper:#0A0A0E; --paper-2:#121218; --paper-3:#1A1A22;
+  --ink:#F5F3EF; --ink-2:#A6A2AE; --ink-3:#66626F;
+  --line:rgba(245,243,239,.13);
+  --mark:#FF3B47;
+  --glass-bg:rgba(255,255,255,.045);
+  color-scheme:dark;
 }
 /* legacy aliases — a few components still name these directly */
 .ru{--night:var(--paper);--night-2:var(--paper-2);--night-3:var(--paper-3);
   --bone:var(--ink);--bone-2:var(--ink-2);--bone-3:var(--ink-3);
-  --ember:#FF3B47;--ember-soft:#FF6B74;--ember-deep:#B3121F;
-  --cold:#35E0D0;--nline:var(--line);--nline-2:var(--line)}
-.ru.day{--ember:#B3121F;--ember-soft:#D4323E;--cold:#0A9C90;
-  --gl-hi:rgba(255,255,255,.8);--gl-edge:rgba(12,12,11,.06);
-  --grid:#F2F1EE;--axis:#DFDDD8;
-  --fig:#14131A;--fig-2:#3A2228;--fig-3:#0B0A0F;
-  --pool-cool:#CFE3E6;--pool-warm:#F3D8DC;--cord-shade:#6B4A2F}
+  --ember:#D8232F;--ember-soft:#E8505B;--ember-deep:#9E0F19;
+  --cold:#0A9C90;--nline:var(--line);--nline-2:var(--line)}
+.ru.night{--ember:#FF3B47;--ember-soft:#FF6B74;--cold:#35E0D0;
+  --gl-hi:rgba(255,255,255,.10);--gl-edge:rgba(245,243,239,.14);
+  --grid:rgba(245,243,239,.07);--axis:rgba(245,243,239,.22);
+  --fig:#0E1016;--fig-2:#2B1218;--fig-3:#05060A;
+  --pool-cool:#0E3038;--pool-warm:#4A0E18;--cord-shade:#000}
 .ru .ember{color:var(--ember)}
 .ru .it{font-style:italic}
 
@@ -664,8 +662,8 @@ const CSS = `
 .ru .ldtype i{display:inline-block;width:2px;height:1em;background:var(--ember);
   margin-left:6px;vertical-align:-.12em;animation:ck 1s steps(2) infinite}
 @keyframes ck{50%{opacity:0}}
-.ru .ldword{display:flex;justify-content:center;gap:.02em;font-weight:400;
-  font-family:'Bodoni Moda',Didot,serif;
+.ru .ldword{display:flex;justify-content:center;gap:.02em;font-weight:600;
+  font-family:'Inter',sans-serif;
   font-size:clamp(2.8rem,9.5vw,7.4rem);letter-spacing:.03em;color:var(--bone)}
 .ru .ldword span{display:inline-block;opacity:0;filter:blur(16px);transform:translateY(26px) scale(1.06);
   transition:opacity 1150ms var(--ez-out),filter 1150ms var(--ez-out),transform 1150ms var(--ez-out)}
@@ -742,9 +740,9 @@ const CSS = `
 .ru .sheen{position:absolute;inset:0;pointer-events:none;opacity:0;
   --mx:50%;--my:50%;
   background:radial-gradient(circle 220px at var(--mx) var(--my),
-    rgba(255,255,255,.10),transparent 62%)}
-.ru.day .sheen{background:radial-gradient(circle 220px at var(--mx) var(--my),
-  rgba(255,255,255,.85),transparent 60%)}
+    rgba(255,255,255,.9),transparent 60%)}
+.ru.night .sheen{background:radial-gradient(circle 220px at var(--mx) var(--my),
+  rgba(255,255,255,.10),transparent 62%)}
 .ru .mag{position:relative;display:inline-flex;align-items:center;justify-content:center;
   will-change:transform}
 .ru .mag-l{display:inline-flex;align-items:center;gap:.6em;will-change:transform}
@@ -756,13 +754,27 @@ const CSS = `
   stroke-linecap:round;stroke-linejoin:round;filter:blur(3px);transform:translate(4px,5px)}
 .ru .mk-core{fill:none;stroke:var(--ink);stroke-width:2.1;stroke-linecap:round;
   stroke-linejoin:round}
-.ru .mk-spec{fill:none;stroke:var(--paper);stroke-opacity:.9;stroke-width:.85;
+.ru .mk-spec{fill:none;stroke:#fff;stroke-opacity:1;stroke-width:.85;
   stroke-linecap:round}
-.ru.day .mk-spec{stroke:#fff;stroke-opacity:1}
+.ru.night .mk-spec{stroke:var(--paper);stroke-opacity:.9}
 .ru .mk-nodes circle{fill:var(--paper);stroke:var(--mark);stroke-width:1.6}
 .ru .mark figcaption{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
   text-transform:uppercase;color:var(--ink-3);margin-top:14px}
 @media (max-width:900px){.ru .mark{max-width:190px;margin-inline:auto}}
+
+/* THE STACK — five frames collapsing into one */
+.ru .stack{position:relative}
+.ru .stk-pin{height:100svh;display:flex;align-items:center;overflow:hidden;
+  contain:layout paint}
+.ru .stk-deck{position:relative;width:100%;aspect-ratio:16/10}
+.ru .stk-card{position:absolute;inset:0;margin:0;overflow:hidden;
+  background:var(--paper-2);border:1px solid var(--line);will-change:transform;
+  box-shadow:0 24px 60px -34px rgba(0,0,0,.5)}
+.ru .stk-card .m{width:100%;height:100%}
+@media (max-width:760px){
+  .ru .stk-pin{height:auto;padding-block:clamp(48px,8vh,90px)}
+  .ru .stk-deck{aspect-ratio:4/3;margin-top:26px}
+}
 
 /* THE ERA COLLAGE — a board assembling itself */
 .ru .collage{position:relative;width:100%;height:100%;min-height:clamp(280px,42vh,460px)}
@@ -804,7 +816,7 @@ const CSS = `
 .ru .vn-groove.g1{inset:5px}.ru .vn-groove.g2{inset:9px}.ru .vn-groove.g3{inset:13px}
 .ru .vn-label{position:absolute;inset:34%;border-radius:50%;background:var(--mark);
   display:grid;place-items:center}
-.ru .vn-label b{font-family:'Bodoni Moda',Didot,serif;font-size:.6rem;color:#fff;line-height:1}
+.ru .vn-label b{font-family:'Inter',sans-serif;font-weight:700;font-size:.6rem;color:#fff;line-height:1}
 .ru .vn-shine{position:absolute;inset:0;border-radius:50%;pointer-events:none;
   background:linear-gradient(125deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%)}
 .ru .vn-arm{position:absolute;right:-3px;top:-2px;width:30px;height:30px;
@@ -837,7 +849,7 @@ const CSS = `
   vector-effect:non-scaling-stroke}
 .ru .lw-inner path{fill:none;stroke:#FFB93A;stroke-width:1.1;stroke-linejoin:round}
 .ru .lw-scan{stroke:var(--mark)!important;stroke-width:1.6!important;opacity:.5}
-.ru .lw-mark{font-family:'Bodoni Moda',Didot,serif;font-size:22px;fill:none;
+.ru .lw-mark{font-family:'Inter',sans-serif;font-weight:700;font-size:22px;fill:none;
   stroke:var(--ink);stroke-width:.8;opacity:.6}
 .ru .lightercap{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
   text-transform:uppercase;color:var(--ink-3);margin-top:20px}
@@ -893,8 +905,8 @@ const CSS = `
 .ru .lamp .fix{color:var(--ink-3);position:relative;transform-origin:50% -300%}
 .ru .lamp svg{width:clamp(52px,5vw,78px);height:auto;display:block}
 .ru .lamp .bulb{fill:#26262E;transition:fill 420ms var(--ez),filter 420ms var(--ez)}
-.ru.day .lamp .bulb{fill:#FFE9B0;filter:drop-shadow(0 0 16px rgba(255,222,150,.95))}
-.ru.day .lamp .fix{color:#8A8578}
+.ru:not(.night) .lamp .bulb{fill:#FFE9B0;filter:drop-shadow(0 0 16px rgba(255,222,150,.95))}
+.ru:not(.night) .lamp .fix{color:#8A8578}
 /* the pull cord is the affordance — it is the only thing you can grab */
 .ru .lamp .pull{pointer-events:auto;cursor:pointer;width:34px;
   display:flex;flex-direction:column;align-items:center;padding-bottom:14px;
@@ -911,7 +923,7 @@ const CSS = `
   transition:opacity 700ms var(--ez);
   background:radial-gradient(ellipse 50% 62% at 50% 0%,rgba(255,228,170,.24),transparent 72%);
   clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)}
-.ru.day .lamp .beam{opacity:1}
+.ru:not(.night) .lamp .beam{opacity:1}
 .ru .lamphint{position:fixed;top:clamp(96px,15vh,168px);right:clamp(16px,2.4vw,44px);z-index:180;
   font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;
   color:var(--ink-3);writing-mode:vertical-rl;opacity:.55;pointer-events:none;
@@ -941,7 +953,7 @@ const CSS = `
   transition:opacity .6s,filter .6s}
 .ru .chform.gone{opacity:0;filter:blur(8px);pointer-events:none}
 .ru .chform input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--nline);
-  color:var(--bone);font-family:'Poppins',sans-serif;font-weight:200;text-align:center;
+  color:var(--bone);font-family:'Space Grotesk',sans-serif;font-weight:200;text-align:center;
   font-size:clamp(1.4rem,3.4vw,2.2rem);letter-spacing:-.03em;padding:10px 0;outline:none}
 .ru .chform input::placeholder{color:var(--bone-3);font-weight:200}
 .ru .chform input:focus{border-bottom-color:var(--ember)}
@@ -950,7 +962,7 @@ const CSS = `
   border-radius:100px;transition:all var(--ui) var(--ez)}
 .ru .chform button:hover{color:var(--night);background:var(--bone);border-color:var(--bone)}
 .ru .chfield{position:absolute;inset:0;z-index:2}
-.ru .wh{position:absolute;transform:translate(-50%,-50%);font-family:'Poppins',sans-serif;
+.ru .wh{position:absolute;transform:translate(-50%,-50%);font-family:'Space Grotesk',sans-serif;
   font-weight:200;color:var(--bone);white-space:nowrap;letter-spacing:-.02em;
   opacity:0;transition:opacity 700ms var(--ez-out),transform 1500ms var(--ez),filter 1500ms var(--ez)}
 .ru .wh.in{opacity:var(--wo,1)}
@@ -981,7 +993,7 @@ const CSS = `
 .ru .intro{position:fixed;inset:0;z-index:400;background:#fff;display:grid;place-items:center;
   transition:opacity 900ms var(--ez),visibility 900ms}
 .ru .intro.gone{opacity:0;visibility:hidden}
-.ru .im{font-family:'Montserrat',sans-serif;font-weight:600;font-size:clamp(.9rem,1.6vw,1.15rem);
+.ru .im{font-family:'Inter',sans-serif;font-weight:600;font-size:clamp(.9rem,1.6vw,1.15rem);
   letter-spacing:1.1em;text-indent:1.1em;opacity:0;animation:imk 1900ms var(--ez-out) forwards}
 @keyframes imk{0%{letter-spacing:1.1em;opacity:0}30%{opacity:1}100%{letter-spacing:.42em;opacity:1}}
 .ru .ibar{position:absolute;bottom:0;left:0;height:1px;background:var(--ink);width:0}
@@ -998,7 +1010,7 @@ const CSS = `
 .ru .nav.pill .navin{max-width:900px;padding:8px 8px 8px 24px;border-radius:100px;background:var(--glass);
   backdrop-filter:blur(30px) saturate(1.8);-webkit-backdrop-filter:blur(30px) saturate(1.8);
   border-color:var(--gl-edge);box-shadow:inset 0 .5px 0 var(--gl-hi),0 20px 54px -34px rgba(12,12,11,.55)}
-.ru .wm{font-family:'Montserrat',sans-serif;font-weight:600;letter-spacing:.42em;font-size:.76rem;
+.ru .wm{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.42em;font-size:.76rem;
   margin-right:auto;white-space:nowrap}
 .ru .nl{font-family:'Montserrat',sans-serif;font-size:.61rem;letter-spacing:.2em;text-transform:uppercase;
   color:var(--ink-3);position:relative;padding:5px 0;transition:color var(--micro) var(--ez);white-space:nowrap}
@@ -1018,14 +1030,16 @@ const CSS = `
 .ru .hero{height:100svh;min-height:600px;position:relative;overflow:hidden;
   background:var(--paper)}
 .ru .plate{position:absolute;inset:-8% -5%;will-change:transform;
-  filter:grayscale(.35) brightness(.62) contrast(1.08);transition:filter 700ms var(--ez)}
-.ru.day .plate{filter:none}
+  filter:none;transition:filter 700ms var(--ez)}
+.ru.night .plate{filter:grayscale(.35) brightness(.62) contrast(1.08)}
 .ru .cut{position:absolute;right:-3%;bottom:0;width:min(50vw,720px);height:86%;will-change:transform}
+.ru .ripple{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;
+  pointer-events:none}
 .ru .hwash{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 34%,transparent 100%),
-    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(255,59,71,.09),transparent 62%)}
-.ru.day .hwash{background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 34%,transparent 100%),
-    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(179,18,31,.06),transparent 62%)}
+  background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 30%,transparent 100%),
+    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(216,35,47,.05),transparent 62%)}
+.ru.night .hwash{background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 34%,transparent 100%),
+    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(255,59,71,.10),transparent 62%)}
 /* the hero headline rises after the loader clears, not on a fixed timer */
 .ru .hero .hl{display:block;overflow:hidden;padding-bottom:.06em}
 .ru .hero .hl > span{display:block;will-change:transform}
@@ -1168,7 +1182,7 @@ const CSS = `
 .ru .veil{position:fixed;inset:0;z-index:350;background:var(--paper);display:grid;place-items:center;
   pointer-events:none;opacity:0;transition:opacity 200ms var(--ez)}
 .ru .veil.on{opacity:1;pointer-events:auto}
-.ru .vm{font-family:'Montserrat',sans-serif;font-weight:600;color:var(--ink);
+.ru .vm{font-family:'Inter',sans-serif;font-weight:600;color:var(--ink);
   transition:letter-spacing 320ms var(--ez-out),transform 320ms var(--ez-out),
     opacity var(--content) var(--ez),font-size var(--cine) var(--ez-out)}
 
@@ -1692,6 +1706,154 @@ function Nav({ active, onLab }) {
   );
 }
 
+
+/* ===========================================================================
+   THE RIPPLE
+   A shallow water surface over the hero. Moving the cursor drops energy into
+   a height field; the field relaxes toward its neighbours each frame, which is
+   what makes the rings spread, reflect off the edges and interfere with each
+   other rather than just fading.
+
+   This is a real (if small) wave simulation, not stacked CSS circles:
+     · two buffers, previous and current height
+     · next = (sum of four neighbours / 2) - previous, damped
+   Rendered by displacing a grid of light — cheap, and it reads as fluid
+   because the maths is the same maths.
+
+   ~90x50 cells is enough to look liquid and costs almost nothing. It pauses
+   when the hero scrolls away, and never runs on touch or reduced motion.
+   =========================================================================== */
+function HeroRipple() {
+  const cv = useRef(null);
+
+  useEffect(() => {
+    const c = cv.current;
+    if (!c || reduced() || window.matchMedia("(pointer:coarse)").matches) return;
+
+    const ctx = c.getContext("2d", { alpha: true });
+    const COLS = 92, ROWS = 52;
+    let prev = new Float32Array(COLS * ROWS);
+    let cur = new Float32Array(COLS * ROWS);
+    let W = 0, H = 0, raf, run = true, vis = true;
+    let ink = "#0B0B0D", mark = "#D8232F";
+
+    const readTokens = () => {
+      const host = document.querySelector(".ru");
+      if (!host) return;
+      const cs = getComputedStyle(host);
+      ink = cs.getPropertyValue("--ink").trim() || ink;
+      mark = cs.getPropertyValue("--mark").trim() || mark;
+    };
+    readTokens();
+    const mo = new MutationObserver(readTokens);
+    const host = document.querySelector(".ru");
+    if (host) mo.observe(host, { attributes: true, attributeFilter: ["class"] });
+
+    const size = () => {
+      const r = c.getBoundingClientRect();
+      const d = Math.min(window.devicePixelRatio || 1, 1.75);
+      W = r.width; H = r.height;
+      c.width = Math.max(1, W * d); c.height = Math.max(1, H * d);
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+    };
+    size();
+    window.addEventListener("resize", size);
+
+    const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: .02 });
+    io.observe(c);
+
+    /* dropping energy in — a moving cursor leaves a wake, not dots */
+    let lx = -1, ly = -1;
+    const drop = (px, py, force) => {
+      const gx = Math.round((px / W) * (COLS - 1));
+      const gy = Math.round((py / H) * (ROWS - 1));
+      for (let oy = -1; oy <= 1; oy++) {
+        for (let ox = -1; ox <= 1; ox++) {
+          const x = gx + ox, y = gy + oy;
+          if (x < 1 || y < 1 || x >= COLS - 1 || y >= ROWS - 1) continue;
+          const fall = ox || oy ? .55 : 1;
+          cur[y * COLS + x] -= force * fall;
+        }
+      }
+    };
+
+    const onMove = (e) => {
+      const r = c.getBoundingClientRect();
+      const px = e.clientX - r.left, py = e.clientY - r.top;
+      if (px < 0 || py < 0 || px > r.width || py > r.height) return;
+      /* interpolate along the cursor's path so fast movement still leaves a
+         continuous wake instead of a dotted line */
+      if (lx >= 0) {
+        const steps = Math.min(8, Math.hypot(px - lx, py - ly) / 12 | 0);
+        for (let i = 1; i <= steps; i++)
+          drop(lx + (px - lx) * (i / steps), ly + (py - ly) * (i / steps), 2.2);
+      }
+      drop(px, py, 5.2);
+      lx = px; ly = py;
+    };
+    const onLeave = () => { lx = -1; ly = -1; };
+    /* the canvas is pointer-events:none so it never swallows a click; the
+       listener lives on the hero section instead */
+    const surface = c.closest(".hero") || c.parentElement;
+    surface.addEventListener("mousemove", onMove, { passive: true });
+    surface.addEventListener("mouseleave", onLeave);
+
+    const cw = () => W / (COLS - 1), chh = () => H / (ROWS - 1);
+
+    const step = () => {
+      /* the wave equation, damped */
+      for (let y = 1; y < ROWS - 1; y++) {
+        for (let x = 1; x < COLS - 1; x++) {
+          const i = y * COLS + x;
+          const n = (cur[i - 1] + cur[i + 1] + cur[i - COLS] + cur[i + COLS]) / 2 - prev[i];
+          prev[i] = n * .962;
+        }
+      }
+      const t = prev; prev = cur; cur = t;
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      const dx = cw(), dy = chh();
+      ctx.lineWidth = 1;
+      for (let y = 2; y < ROWS - 1; y += 2) {
+        ctx.beginPath();
+        let peak = 0;
+        for (let x = 1; x < COLS - 1; x++) {
+          const h = cur[y * COLS + x];
+          if (Math.abs(h) > peak) peak = Math.abs(h);
+          const px = x * dx, py = y * dy + h * 2.6;
+          x === 1 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        if (peak < .012) continue;                 // silent rows cost nothing
+        ctx.globalAlpha = Math.min(.34, peak * .5);
+        ctx.strokeStyle = peak > .9 ? mark : ink;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    const tick = () => {
+      if (!run) return;
+      raf = requestAnimationFrame(tick);
+      if (!vis) return;
+      step(); draw();
+    };
+    tick();
+
+    return () => {
+      run = false; cancelAnimationFrame(raf);
+      window.removeEventListener("resize", size);
+      surface.removeEventListener("mousemove", onMove);
+      surface.removeEventListener("mouseleave", onLeave);
+      io.disconnect(); mo.disconnect();
+    };
+  }, []);
+
+  if (reduced()) return null;
+  return <canvas className="ripple" ref={cv} aria-hidden="true" />;
+}
+
 function Hero() {
   const sec = useRef(null), plate = useRef(null),
     type = useRef(null), wash = useRef(null), cue = useRef(null);
@@ -1733,20 +1895,21 @@ function Hero() {
     <section className="hero" id="hero" ref={sec}>
       <div className="plate" ref={plate}><Media a={M.hero.plate} eager style={{ height: "100%" }} /></div>
       <div className="hwash" ref={wash} />
+      <HeroRipple />
 
-      <div className="full" ref={type} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center" }}>
+      <div className="full" ref={type} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", zIndex: 3 }}>
         <div>
           <LB style={{ marginBottom: "clamp(20px,4vh,40px)" }}>RUMOAR — Field note 01</LB>
           <h1 className="mega" style={{ maxWidth: "13ch" }}>
             <span className="hl"><span className="hero-line">Men changed.</span></span>
-            <span className="hl"><span className="hero-line" style={{ color: "var(--bone-3)" }}>Menswear</span></span>
+            <span className="hl"><span className="hero-line" style={{ color: "var(--ink-3)" }}>Menswear</span></span>
             <span className="hl"><span className="hero-line">didn&rsquo;t.</span></span>
           </h1>
         </div>
       </div>
 
       <div className="full" ref={cue} style={{
-        position: "absolute", left: 0, right: 0, bottom: "clamp(20px,4vh,42px)",
+        position: "absolute", left: 0, right: 0, bottom: "clamp(20px,4vh,42px)", zIndex: 3,
         display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20
       }}>
         <LB>Scroll</LB>
@@ -1758,12 +1921,16 @@ function Hero() {
 
 function Chapter({ id, n, title, note }) {
   return (
-    <section id={id} className="g" style={{ padding: "clamp(90px,18vh,230px) 0 clamp(30px,6vh,80px)" }}>
+    <section id={id} className="g" style={{ padding: "clamp(130px,24vh,320px) 0 clamp(46px,9vh,120px)" }}>
       <div style={{ gridColumn: "1 / 3" }}><Reveal><LB>{n}</LB></Reveal></div>
-      <div style={{ gridColumn: "3 / 11" }}>
+      <div style={{ gridColumn: "3 / 10" }}>
         <Lines lines={title} className="big" />
-        {note ? <Reveal delay={220}><p className="lede" style={{ marginTop: 28, maxWidth: "46ch" }}>{note}</p></Reveal> : null}
       </div>
+      {note ? (
+        <div style={{ gridColumn: "3 / 8", marginTop: "clamp(28px,5vh,64px)" }}>
+          <Reveal delay={220}><p className="lede" style={{ maxWidth: "38ch" }}>{note}</p></Reveal>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -1811,7 +1978,7 @@ function Timeline() {
 
   const d = eraData[i];
   return (
-    <section ref={sec} style={{ paddingBottom: "clamp(60px,10vh,140px)" }}>
+    <section ref={sec} style={{ paddingBottom: "clamp(84px,14vh,203px)" }}>
       <div className="railwrap">
         <div className="glass rail" ref={rail} role="tablist" aria-label="Eras" style={{ maxWidth: 900 }}
           onKeyDown={(e) => {
@@ -1893,7 +2060,7 @@ function Silence({ a, line, kicker, align = "left" }) {
       }} />
       <div className="full" style={{
         position: "absolute", inset: 0, display: "flex", alignItems: "flex-end",
-        paddingBottom: "clamp(56px,12vh,150px)", justifyContent: align === "left" ? "flex-start" : "flex-end"
+        paddingBottom: "clamp(78px,17vh,217px)", justifyContent: align === "left" ? "flex-start" : "flex-end"
       }}>
         <div style={{ maxWidth: "21ch" }}>
           {kicker ? <Reveal><LB style={{ marginBottom: 16 }}>{kicker}</LB></Reveal> : null}
@@ -1951,7 +2118,7 @@ function Film() {
         <div ref={veil} style={{ position: "absolute", inset: 0, background: "var(--paper)", opacity: 0 }} />
         <div className="full" style={{
           position: "absolute", inset: 0, display: "flex", alignItems: "flex-end",
-          paddingBottom: "clamp(52px,11vh,140px)"
+          paddingBottom: "clamp(72px,15vh,203px)"
         }}>
           <div style={{ position: "relative", width: "100%", height: "1.3em" }}>
             {filmCopy.map((c, k) => (
@@ -2464,7 +2631,7 @@ function Lab({ onExit }) {
         </div>
       </div>
 
-      <div className="g" style={{ paddingTop: "clamp(16px,3vh,42px)", paddingBottom: "clamp(50px,8vh,110px)", alignItems: "start" }}>
+      <div className="g" style={{ paddingTop: "clamp(16px,3vh,42px)", paddingBottom: "clamp(70px,11vh,159px)", alignItems: "start" }}>
         <div style={{ gridColumn: "1 / 3" }}>
           <LB>Sources</LB>
           <div className="labsrc" style={{ display: "grid", gap: 13, marginTop: 16 }}>
@@ -2526,7 +2693,7 @@ function Lab({ onExit }) {
         </div>
       </div>
 
-      <div className="g" style={{ paddingBottom: "clamp(70px,12vh,150px)" }}>
+      <div className="g" style={{ paddingBottom: "clamp(98px,17vh,217px)" }}>
         <div style={{ gridColumn: "1 / 13" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
             <h3 className="mid">The same man, two systems</h3><LB>Drag the divider</LB>
@@ -2536,7 +2703,7 @@ function Lab({ onExit }) {
       </div>
 
       {/* what you leave with — an itemised session, not a cart */}
-      <div className="g" style={{ paddingBottom: "clamp(80px,14vh,180px)", alignItems: "start" }}>
+      <div className="g" style={{ paddingBottom: "clamp(112px,20vh,261px)", alignItems: "start" }}>
         <div style={{ gridColumn: "1 / 6" }}>
           <LB>Take it with you</LB>
           <h3 className="mid" style={{ marginTop: 16, maxWidth: "18ch" }}>
@@ -2822,6 +2989,87 @@ const ERA_PLATES = {
     { cx: 52, cy: 58, note: "Still no system to hold it" },
   ],
 };
+
+
+/* ===========================================================================
+   THE STACK
+   A deck of frames that collapses as you scroll past it. At the top of its
+   range the cards are fanned out behind each other, each one peeking above
+   the last; by the bottom they have all shuffled down into a single frame.
+
+   It exists to buy back vertical space: five images occupy the height of one,
+   and the collapse is the transition rather than five separate scroll events.
+
+   Cards are ordered back to front, so the one the reader ends on is the last
+   in the array.
+   =========================================================================== */
+function Stack({ items = [], caption, index }) {
+  const root = useRef(null), pin = useRef(null);
+  const [active, setActive] = useState(items.length - 1);
+
+  useEffect(() => {
+    const el = root.current, box = pin.current;
+    if (!el || !box || reduced()) return;
+
+    const ctx = gsap.context(() => {
+      const cards = gsap.utils.toArray(".stk-card", el);
+      const n = cards.length;
+
+      /* fanned: each card sits a little higher and a little wider than the
+         one in front, so you can read the edge of every image at once */
+      gsap.set(cards, {
+        y: (i) => -(n - 1 - i) * 34,
+        scale: (i) => 1 - (n - 1 - i) * 0.045,
+        zIndex: (i) => i,
+        transformOrigin: "50% 100%",
+      });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el, start: "top top", end: "+=1500",
+          scrub: .9, pin: box, pinSpacing: true,
+          anticipatePin: 1, invalidateOnRefresh: true,
+        },
+      });
+
+      /* they drop into register one at a time, back to front */
+      cards.forEach((c, i) => {
+        if (i === n - 1) return;
+        tl.to(c, { y: 0, scale: 1, duration: 1, ease: "power2.inOut" }, i * .55)
+          .add(() => setActive(i), i * .55 + .5);
+      });
+      tl.add(() => setActive(n - 1), "+=.2");
+    }, el);
+
+    return () => ctx.revert();
+  }, [items.length]);
+
+  const cur = items[active] || items[items.length - 1] || {};
+  return (
+    <section className="stack" ref={root}>
+      <div className="stk-pin" ref={pin}>
+        <div className="g" style={{ alignItems: "center", width: "100%" }}>
+          <div style={{ gridColumn: "1 / 5" }}>
+            {caption ? <h2 className="big">{caption}</h2> : null}
+            <p className="lb" style={{ marginTop: 22 }}>
+              {index || `(0${Math.min(active + 1, items.length)})`}
+            </p>
+            <p className="body" style={{ marginTop: 10, maxWidth: "28ch" }}>{cur.note}</p>
+          </div>
+          <div style={{ gridColumn: "6 / 13" }}>
+            <div className="stk-deck">
+              {items.map((it, i) => (
+                <figure className="stk-card" key={i}>
+                  <Media a={it.a} style={{ height: "100%" }} />
+                </figure>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function EraCollage({ year }) {
   const root = useRef(null);
@@ -3897,9 +4145,14 @@ function IncomeCurve() {
   const { era, setEra } = useEra();
   const ref = useRef(null);
   const [live, setLive] = useState(false);
+  /* re-arms every time it leaves and returns, so the lines redraw on each
+     approach rather than being drawn once and dead for the rest of the visit */
   useEffect(() => {
     const el = ref.current; if (!el) return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setLive(true), io.disconnect()), { threshold: .2 });
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) setLive(true);
+      else if (e.boundingClientRect.top > 0) setLive(false);   // only re-arm from below
+    }, { threshold: .18 });
     io.observe(el); return () => io.disconnect();
   }, []);
 
@@ -4121,7 +4374,7 @@ const RISKS = [
     ans: "The point of view has to be written down as rules before it is scaled — which is what the wardrobe logic in this document is. If it can be taught to a merchandiser it can be scaled; if it can't, the brand should stay small deliberately." },
 ];
 
-function Lamp({ day, onPull }) {
+function Lamp({ night, onPull }) {
   const fix = useRef(null);
   const pull = () => {
     if (!reduced() && fix.current) {
@@ -4146,12 +4399,12 @@ function Lamp({ day, onPull }) {
           <i className="beam" />
         </div>
         <button className="pull" onClick={pull}
-          aria-pressed={day}
-          aria-label={day ? "Turn the lamp off — return to night" : "Turn the lamp on — daylight"}>
+          aria-pressed={!night}
+          aria-label={night ? "Turn the lamp on — daylight" : "Turn the lamp off — night"}>
           <i /><b />
         </button>
       </div>
-      <span className="lamphint">{day ? "lights on" : "pull the cord"}</span>
+      <span className="lamphint">{night ? "pull for daylight" : "pull for night"}</span>
     </>
   );
 }
@@ -4159,7 +4412,7 @@ function Lamp({ day, onPull }) {
 function RiskRegister() {
   const [open, setOpen] = useState(0);
   return (
-    <section id="risks" style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
+    <section id="risks" style={{ paddingBlock: "clamp(130px,23vh,285px)" }}>
       <div className="g">
         <div style={{ gridColumn: "9 / 13", alignSelf: "center", order: 2 }}>
           <Reveal delay={220}><ThreadMark form="grid" label="nine pieces · one unbroken thread" /></Reveal>
@@ -4172,9 +4425,7 @@ function RiskRegister() {
               <span className="msk"><span className="gs-rise it">where the founder stops selling.</span></span>
             </h2>
             <p className="lede" style={{ marginTop: 22, maxWidth: "46ch" }}>
-              This is that page. The five most credible ways this company dies — attacked
-              honestly first, then answered. If you want to read them in daylight, the lamp
-              is in the corner.
+              The five most credible ways this company dies — attacked first, then answered.
             </p>
           </Reveal>
         </div>
@@ -4365,7 +4616,7 @@ const ASK_CARDS = [
 
 function TheAsk() {
   return (
-    <section id="ask" style={{ paddingBlock: "clamp(100px,18vh,220px)" }}>
+    <section id="ask" style={{ paddingBlock: "clamp(145px,26vh,330px)" }}>
       <div className="g">
         <div style={{ gridColumn: "1 / 8" }}>
           <Reveal>
@@ -4375,9 +4626,7 @@ function TheAsk() {
               <span className="msk"><span className="gs-rise it">This part is a number.</span></span>
             </h2>
             <p className="lede" style={{ marginTop: 22, maxWidth: "48ch" }}>
-              The market research says the money arrived and the wardrobe didn&rsquo;t. The
-              white space says nobody sells a system at any price. Neither of those is a
-              business until someone builds it and shows the unit economics hold.
+              Neither the gap nor the thesis is a business until the unit economics hold.
             </p>
           </Reveal>
         </div>
@@ -4521,7 +4770,7 @@ function Receipt({ history }) {
 
   return (
     <div className="receipt">
-      <p style={{ letterSpacing: ".42em", fontWeight: 600, fontSize: ".68rem" }}>RUMOAR</p>
+      <p style={{ letterSpacing: ".42em", fontWeight: 600, fontSize: ".68rem", fontFamily: "'Inter',sans-serif" }}>RUMOAR</p>
       <p style={{ opacity: .55, marginTop: 6 }}>IDENTITY RECEIPT · {stamp}</p>
       <hr />
       {items.length ? items.map((l, i) => (
@@ -4558,7 +4807,7 @@ export default function Rumoar() {
   const [active, setActive] = useState("money");
   const [era, setEra] = useState(0);      // shared timeline index — drives every chart
   const [introDone, setIntroDone] = useState(() => reduced());
-  const [day, setDay] = useState(false);   // the lamp. Off by default.
+  const [night, setNight] = useState(false);  // LIGHT by default; the lamp dims it
   const audio = useAudio(introDone && route === "site");
   const eraCtx = useMemo(() => ({ era, setEra }), [era]);
 
@@ -4622,7 +4871,7 @@ export default function Rumoar() {
 
   return (
     <EraContext.Provider value={eraCtx}>
-    <div className={`ru ${day ? "day" : ""}`}>
+    <div className={`ru ${night ? "night" : ""}`}>
       <style>{CSS}</style>
       {!introDone ? <Loader onDone={() => setIntroDone(true)} /> : null}
       <EdgeStrip />
@@ -4633,7 +4882,7 @@ export default function Rumoar() {
             onToggle={() => (audio.on ? audio.stop() : audio.start())} />
         </>
       ) : null}
-      {introDone ? <Lamp day={day} onPull={() => setDay((d) => !d)} /> : null}
+      {introDone ? <Lamp night={night} onPull={() => setNight((n) => !n)} /> : null}
 
       {route === "site" ? (
         <div className="rt-content">
@@ -4647,7 +4896,7 @@ export default function Rumoar() {
           <Hero />
           <Thesis />
 
-          <section style={{ paddingBlock: "clamp(56px,9vh,110px)" }}>
+          <section style={{ paddingBlock: "clamp(81px,13vh,165px)" }}>
             <div className="g">
               <div style={{ gridColumn: "11 / 13", alignSelf: "center", order: 2 }}>
                 <Reveal delay={200}><ThreadMark form="stitch" label="one stitch" /></Reveal>
@@ -4656,9 +4905,7 @@ export default function Rumoar() {
                 <Reveal>
                   <p className="body gs-up" style={{ maxWidth: "56ch" }}>
                     Sell objects and you compete on price. Sell identity and you compete on
-                    meaning. <span className="it">Meaning compounds. Price erodes.</span> Every
-                    decision below — market, product, price, distribution — follows from that
-                    one inversion.
+                    meaning. <span className="it">Meaning compounds. Price erodes.</span>
                   </p>
                 </Reveal>
               </div>
@@ -4667,9 +4914,9 @@ export default function Rumoar() {
 
           <Chapter id="money" n="01 — The Money"
             title={["The wallet grew.", { t: "The wardrobe didn't.", dim: true }]}
-            note="Disposable income roughly tripled in twenty years. Household consumption doubled in ten. Branded apparel is about to cross half of all apparel spend. Across the same century, the number of ways an Indian man can build a wardrobe has stayed at one." />
+            note="Income tripled in twenty years. Consumption doubled in ten. The number of ways to build a wardrobe has stayed at one." />
 
-          <section className="g" style={{ paddingBottom: "clamp(60px,10vh,140px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(84px,14vh,203px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><IncomeCurve /></Reveal>
             </div>
@@ -4677,7 +4924,7 @@ export default function Rumoar() {
 
           {/* the deck sits in the gutter beside the market, where the page has
               room to breathe — a live hand, dealt the same way every time */}
-          <section className="g" style={{ paddingBottom: "clamp(70px,12vh,150px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(98px,17vh,217px)" }}>
             <div style={{ gridColumn: "1 / 4" }}>
               <Reveal><Deck /></Reveal>
             </div>
@@ -4687,9 +4934,8 @@ export default function Rumoar() {
                   The market deals every man <span className="it">the same hand.</span>
                 </p>
                 <p className="body" style={{ marginTop: 20, maxWidth: "46ch" }}>
-                  Same six houses, same six answers, shuffled and re-dealt each season.
-                  He is expected to find the good card himself, unpaid, and mostly
-                  doesn&rsquo;t.
+                  Same six houses, re-dealt each season. He is expected to find the good
+                  card himself, and mostly doesn&rsquo;t.
                 </p>
               </Reveal>
             </div>
@@ -4705,9 +4951,9 @@ export default function Rumoar() {
 
           <Chapter id="roles" n="03 — The Roles"
             title={["He is not six men.", { t: "He is one man, in six rooms,", dim: true }, { t: "inside the same week.", dim: true }]}
-            note="Research on urban Indian men finds that recalibrating persona across social groups is itself what produces a fragmented sense of identity. So these are not segments. They are registers one person is asked to hold — and the bar under each shows how well the market currently dresses it." />
+            note="Not segments — registers one person is asked to hold, and how well the market dresses each." />
 
-          <section className="g" style={{ paddingBottom: "clamp(40px,7vh,80px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(56px,10vh,116px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><RoleGrid /></Reveal>
             </div>
@@ -4715,14 +4961,13 @@ export default function Rumoar() {
 
           {/* the same argument at day scale — kept inside this chapter rather
               than given its own, because it is evidence, not a new claim */}
-          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,170px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(112px,18vh,246px)" }}>
             <div style={{ gridColumn: "1 / 5" }}>
               <Reveal>
                 <p className="lb">The same week, compressed</p>
                 <p className="body" style={{ marginTop: 16, maxWidth: "34ch" }}>
-                  Those registers don&rsquo;t wait for a week to rotate. They all turn up
-                  inside a single Tuesday — and four of them are settled by something he
-                  chose in about nine seconds that morning.
+                  All six turn up inside a single Tuesday. Four are settled by something
+                  he chose in nine seconds that morning.
                 </p>
               </Reveal>
               <Reveal delay={260}>
@@ -4742,9 +4987,9 @@ export default function Rumoar() {
           <Chapter id="market" n="05 — The Market"
             title={["There has never been more menswear.",
               { t: "There has never been more of a man left over.", dim: true }]}
-            note="Six houses plotted on what they actually optimise for. None of them is wrong. Each is built for one man, in one setting, at one point in his life." />
+            note="Six houses, plotted on what they optimise for. None is wrong. Each is built for one man, in one setting." />
 
-          <section className="g" style={{ paddingBottom: "clamp(60px,10vh,140px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(84px,14vh,203px)" }}>
             <div style={{ gridColumn: "1 / 10" }}>
               <Reveal>
                 <div className={`plotbox ${selected ? "back" : ""}`}>
@@ -4764,7 +5009,7 @@ export default function Rumoar() {
             </div>
           </section>
 
-          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,170px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(112px,18vh,246px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><Matrix selected={selected} onSelect={setSelected} hovered={hovered} onHover={setHovered} /></Reveal>
             </div>
@@ -4772,9 +5017,9 @@ export default function Rumoar() {
 
           <Chapter id="price" n="06 — The Price"
             title={["The gap is not in what it costs.", { t: "It is in what you get for it.", dim: true }]}
-            note="Deloitte puts mid-premium at ₹3,500–7,000 growing 25% a year, and premium above it growing 45% — the fastest figure in their 2026 report. Brands exist in both. Every one of them sells a garment." />
+            note="Mid-premium grows 25% a year, premium 45%. Brands exist in both. Every one sells a garment." />
 
-          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,170px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(112px,18vh,246px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><PriceGap /></Reveal>
             </div>
@@ -4789,7 +5034,20 @@ export default function Rumoar() {
           <RumoarAct />
           <WardrobeMath />
 
-          <section id="chamber" style={{ paddingBlock: "clamp(90px,16vh,190px)" }}>
+          {/* six looks, collapsed into the height of one */}
+          <Stack
+            caption={<><span className="msk"><span className="gs-rise">Six looks.</span></span>
+              <span className="msk"><span className="gs-rise it">One logic.</span></span></>}
+            items={[
+              { a: M.lab.looks.corporate, note: "The register the market solved." },
+              { a: M.lab.looks.casual,    note: "Improvised from the office and the gym." },
+              { a: M.lab.looks.oldmoney,  note: "Heritage, quoted rather than worn." },
+              { a: M.lab.looks.european,  note: "Borrowed wholesale, fitted to nobody." },
+              { a: M.lab.looks.trend,     note: "Current for a season, then dead." },
+              { a: M.lab.looks.rumoar,    note: "Nine pieces that already agree with each other." },
+            ]} />
+
+          <section id="chamber" style={{ paddingBlock: "clamp(130px,23vh,285px)" }}>
             <div className="g" style={{ marginBottom: "clamp(28px,5vh,56px)" }}>
               <div style={{ gridColumn: "1 / 8" }}>
                 <Reveal>
@@ -4799,9 +5057,8 @@ export default function Rumoar() {
                     <span className="msk"><span className="gs-rise it">Watch it stop being yours.</span></span>
                   </h2>
                   <p className="body" style={{ marginTop: 22, maxWidth: "46ch" }}>
-                    Type one word. The chamber passes it mouth to mouth, and every retelling
-                    changes it a little. That drift is not a bug in how brands spread — it is
-                    the entire distribution model.
+                    Type one word. Every retelling changes it a little. That drift is the
+                    distribution model.
                   </p>
                 </Reveal>
               </div>
@@ -4815,9 +5072,8 @@ export default function Rumoar() {
               <div style={{ gridColumn: "2 / 9", alignSelf: "center" }}>
                 <Reveal delay={220}>
                   <p className="body" style={{ maxWidth: "46ch" }}>
-                    Distribution isn&rsquo;t a budget line, it&rsquo;s a chain reaction. One
-                    person repeats you to one other person, and the only thing that decides
-                    whether it spreads is whether the thing you gave them was worth repeating.
+                    Distribution is a chain reaction, not a budget line. It spreads only if
+                    what you gave them was worth repeating.
                   </p>
                 </Reveal>
               </div>
