@@ -1050,22 +1050,44 @@ const CSS = `
   filter:none;transition:filter 700ms var(--ez)}
 .ru.night .plate{filter:grayscale(.35) brightness(.62) contrast(1.08)}
 .ru .cut{position:absolute;right:-3%;bottom:0;width:min(50vw,720px);height:86%;will-change:transform}
-.ru .hero{min-height:100svh;position:relative;background:var(--paper);
-  display:flex;flex-direction:column;justify-content:center;
-  padding-block:clamp(96px,15vh,190px) clamp(48px,8vh,110px);gap:clamp(40px,7vh,96px)}
-.ru .hero-top .mega{max-width:14ch}
-.ru .hero-btm{align-items:start}
-.ru .hero-media{position:relative;aspect-ratio:3/4;overflow:hidden;
-  border:1px solid var(--line);background:var(--paper-3);cursor:crosshair}
-.ru .hero-media .m{position:absolute;inset:0;width:100%;height:100%}
-.ru .ripple{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;
+.ru .hero{position:relative;height:100svh;min-height:560px;overflow:hidden;
+  background:#0C0E13;isolation:isolate}
+.ru .hero-plate{position:absolute;inset:0;z-index:0}
+.ru .hero-plate .m{width:100%;height:100%}
+.ru .ripple{position:absolute;inset:0;z-index:1;width:100%;height:100%;display:block;
   pointer-events:none}
-.ru .hero-cue{position:absolute;left:var(--marg);bottom:clamp(18px,3vh,34px)}
+.ru .hero-grain{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,rgba(8,10,14,.58) 0%,rgba(8,10,14,.08) 30%,
+    rgba(8,10,14,.08) 52%,rgba(8,10,14,.74) 100%)}
+.ru .hero-ui{position:absolute;inset:0;z-index:3;padding:0 var(--marg);
+  padding-top:clamp(92px,13vh,150px);display:flex;justify-content:space-between;
+  align-items:flex-start;pointer-events:none}
+.ru .hero-ui > *{pointer-events:auto}
+.ru .hero-stmt{max-width:30ch;color:#fff;font-size:clamp(.95rem,1.25vw,1.18rem);
+  line-height:1.42;font-weight:400}
+.ru .hero-stmt b{font-weight:700}
+.ru .hero-stmt span{color:rgba(255,255,255,.62)}
+.ru .hero-begin{margin-top:clamp(24px,4vh,44px);display:inline-flex;align-items:center;
+  gap:14px;color:#fff;font-size:.95rem;font-weight:500;padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.45);min-width:190px;justify-content:space-between;
+  background:none;cursor:pointer;transition:border-color var(--ui),gap var(--ui)}
+.ru .hero-begin i{width:9px;height:9px;border-top:1px solid #fff;border-right:1px solid #fff}
+.ru .hero-begin:hover{border-bottom-color:#fff;gap:22px}
+.ru .hero-index{text-align:right;color:#fff;font-size:clamp(.9rem,1.1vw,1.05rem);
+  line-height:1.62;font-weight:500;margin-top:clamp(120px,22vh,260px)}
+.ru .hero-index .n{color:rgba(255,255,255,.55);font-weight:400}
+.ru .hero-x{position:absolute;z-index:3;color:rgba(255,255,255,.5);font-size:1rem;
+  transform:translate(-50%,-50%);pointer-events:none;font-weight:300}
+.ru .hero-mark{position:absolute;z-index:3;left:0;right:0;bottom:0;
+  text-align:center;color:#fff;font-family:var(--font-mark);font-weight:700;
+  font-size:clamp(4rem,15.5vw,15rem);line-height:.78;letter-spacing:-.02em;
+  pointer-events:none;white-space:nowrap;padding-inline:2vw}
 @media (max-width:860px){
-  .ru .hero{padding-block:clamp(88px,14vh,140px) 48px;gap:36px}
-  .ru .hero-top > div,.ru .hero-btm > div{grid-column:1 / 13 !important}
-  .ru .hero-btm{row-gap:26px}
-  .ru .hero-media{aspect-ratio:4/3;max-width:100%}
+  .ru .hero-ui{flex-direction:column;gap:clamp(26px,5vh,54px);padding-top:clamp(84px,12vh,120px)}
+  .ru .hero-index{text-align:left;margin-top:0}
+  .ru .hero-stmt{max-width:26ch;font-size:1rem}
+  .ru .hero-mark{font-size:clamp(2.6rem,17vw,5rem)}
+  .ru .hero-x{display:none}
 }
 /* the hero headline is deliberately modest — the photograph is the loud thing */
 /* the hero headline rises after the loader clears, not on a fixed timer */
@@ -1753,22 +1775,25 @@ function Nav({ active, onLab }) {
 
 
 
+
 /* ===========================================================================
-   THE RIPPLES
-   Same visual result as jquery.ripples — the image REFRACTS under a live water
-   surface — but built to actually run everywhere.
+   THE RIPPLES  —  full-bleed, and built so it cannot silently do nothing
+   ---------------------------------------------------------------------------
+   Three things killed the previous versions, all fixed here:
 
-   WHY IT IS SPLIT: the usual approach keeps the height field in a floating
-   point texture and steps it with a shader. That needs render-to-float, which
-   plenty of browsers still refuse (OES_texture_float alone is not enough —
-   the framebuffer also has to be complete). The previous version failed
-   silently for exactly that reason and drew nothing at all.
+   1. `(pointer: coarse)` was used as a "is this touch" guard. Touchscreen
+      LAPTOPS report coarse as their primary pointer, so the whole effect was
+      skipped on perfectly capable machines. Gone — mouse AND touch both drive
+      it now.
+   2. crossOrigin="anonymous" was set on a same-origin image. That forces a
+      CORS check the plain /assets/ path never answers, so the load failed.
+      It is now only set when the URL is genuinely cross-origin.
+   3. Render-to-float-texture was required. Many browsers grant the extension
+      and still refuse the framebuffer. The sim runs on the CPU instead.
 
-   So: the wave equation runs on the CPU over a small Float32Array, and the
-   result is uploaded each frame as an ordinary 8-bit texture. A 200x112 grid
-   is ~22k cells, which is nothing, and the upload is a few kB. The shader then
-   does the part it is genuinely good at — reading the slope and bending the
-   photograph through it.
+   And if the photograph is missing entirely, the water still renders — shaded
+   from its own height field — so this can never again look like "nothing
+   happened".
    =========================================================================== */
 const RIP_VERT = `
 attribute vec2 aPos; varying vec2 vUV;
@@ -1780,21 +1805,27 @@ varying vec2 vUV;
 uniform sampler2D uHeight;
 uniform sampler2D uImage;
 uniform vec2 uTexel;
-uniform float uStrength;
+uniform vec2 uScale;      /* cover-fit correction */
+uniform float uHasImage;
 void main(){
-  /* heights arrive centred on 0.5 so they can be stored unsigned */
   float l = texture2D(uHeight, vUV - vec2(uTexel.x, 0.0)).r;
   float r = texture2D(uHeight, vUV + vec2(uTexel.x, 0.0)).r;
   float b = texture2D(uHeight, vUV - vec2(0.0, uTexel.y)).r;
   float t = texture2D(uHeight, vUV + vec2(0.0, uTexel.y)).r;
+  float h = texture2D(uHeight, vUV).r;
   vec2 slope = vec2(r - l, t - b);
 
-  vec2 uv = vec2(vUV.x, 1.0 - vUV.y) + slope * uStrength;
-  vec4 col = texture2D(uImage, clamp(uv, 0.002, 0.998));
+  /* cover-fit the photograph, then bend it through the surface */
+  vec2 uv = (vec2(vUV.x, 1.0 - vUV.y) - 0.5) * uScale + 0.5;
+  uv += slope * 1.15;
+  vec4 col = texture2D(uImage, clamp(uv, 0.001, 0.999));
 
-  /* light catching the steep faces */
-  float spec = pow(max(0.0, slope.x * 0.7 + slope.y * 0.7), 2.0) * 34.0;
-  col.rgb += vec3(1.0, 0.97, 0.93) * clamp(spec, 0.0, 0.5);
+  /* no photo? shade the water itself so it is still unmistakably there */
+  vec3 water = vec3(0.10, 0.13, 0.18) + vec3(0.7, 0.8, 1.0) * (h - 0.5) * 2.2;
+  col.rgb = mix(water, col.rgb, uHasImage);
+
+  float spec = pow(max(0.0, slope.x * 0.7 + slope.y * 0.7), 2.0) * 42.0;
+  col.rgb += vec3(1.0, 0.97, 0.92) * clamp(spec, 0.0, 0.6);
   gl_FragColor = vec4(col.rgb, 1.0);
 }`;
 
@@ -1803,17 +1834,18 @@ function HeroRipples({ src }) {
 
   useEffect(() => {
     const c = cv.current;
-    if (!c || reduced() || window.matchMedia("(pointer:coarse)").matches) return;
+    if (!c) return;
+    if (reduced()) return;                    /* motion preference is the ONLY opt-out */
 
-    const gl = c.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: false })
+    const gl = c.getContext("webgl", { alpha: false, antialias: false, depth: false })
       || c.getContext("experimental-webgl");
-    if (!gl) { console.info("[ripples] no webgl — hero renders plain"); return; }
+    if (!gl) { console.info("[ripples] WebGL unavailable — hero renders plain"); return; }
 
-    const mk = (type, srcTxt) => {
-      const sh = gl.createShader(type);
+    const mk = (t, srcTxt) => {
+      const sh = gl.createShader(t);
       gl.shaderSource(sh, srcTxt); gl.compileShader(sh);
       if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-        console.warn("[ripples]", gl.getShaderInfoLog(sh)); return null;
+        console.warn("[ripples] shader failed:", gl.getShaderInfoLog(sh)); return null;
       }
       return sh;
     };
@@ -1822,7 +1854,7 @@ function HeroRipples({ src }) {
     const prog = gl.createProgram();
     gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-      console.warn("[ripples] link failed"); return;
+      console.warn("[ripples] link failed:", gl.getProgramInfoLog(prog)); return;
     }
     gl.useProgram(prog);
 
@@ -1833,131 +1865,142 @@ function HeroRipples({ src }) {
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-    /* ---- the height field, on the CPU ---- */
-    const GW = 200, GH = 112, N = GW * GH;
+    const GW = 220, GH = 124, N = GW * GH;
     let prev = new Float32Array(N), cur = new Float32Array(N);
     const bytes = new Uint8Array(N * 4);
+    for (let i = 0; i < N; i++) bytes[i * 4] = 128;
 
     const hTex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, hTex);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, hTex);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, GW, GH, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
 
-    /* ---- the photograph ---- */
     const iTex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, iTex);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, iTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-      new Uint8Array([255, 255, 255, 255]));
+      new Uint8Array([18, 20, 26, 255]));
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    let ready = false;
+
+    let hasImage = 0, imgAspect = 1;
     if (src) {
       const im = new Image();
-      im.crossOrigin = "anonymous";
+      /* only ask for CORS when the file really is on another origin — asking
+         for it on a same-origin /assets/ path makes the load fail outright */
+      if (/^https?:\/\//i.test(src) && !src.startsWith(window.location.origin)) {
+        im.crossOrigin = "anonymous";
+      }
       im.onload = () => {
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, iTex);
+        imgAspect = im.naturalWidth / im.naturalHeight;
+        gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, iTex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
-        ready = true;
+        hasImage = 1;
+        console.info("[ripples] surface ready");
       };
-      im.onerror = () => console.info("[ripples] image missing:", src);
+      im.onerror = () => console.info("[ripples] image missing (" + src + ") — water still renders");
       im.src = src;
     }
 
     gl.uniform1i(gl.getUniformLocation(prog, "uHeight"), 0);
     gl.uniform1i(gl.getUniformLocation(prog, "uImage"), 1);
     gl.uniform2f(gl.getUniformLocation(prog, "uTexel"), 1 / GW, 1 / GH);
-    const uStrength = gl.getUniformLocation(prog, "uStrength");
+    const uScale = gl.getUniformLocation(prog, "uScale");
+    const uHasImage = gl.getUniformLocation(prog, "uHasImage");
 
+    let vw = 1, vh = 1;
     const size = () => {
       const r = c.getBoundingClientRect();
       const d = Math.min(window.devicePixelRatio || 1, 2);
-      c.width = Math.max(1, r.width * d);
-      c.height = Math.max(1, r.height * d);
+      vw = Math.max(1, r.width); vh = Math.max(1, r.height);
+      c.width = Math.round(vw * d); c.height = Math.round(vh * d);
       gl.viewport(0, 0, c.width, c.height);
     };
     size(); window.addEventListener("resize", size);
 
-    let vis = true;
-    const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: .02 });
-    io.observe(c);
-
-    /* ---- dropping energy in ---- */
+    /* seed a few drops so the surface is alive before anyone touches it */
     const drop = (gx, gy, radius, force) => {
       const r2 = radius * radius;
       for (let y = -radius; y <= radius; y++) {
         for (let x = -radius; x <= radius; x++) {
           const px = gx + x, py = gy + y;
           if (px < 1 || py < 1 || px >= GW - 1 || py >= GH - 1) continue;
-          const d2 = x * x + y * y;
-          if (d2 > r2) continue;
-          const f = Math.cos((Math.sqrt(d2) / radius) * Math.PI) * .5 + .5;
-          cur[py * GW + px] += force * f;
+          const d2 = x * x + y * y; if (d2 > r2) continue;
+          cur[py * GW + px] += force * (Math.cos((Math.sqrt(d2) / radius) * Math.PI) * .5 + .5);
         }
       }
     };
+    for (let i = 0; i < 3; i++)
+      drop(30 + ((Math.random() * (GW - 60)) | 0), 30 + ((Math.random() * (GH - 60)) | 0), 10, 2.4);
+
     let lx = -1, ly = -1;
-    const surface = c.closest(".hero-media") || c.closest(".hero") || c.parentElement;
-    const toGrid = (e) => {
+    const host = c.closest(".hero") || c.parentElement;
+    const toGrid = (cx, cy) => {
       const r = c.getBoundingClientRect();
-      return [Math.round(((e.clientX - r.left) / r.width) * (GW - 1)),
-              Math.round((1 - (e.clientY - r.top) / r.height) * (GH - 1)), r];
+      return [Math.round(((cx - r.left) / r.width) * (GW - 1)),
+              Math.round((1 - (cy - r.top) / r.height) * (GH - 1))];
     };
-    const onMove = (e) => {
-      const [gx, gy, r] = toGrid(e);
-      if (gx < 0 || gy < 0 || gx > GW || gy > GH) return;
+    const push = (cx, cy) => {
+      const [gx, gy] = toGrid(cx, cy);
+      if (gx < 0 || gy < 0 || gx >= GW || gy >= GH) return;
       if (lx >= 0) {
-        const steps = Math.min(6, Math.hypot(gx - lx, gy - ly) / 4 | 0);
+        const steps = Math.min(7, (Math.hypot(gx - lx, gy - ly) / 4) | 0);
         for (let i = 1; i <= steps; i++)
           drop(Math.round(lx + (gx - lx) * (i / steps)),
-               Math.round(ly + (gy - ly) * (i / steps)), 4, .55);
+               Math.round(ly + (gy - ly) * (i / steps)), 5, .7);
       }
-      drop(gx, gy, 6, 1.1);
+      drop(gx, gy, 7, 1.5);
       lx = gx; ly = gy;
     };
-    const onLeave = () => { lx = -1; ly = -1; };
-    const onDown = (e) => { const [gx, gy] = toGrid(e); drop(gx, gy, 13, 4.2); };
-    surface.addEventListener("mousemove", onMove, { passive: true });
-    surface.addEventListener("mouseleave", onLeave);
-    surface.addEventListener("pointerdown", onDown);
-
-    const step = () => {
-      for (let y = 1; y < GH - 1; y++) {
-        const row = y * GW;
-        for (let x = 1; x < GW - 1; x++) {
-          const i = row + x;
-          const v = (cur[i - 1] + cur[i + 1] + cur[i - GW] + cur[i + GW]) * .5 - prev[i];
-          prev[i] = v * .968;                 /* damping = how long a ring lives */
-        }
-      }
-      const t = prev; prev = cur; cur = t;
-      /* encode to bytes, centred on 128 so negatives survive */
-      for (let i = 0; i < N; i++) {
-        let v = 128 + cur[i] * 46;
-        bytes[i * 4] = v < 0 ? 0 : v > 255 ? 255 : v;
-      }
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, hTex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, GW, GH, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
+    const onMove = (e) => push(e.clientX, e.clientY);
+    const onTouch = (e) => {
+      const t = e.touches && e.touches[0]; if (t) push(t.clientX, t.clientY);
     };
+    const onLeave = () => { lx = -1; ly = -1; };
+    const onDown = (e) => { const [gx, gy] = toGrid(e.clientX, e.clientY); drop(gx, gy, 15, 5.5); };
+    host.addEventListener("mousemove", onMove, { passive: true });
+    host.addEventListener("touchmove", onTouch, { passive: true });
+    host.addEventListener("mouseleave", onLeave);
+    host.addEventListener("pointerdown", onDown);
+
+    let vis = true;
+    const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: 0 });
+    io.observe(c);
 
     let raf, run = true;
     const tick = () => {
       if (!run) return;
       raf = requestAnimationFrame(tick);
       if (!vis) return;
-      step();
+
+      for (let y = 1; y < GH - 1; y++) {
+        const row = y * GW;
+        for (let x = 1; x < GW - 1; x++) {
+          const i = row + x;
+          prev[i] = ((cur[i - 1] + cur[i + 1] + cur[i - GW] + cur[i + GW]) * .5 - prev[i]) * .972;
+        }
+      }
+      const sw = prev; prev = cur; cur = sw;
+      for (let i = 0; i < N; i++) {
+        const v = 128 + cur[i] * 48;
+        bytes[i * 4] = v < 0 ? 0 : v > 255 ? 255 : v;
+      }
+
       gl.useProgram(prog);
-      gl.uniform1f(uStrength, ready ? .9 : 0);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, hTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, GW, GH, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, iTex);
+
+      /* cover-fit: crop the long axis rather than squashing the picture */
+      const canvasAspect = vw / vh;
+      const sx = canvasAspect > imgAspect ? 1 : imgAspect / canvasAspect;
+      const sy = canvasAspect > imgAspect ? canvasAspect / imgAspect : 1;
+      gl.uniform2f(uScale, 1 / (sy || 1), 1 / (sx || 1));
+      gl.uniform1f(uHasImage, hasImage);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
     tick();
@@ -1965,73 +2008,72 @@ function HeroRipples({ src }) {
     return () => {
       run = false; cancelAnimationFrame(raf);
       window.removeEventListener("resize", size);
-      surface.removeEventListener("mousemove", onMove);
-      surface.removeEventListener("mouseleave", onLeave);
-      surface.removeEventListener("pointerdown", onDown);
+      host.removeEventListener("mousemove", onMove);
+      host.removeEventListener("touchmove", onTouch);
+      host.removeEventListener("mouseleave", onLeave);
+      host.removeEventListener("pointerdown", onDown);
       io.disconnect();
       gl.deleteTexture(hTex); gl.deleteTexture(iTex);
       gl.deleteBuffer(quad); gl.deleteProgram(prog);
     };
   }, [src]);
 
-  if (reduced()) return null;
   return <canvas className="ripple" ref={cv} aria-hidden="true" />;
 }
 
+/* ===========================================================================
+   THE HERO  —  full bleed
+   The photograph is the whole screen and the water is the whole screen with
+   it. Copy sits in the quiet corners the way the reference does: a short
+   statement top-left, an index top-right, and the wordmark laid across the
+   base as a lockup rather than a headline.
+   =========================================================================== */
 function Hero() {
-  const sec = useRef(null), type = useRef(null), cue = useRef(null);
+  const sec = useRef(null), copy = useRef(null), mark = useRef(null);
 
   useScene(sec, (p) => {
-    if (type.current) type.current.style.transform = `translate3d(0,${p * -34}px,0)`;
-    if (cue.current) cue.current.style.opacity = String(Math.max(0, 1 - p * 3));
+    if (copy.current) copy.current.style.transform = `translate3d(0,${p * -46}px,0)`;
+    if (mark.current) {
+      mark.current.style.transform = `translate3d(0,${p * 22}px,0)`;
+      mark.current.style.opacity = String(Math.max(0, 1 - p * 1.6));
+    }
   });
 
   return (
     <section className="hero" id="hero" ref={sec}>
-      <div className="g hero-top" ref={type}>
-        <div style={{ gridColumn: "1 / 13" }}>
-          <LB style={{ marginBottom: "clamp(22px,4vh,44px)" }}>RUMOAR — Field note 01</LB>
-          <h1 className="mega">
-            <span className="hl"><span className="hero-line">Men changed.</span></span>
-            <span className="hl"><span className="hero-line">
-              <span className="dim">Menswear</span> didn&rsquo;t.
-            </span></span>
-          </h1>
-        </div>
-      </div>
+      <div className="hero-plate"><Media a={M.hero.plate} eager style={{ height: "100%" }} /></div>
+      <HeroRipples src={url(M.hero.plate.path)} />
 
-      <div className="g hero-btm">
-        {/* the photograph is a panel, not a backdrop — and it is the thing the
-            water bends. Move the cursor across it. */}
-        <div style={{ gridColumn: "1 / 5" }}>
-          <div className="hero-media">
-            <Media a={M.hero.plate} eager style={{ height: "100%" }} />
-            <HeroRipples src={url(M.hero.plate.path)} />
-          </div>
-        </div>
+      <div className="hero-grain" aria-hidden="true" />
 
-        <div style={{ gridColumn: "6 / 9" }}>
-          <p className="lb">The shift</p>
-          <p className="body" style={{ marginTop: 14 }}>
-            The conversation moved from dressing well to expressing well. Income arrived,
-            the catalogue arrived, and the wardrobe stayed exactly where it was.
+      <div className="hero-ui" ref={copy}>
+        <div className="hero-lead">
+          <p className="hero-stmt">
+            <b>A design-first exploration into India&rsquo;s emerging men&rsquo;s accessory
+            culture.</b> <span>Not a finished answer,<br />a starting point.</span>
           </p>
+          <button className="hero-begin"
+            onClick={() => document.getElementById("money")?.scrollIntoView({ behavior: "smooth" })}>
+            Begin<i />
+          </button>
         </div>
-        <div style={{ gridColumn: "10 / 13" }}>
-          <p className="lb">The gap</p>
-          <p className="body" style={{ marginTop: 14 }}>
-            Six houses, four price bands, and not one of them selling a method. He assembles
-            coherence himself, unpaid, and mostly fails.
-          </p>
+
+        <div className="hero-index">
+          <p><span className="n">01/</span> Research</p>
+          <p>Identity</p>
+          <p>Objects</p>
         </div>
       </div>
 
-      <div className="hero-cue" ref={cue}>
-        <LB>Scroll</LB>
-      </div>
+      {[[22, 24], [58, 38], [78, 62], [40, 74]].map(([x, y], i) => (
+        <span className="hero-x" key={i} style={{ left: `${x}%`, top: `${y}%` }} aria-hidden="true">+</span>
+      ))}
+
+      <div className="hero-mark" ref={mark} aria-hidden="true">RUMOAR</div>
     </section>
   );
 }
+
 
 function Chapter({ id, n, title, note }) {
   return (
