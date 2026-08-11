@@ -496,7 +496,7 @@ const CHAPTERS = [
    §3  SYSTEM
 ========================================================================== */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..800&family=Montserrat:wght@300;400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Inter:wght@300..800&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&display=swap');
 
 /* ===========================================================================
    ONE ROOM, TWO LIGHT LEVELS
@@ -507,10 +507,17 @@ const CSS = `
    entire site with no per-section overrides and no flip-flopping mid-scroll.
    =========================================================================== */
 .ru{
-  /* LIGHT IS THE DEFAULT. True white, not off-white. */
-  --paper:#FFFFFF; --paper-2:#F7F7F8; --paper-3:#EFEFF1;
+  /* ---- TYPEFACES: change these two lines and the whole site follows ----
+     The reference is "BDO Grotesk Variable", a licensed Framer font that
+     cannot be loaded from Google Fonts. Archivo is the closest free variable
+     neo-grotesque. If you license BDO, self-host it and put its name here. */
+  --font-body:'Archivo','Inter',-apple-system,system-ui,sans-serif;
+  --font-mark:'Inter',-apple-system,system-ui,sans-serif;
+
+  /* LIGHT IS THE DEFAULT. Pure white. */
+  --paper:#FFFFFF; --paper-2:#FFFFFF; --paper-3:#F4F4F6;
   --ink:#0B0B0D; --ink-2:#55555E; --ink-3:#8E8E98;
-  --line:#E6E6EA;
+  --line:#E9E9ED;
   --mark:#D8232F;
   --glass-bg:rgba(255,255,255,.62);
   color-scheme:light;
@@ -522,13 +529,13 @@ const CSS = `
   --ez:cubic-bezier(.22,.68,.16,1); --ez-out:cubic-bezier(.16,1,.3,1);
   --gut:clamp(14px,1.8vw,26px); --marg:clamp(20px,6vw,116px);
   transition:background 700ms var(--ez),color 700ms var(--ez);
-  font-family:'Space Grotesk','Inter',-apple-system,system-ui,sans-serif;color:var(--ink);background:var(--paper);
+  font-family:var(--font-body);color:var(--ink);background:var(--paper);
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   scrollbar-gutter:stable;
 }
 /* keyboard entry point — visible only when focused */
 .ru .skip{position:fixed;top:10px;left:10px;z-index:500;padding:12px 18px;border-radius:100px;
-  background:var(--ink);color:#fff;font-family:'Montserrat',sans-serif;font-size:.62rem;
+  background:var(--ink);color:#fff;font-family:var(--font-body);font-size:.62rem;
   letter-spacing:.2em;text-transform:uppercase;transform:translateY(-160%);
   transition:transform var(--ui) var(--ez)}
 .ru .skip:focus-visible{transform:none}
@@ -553,7 +560,7 @@ const CSS = `
 .ru .body{font-size:clamp(.93rem,1vw,1.05rem);line-height:1.7;color:var(--ink-2);font-weight:300;
   text-wrap:pretty}
 .ru .lede{font-size:clamp(1rem,1.3vw,1.24rem);line-height:1.55;color:var(--ink-2);font-weight:300}
-.ru .lb{font-family:'Montserrat',sans-serif;font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;
+.ru .lb{font-family:var(--font-body);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;
   color:var(--ink-3);font-weight:500}
 .ru .num{font-variant-numeric:tabular-nums}
 .ru .dim{color:var(--ink-3)}
@@ -578,7 +585,7 @@ const CSS = `
 .ru .fact{background:var(--paper);padding:18px 16px}
 .ru .fact .v{font-size:clamp(1.3rem,2.4vw,2rem);font-weight:200;letter-spacing:-.04em;
   font-variant-numeric:tabular-nums;line-height:1}
-.ru .fact .k{font-family:'Montserrat',sans-serif;font-size:.55rem;letter-spacing:.18em;
+.ru .fact .k{font-family:var(--font-body);font-size:.55rem;letter-spacing:.18em;
   text-transform:uppercase;color:var(--ink-3);margin-top:9px;line-height:1.5}
 .ru .fact .s{font-size:.72rem;color:var(--ink-3);margin-top:3px;font-weight:300}
 
@@ -597,7 +604,7 @@ const CSS = `
 .ru .meter i{position:absolute;inset:0 auto 0 0;background:var(--ink);
   transition:width var(--cine) var(--ez-out)}
 .ru .meter.low i{background:#B4413C}
-.ru .role .rs{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.2em;
+.ru .role .rs{font-family:var(--font-body);font-size:.54rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--ink-3);margin-top:9px;display:flex;
   justify-content:space-between}
 
@@ -605,7 +612,7 @@ const CSS = `
 .ru .pg{width:100%;display:block}
 .ru .band{fill:#FAFAF8}
 .ru .band.hot{fill:rgba(27,42,59,.045)}
-.ru .bandl{font-family:'Montserrat',sans-serif;font-size:12px;letter-spacing:.2em;
+.ru .bandl{font-family:var(--font-body);font-size:12px;letter-spacing:.2em;
   text-transform:uppercase;fill:#9C9C94}
 
 .ru .lm{display:block;overflow:hidden}
@@ -620,8 +627,8 @@ const CSS = `
   padding:clamp(10px,1.1vw,16px);
   background:repeating-linear-gradient(-45deg,rgba(12,12,11,.02) 0 1px,transparent 1px 11px),var(--paper-3);
   box-shadow:inset 0 0 0 1px rgba(12,12,11,.06)}
-.ru .ph b{font-family:'Montserrat',sans-serif;font-size:.52rem;letter-spacing:.24em;color:var(--ink-3);font-weight:600}
-.ru .ph span{font-family:'Montserrat',sans-serif;font-size:.6rem;color:var(--ink-2);word-break:break-all}
+.ru .ph b{font-family:var(--font-body);font-size:.52rem;letter-spacing:.24em;color:var(--ink-3);font-weight:600}
+.ru .ph span{font-family:var(--font-body);font-size:.6rem;color:var(--ink-2);word-break:break-all}
 
 /* ===========================================================================
    NIGHT — the narrative sections run dark. The argument sections stay on
@@ -663,13 +670,13 @@ const CSS = `
   margin-left:6px;vertical-align:-.12em;animation:ck 1s steps(2) infinite}
 @keyframes ck{50%{opacity:0}}
 .ru .ldword{display:flex;justify-content:center;gap:.02em;font-weight:600;
-  font-family:'Inter',sans-serif;
+  font-family:var(--font-mark);
   font-size:clamp(2.8rem,9.5vw,7.4rem);letter-spacing:.03em;color:var(--bone)}
 .ru .ldword span{display:inline-block;opacity:0;filter:blur(16px);transform:translateY(26px) scale(1.06);
   transition:opacity 1150ms var(--ez-out),filter 1150ms var(--ez-out),transform 1150ms var(--ez-out)}
 .ru .ldword.in span{opacity:1;filter:blur(0);transform:none}
 .ru .ldword span.o{color:var(--ember);font-style:italic}
-.ru .ldest,.ru .ldskip{position:absolute;bottom:2rem;font-family:'Montserrat',sans-serif;
+.ru .ldest,.ru .ldskip{position:absolute;bottom:2rem;font-family:var(--font-body);
   font-size:.55rem;letter-spacing:.28em;text-transform:uppercase;color:var(--bone-3)}
 .ru .ldest{left:clamp(1.2rem,4vw,3rem)}
 .ru .ldskip{right:clamp(1.2rem,4vw,3rem);opacity:0;transition:opacity .6s}
@@ -679,7 +686,7 @@ const CSS = `
 .ru .estrip{position:fixed;top:0;bottom:0;left:0;width:26px;z-index:170;overflow:hidden;
   border-right:1px solid var(--line);background:var(--paper);pointer-events:none;
   display:flex;align-items:flex-start;justify-content:center;transition:background var(--ui),border-color var(--ui)}
-.ru .estrip .etrack{writing-mode:vertical-rl;white-space:nowrap;font-family:'Montserrat',sans-serif;
+.ru .estrip .etrack{writing-mode:vertical-rl;white-space:nowrap;font-family:var(--font-body);
   font-size:.56rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-3);
   animation:eroll 42s linear infinite;padding-block:10px}
 .ru .estrip .etrack b{color:var(--ember);font-weight:500}
@@ -698,7 +705,7 @@ const CSS = `
 .ru .manwrap{display:flex;flex-direction:column;align-items:center;gap:clamp(12px,2vh,24px);
   will-change:opacity,filter,transform;max-height:100%;padding-block:clamp(48px,9vh,90px)}
 .ru .manwrap svg{height:min(52svh,440px);width:auto;display:block;flex:0 0 auto}
-.ru .mancap{font-family:'Montserrat',sans-serif;font-size:.62rem;letter-spacing:.24em;
+.ru .mancap{font-family:var(--font-body);font-size:.62rem;letter-spacing:.24em;
   text-transform:uppercase;color:var(--bone-2);text-align:center;min-height:1.4em;max-width:32ch}
 .ru .acc{will-change:opacity,transform;opacity:0}
 .ru .tquote{display:grid;place-items:center;text-align:center;padding-inline:8vw;pointer-events:none;
@@ -758,7 +765,7 @@ const CSS = `
   stroke-linecap:round}
 .ru.night .mk-spec{stroke:var(--paper);stroke-opacity:.9}
 .ru .mk-nodes circle{fill:var(--paper);stroke:var(--mark);stroke-width:1.6}
-.ru .mark figcaption{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
+.ru .mark figcaption{font-family:var(--font-body);font-size:.5rem;letter-spacing:.26em;
   text-transform:uppercase;color:var(--ink-3);margin-top:14px}
 @media (max-width:900px){.ru .mark{max-width:190px;margin-inline:auto}}
 
@@ -789,7 +796,7 @@ const CSS = `
   box-shadow:0 0 0 3px color-mix(in srgb,var(--mark) 22%,transparent)}
 .ru .pl-line{height:1px;width:clamp(16px,2.2vw,34px);background:var(--mark);
   transform-origin:left center;flex:0 0 auto}
-.ru .pl-txt{font-family:'Montserrat',sans-serif;font-size:.46rem;letter-spacing:.16em;
+.ru .pl-txt{font-family:var(--font-body);font-size:.46rem;letter-spacing:.16em;
   text-transform:uppercase;color:var(--ink);background:var(--paper);
   padding:4px 7px;border:1px solid var(--line);white-space:nowrap;font-weight:500;
   margin-left:-1px}
@@ -816,7 +823,7 @@ const CSS = `
 .ru .vn-groove.g1{inset:5px}.ru .vn-groove.g2{inset:9px}.ru .vn-groove.g3{inset:13px}
 .ru .vn-label{position:absolute;inset:34%;border-radius:50%;background:var(--mark);
   display:grid;place-items:center}
-.ru .vn-label b{font-family:'Inter',sans-serif;font-weight:700;font-size:.6rem;color:#fff;line-height:1}
+.ru .vn-label b{font-family:var(--font-mark);font-weight:700;font-size:.6rem;color:#fff;line-height:1}
 .ru .vn-shine{position:absolute;inset:0;border-radius:50%;pointer-events:none;
   background:linear-gradient(125deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%)}
 .ru .vn-arm{position:absolute;right:-3px;top:-2px;width:30px;height:30px;
@@ -825,7 +832,7 @@ const CSS = `
   background:var(--ink-3);transform-origin:top center;transform:rotate(38deg);border-radius:1px}
 .ru .vn-arm b{position:absolute;right:1px;top:1px;width:7px;height:7px;border-radius:50%;
   background:var(--ink-3)}
-.ru .vn-txt{font-family:'Montserrat',sans-serif;font-size:.48rem;letter-spacing:.22em;
+.ru .vn-txt{font-family:var(--font-body);font-size:.48rem;letter-spacing:.22em;
   text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
 .ru .vinyl.on .vn-txt,.ru .vinyl.asking .vn-txt{color:var(--mark)}
 .ru .vinyl.asking .vn-deck{border-color:var(--mark)}
@@ -849,9 +856,9 @@ const CSS = `
   vector-effect:non-scaling-stroke}
 .ru .lw-inner path{fill:none;stroke:#FFB93A;stroke-width:1.1;stroke-linejoin:round}
 .ru .lw-scan{stroke:var(--mark)!important;stroke-width:1.6!important;opacity:.5}
-.ru .lw-mark{font-family:'Inter',sans-serif;font-weight:700;font-size:22px;fill:none;
+.ru .lw-mark{font-family:var(--font-mark);font-weight:700;font-size:22px;fill:none;
   stroke:var(--ink);stroke-width:.8;opacity:.6}
-.ru .lightercap{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
+.ru .lightercap{font-family:var(--font-body);font-size:.5rem;letter-spacing:.26em;
   text-transform:uppercase;color:var(--ink-3);margin-top:20px}
 .ru .lightercap b{color:var(--mark);font-weight:500}
 @media (max-width:900px){.ru .lighterwrap{align-items:center;text-align:center}}
@@ -872,7 +879,7 @@ const CSS = `
 .ru .card.back{background:
   repeating-linear-gradient(45deg,transparent 0 4px,rgba(255,59,71,.16) 4px 5px),
   var(--paper-3)}
-.ru .deckcap{font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.26em;
+.ru .deckcap{font-family:var(--font-body);font-size:.5rem;letter-spacing:.26em;
   text-transform:uppercase;color:var(--ink-3);margin-top:16px;display:block}
 .ru .deckcap b{color:var(--mark);font-weight:500}
 @media (max-width:900px){.ru .deck{margin-inline:auto}}
@@ -886,13 +893,13 @@ const CSS = `
 /* the pulse — one day, drawn as one line */
 .ru .pulse{border:1px solid var(--nline);padding:clamp(16px,2.4vw,28px);background:var(--night-2)}
 .ru .phead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
-.ru .pnow{font-family:'Montserrat',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+.ru .pnow{font-family:var(--font-body);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
   display:flex;gap:12px;align-items:baseline}
 .ru .pnow b{color:var(--ember);font-variant-numeric:tabular-nums;font-weight:600}
 .ru .pnow i{color:var(--bone-2);font-style:normal;letter-spacing:.12em}
 .ru .pulse canvas{width:100%;height:150px;display:block;margin-top:14px}
 .ru .pfoot{display:flex;justify-content:space-between;gap:16px;margin-top:12px;
-  font-family:'Montserrat',sans-serif;font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;
+  font-family:var(--font-body);font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;
   color:var(--bone-3);flex-wrap:wrap}
 .ru .pfoot b{color:var(--cold)}
 
@@ -925,7 +932,7 @@ const CSS = `
   clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)}
 .ru:not(.night) .lamp .beam{opacity:1}
 .ru .lamphint{position:fixed;top:clamp(96px,15vh,168px);right:clamp(16px,2.4vw,44px);z-index:180;
-  font-family:'Montserrat',sans-serif;font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;
+  font-family:var(--font-body);font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;
   color:var(--ink-3);writing-mode:vertical-rl;opacity:.55;pointer-events:none;
   transition:opacity var(--ui)}
 @media (max-width:720px){.ru .lamp{right:16px}.ru .lamphint{display:none}}
@@ -933,13 +940,13 @@ const CSS = `
 .ru .risk{border:1px solid var(--line);padding:clamp(18px,2.4vw,28px);
   transition:border-color var(--ui)}
 .ru .risk+.risk{margin-top:-1px}
-.ru .rsev{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.24em;
+.ru .rsev{font-family:var(--font-body);font-size:.54rem;letter-spacing:.24em;
   text-transform:uppercase;color:var(--ember)}
 .ru .rq{font-size:clamp(1.05rem,1.7vw,1.4rem);font-weight:300;letter-spacing:-.03em;margin-top:10px;
   color:var(--bone)}
 .ru .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.4vw,32px);margin-top:18px}
 @media (max-width:760px){.ru .rgrid{grid-template-columns:1fr}}
-.ru .rgrid b{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.22em;
+.ru .rgrid b{font-family:var(--font-body);font-size:.54rem;letter-spacing:.22em;
   text-transform:uppercase;display:block;margin-bottom:8px}
 .ru .rgrid .atk b{color:var(--ember)}
 .ru .rgrid .ans b{color:var(--cold)}
@@ -953,16 +960,16 @@ const CSS = `
   transition:opacity .6s,filter .6s}
 .ru .chform.gone{opacity:0;filter:blur(8px);pointer-events:none}
 .ru .chform input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--nline);
-  color:var(--bone);font-family:'Space Grotesk',sans-serif;font-weight:200;text-align:center;
+  color:var(--bone);font-family:var(--font-body);font-weight:200;text-align:center;
   font-size:clamp(1.4rem,3.4vw,2.2rem);letter-spacing:-.03em;padding:10px 0;outline:none}
 .ru .chform input::placeholder{color:var(--bone-3);font-weight:200}
 .ru .chform input:focus{border-bottom-color:var(--ember)}
-.ru .chform button{font-family:'Montserrat',sans-serif;font-size:.58rem;letter-spacing:.26em;
+.ru .chform button{font-family:var(--font-body);font-size:.58rem;letter-spacing:.26em;
   text-transform:uppercase;color:var(--bone-2);border:1px solid var(--nline);padding:11px 22px;
   border-radius:100px;transition:all var(--ui) var(--ez)}
 .ru .chform button:hover{color:var(--night);background:var(--bone);border-color:var(--bone)}
 .ru .chfield{position:absolute;inset:0;z-index:2}
-.ru .wh{position:absolute;transform:translate(-50%,-50%);font-family:'Space Grotesk',sans-serif;
+.ru .wh{position:absolute;transform:translate(-50%,-50%);font-family:var(--font-body);
   font-weight:200;color:var(--bone);white-space:nowrap;letter-spacing:-.02em;
   opacity:0;transition:opacity 700ms var(--ez-out),transform 1500ms var(--ez),filter 1500ms var(--ez)}
 .ru .wh.in{opacity:var(--wo,1)}
@@ -972,7 +979,7 @@ const CSS = `
   width:min(90vw,640px);opacity:0;transition:opacity 900ms var(--ez)}
 .ru .chend.on{opacity:1}
 .ru .chend p{font-size:clamp(1rem,1.8vw,1.4rem);font-weight:200;letter-spacing:-.03em;color:var(--bone-2)}
-.ru .chend button{margin-top:16px;font-family:'Montserrat',sans-serif;font-size:.55rem;
+.ru .chend button{margin-top:16px;font-family:var(--font-body);font-size:.55rem;
   letter-spacing:.24em;text-transform:uppercase;color:var(--bone-3)}
 .ru .chend button:hover{color:var(--bone)}
 
@@ -982,10 +989,10 @@ const CSS = `
 .ru .askc{background:var(--night);padding:clamp(20px,2.6vw,32px)}
 .ru .askc .v{font-size:clamp(1.5rem,2.8vw,2.4rem);font-weight:200;letter-spacing:-.045em;
   font-variant-numeric:tabular-nums;line-height:1}
-.ru .askc .k{font-family:'Montserrat',sans-serif;font-size:.54rem;letter-spacing:.2em;
+.ru .askc .k{font-family:var(--font-body);font-size:.54rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--bone-3);margin-top:10px}
 .ru .askc .s{font-size:.8rem;color:var(--bone-2);margin-top:8px;font-weight:300;line-height:1.55}
-.ru .term{font-family:'Montserrat',sans-serif;font-size:clamp(.7rem,1vw,.85rem);line-height:2;
+.ru .term{font-family:var(--font-body);font-size:clamp(.7rem,1vw,.85rem);line-height:2;
   color:var(--bone-2);letter-spacing:.02em}
 .ru .term b{color:var(--ember);font-weight:500}
 .ru .term .c{color:var(--cold)}
@@ -993,7 +1000,7 @@ const CSS = `
 .ru .intro{position:fixed;inset:0;z-index:400;background:#fff;display:grid;place-items:center;
   transition:opacity 900ms var(--ez),visibility 900ms}
 .ru .intro.gone{opacity:0;visibility:hidden}
-.ru .im{font-family:'Inter',sans-serif;font-weight:600;font-size:clamp(.9rem,1.6vw,1.15rem);
+.ru .im{font-family:var(--font-mark);font-weight:600;font-size:clamp(.9rem,1.6vw,1.15rem);
   letter-spacing:1.1em;text-indent:1.1em;opacity:0;animation:imk 1900ms var(--ez-out) forwards}
 @keyframes imk{0%{letter-spacing:1.1em;opacity:0}30%{opacity:1}100%{letter-spacing:.42em;opacity:1}}
 .ru .ibar{position:absolute;bottom:0;left:0;height:1px;background:var(--ink);width:0}
@@ -1010,16 +1017,16 @@ const CSS = `
 .ru .nav.pill .navin{max-width:900px;padding:8px 8px 8px 24px;border-radius:100px;background:var(--glass);
   backdrop-filter:blur(30px) saturate(1.8);-webkit-backdrop-filter:blur(30px) saturate(1.8);
   border-color:var(--gl-edge);box-shadow:inset 0 .5px 0 var(--gl-hi),0 20px 54px -34px rgba(12,12,11,.55)}
-.ru .wm{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.42em;font-size:.76rem;
+.ru .wm{font-family:var(--font-mark);font-weight:600;letter-spacing:.42em;font-size:.76rem;
   margin-right:auto;white-space:nowrap}
-.ru .nl{font-family:'Montserrat',sans-serif;font-size:.61rem;letter-spacing:.2em;text-transform:uppercase;
+.ru .nl{font-family:var(--font-body);font-size:.61rem;letter-spacing:.2em;text-transform:uppercase;
   color:var(--ink-3);position:relative;padding:5px 0;transition:color var(--micro) var(--ez);white-space:nowrap}
 .ru .nl::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--ink);
   transform:scaleX(0);transform-origin:right;transition:transform var(--ui) var(--ez)}
 .ru .nl:hover{color:var(--ink)}
 .ru .nl:hover::after,.ru .nl.on::after{transform:scaleX(1);transform-origin:left}
 .ru .nl.on{color:var(--ink)}
-.ru .cta{font-family:'Montserrat',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+.ru .cta{font-family:var(--font-body);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
   border:.5px solid var(--ink);border-radius:100px;padding:10px 20px;white-space:nowrap;position:relative;
   overflow:hidden;isolation:isolate;color:var(--ink);transition:color var(--ui) var(--ez)}
 .ru .cta::before{content:"";position:absolute;inset:0;background:var(--ink);z-index:-1;
@@ -1033,13 +1040,14 @@ const CSS = `
   filter:none;transition:filter 700ms var(--ez)}
 .ru.night .plate{filter:grayscale(.35) brightness(.62) contrast(1.08)}
 .ru .cut{position:absolute;right:-3%;bottom:0;width:min(50vw,720px);height:86%;will-change:transform}
-.ru .ripple{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;
+.ru .ripple{position:absolute;inset:0;z-index:1;width:100%;height:100%;display:block;
   pointer-events:none}
-.ru .hwash{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 30%,transparent 100%),
-    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(216,35,47,.05),transparent 62%)}
-.ru.night .hwash{background:linear-gradient(96deg,var(--paper) 0%,var(--paper) 34%,transparent 100%),
-    radial-gradient(ellipse 60% 70% at 12% 40%,rgba(255,59,71,.10),transparent 62%)}
+/* the hero headline is deliberately modest — the photograph is the loud thing */
+.ru .hero-h{font-size:clamp(2rem,5.2vw,4.4rem)!important;line-height:1.02;letter-spacing:-.045em}
+.ru .hero-copy{position:relative}
+.ru .hero-copy::before{content:"";position:absolute;inset:-6% -8% -10% -6%;z-index:-1;
+  background:radial-gradient(ellipse 62% 68% at 28% 50%,var(--paper) 0%,
+    color-mix(in srgb,var(--paper) 72%,transparent) 46%,transparent 78%)}
 /* the hero headline rises after the loader clears, not on a fixed timer */
 .ru .hero .hl{display:block;overflow:hidden;padding-bottom:.06em}
 .ru .hero .hl > span{display:block;will-change:transform}
@@ -1054,7 +1062,7 @@ const CSS = `
   transition:transform var(--content) var(--ez-out)}
 .ru .tick .y{font-size:clamp(.92rem,1.3vw,1.16rem);font-weight:300;letter-spacing:-.02em;color:var(--ink-3);
   transition:color var(--ui) var(--ez)}
-.ru .tick .t{font-family:'Montserrat',sans-serif;font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;
+.ru .tick .t{font-family:var(--font-body);font-size:.48rem;letter-spacing:.22em;text-transform:uppercase;
   color:var(--ink-3);opacity:0;transition:opacity var(--ui) var(--ez)}
 .ru .tick:hover .y{color:var(--ink-2)}
 .ru .tick.on{transform:scale(1.16)}
@@ -1077,9 +1085,9 @@ const CSS = `
   opacity var(--content) var(--ez)}
 .ru .plotbox.back{transform:scale(.9) translateX(-13%);filter:blur(2px);opacity:.45}
 .ru .pt{cursor:pointer;transition:r var(--ui) var(--ez-out),opacity var(--content) var(--ez)}
-.ru .ptl{font-family:'Montserrat',sans-serif;font-size:15px;letter-spacing:.14em;fill:#56564F;
+.ru .ptl{font-family:var(--font-body);font-size:15px;letter-spacing:.14em;fill:#56564F;
   pointer-events:none;transition:opacity var(--ui) var(--ez)}
-.ru .ax{font-family:'Montserrat',sans-serif;font-size:13px;letter-spacing:.26em;fill:#9C9C94}
+.ru .ax{font-family:var(--font-body);font-size:13px;letter-spacing:.26em;fill:#9C9C94}
 .ru .youring{transform-origin:center;transform-box:fill-box;animation:youpulse 3.4s var(--ez) infinite}
 @keyframes youpulse{0%{transform:scale(.72);opacity:.6}70%{transform:scale(1.12);opacity:0}100%{opacity:0}}
 @media(max-width:640px){
@@ -1120,7 +1128,7 @@ const CSS = `
 .ru .dive.open{transform:none}
 
 /* ——— 01 · PLOT YOURSELF ——— */
-.ru .chip{font-family:'Montserrat',sans-serif;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+.ru .chip{font-family:var(--font-body);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
   border:.5px solid var(--line);border-radius:100px;padding:11px 18px;color:var(--ink-3);
   position:relative;overflow:hidden;isolation:isolate;
   transition:color var(--ui) var(--ez),border-color var(--ui) var(--ez),transform var(--ui) var(--ez-out)}
@@ -1144,7 +1152,7 @@ const CSS = `
 
 /* ——— 03 · IDENTITY RECEIPT ——— */
 .ru .receipt{background:#fff;padding:26px 24px 30px;max-width:340px;position:relative;
-  box-shadow:0 24px 60px -34px rgba(12,12,11,.5);font-family:'Montserrat',sans-serif;font-size:.66rem;
+  box-shadow:0 24px 60px -34px rgba(12,12,11,.5);font-family:var(--font-body);font-size:.66rem;
   letter-spacing:.04em;color:var(--ink)}
 .ru .receipt::after{content:"";position:absolute;left:0;right:0;bottom:-11px;height:12px;background:#fff;
   -webkit-mask:repeating-linear-gradient(90deg,#000 0 9px,transparent 9px 18px);
@@ -1182,7 +1190,7 @@ const CSS = `
 .ru .veil{position:fixed;inset:0;z-index:350;background:var(--paper);display:grid;place-items:center;
   pointer-events:none;opacity:0;transition:opacity 200ms var(--ez)}
 .ru .veil.on{opacity:1;pointer-events:auto}
-.ru .vm{font-family:'Inter',sans-serif;font-weight:600;color:var(--ink);
+.ru .vm{font-family:var(--font-mark);font-weight:600;color:var(--ink);
   transition:letter-spacing 320ms var(--ez-out),transform 320ms var(--ez-out),
     opacity var(--content) var(--ez),font-size var(--cine) var(--ez-out)}
 
@@ -1276,7 +1284,7 @@ const CSS = `
   .ru .row>*:first-child{margin-bottom:10px}
   .ru .rowhead{display:none}
   .ru .row [data-l]{display:grid;grid-template-columns:8.5rem 1fr;gap:12px;padding:4px 0}
-  .ru .row [data-l]::before{content:attr(data-l);font-family:'Montserrat',sans-serif;
+  .ru .row [data-l]::before{content:attr(data-l);font-family:var(--font-body);
     font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)}
 }
 
@@ -1707,137 +1715,264 @@ function Nav({ active, onLab }) {
 }
 
 
+
 /* ===========================================================================
-   THE RIPPLE
-   A shallow water surface over the hero. Moving the cursor drops energy into
-   a height field; the field relaxes toward its neighbours each frame, which is
-   what makes the rings spread, reflect off the edges and interfere with each
-   other rather than just fading.
+   THE RIPPLES  —  WebGL
+   The same technique jquery.ripples uses, written directly against WebGL so
+   there is no jQuery and no plugin to load.
 
-   This is a real (if small) wave simulation, not stacked CSS circles:
-     · two buffers, previous and current height
-     · next = (sum of four neighbours / 2) - previous, damped
-   Rendered by displacing a grid of light — cheap, and it reads as fluid
-   because the maths is the same maths.
+   Two ping-pong float textures hold the water height. Each frame a shader
+   runs the wave equation across them; a second shader reads the resulting
+   height field, derives a surface normal, and REFRACTS the hero image
+   through it. That refraction is the whole point — the picture bends under
+   the water instead of lines being drawn on top of it.
 
-   ~90x50 cells is enough to look liquid and costs almost nothing. It pauses
-   when the hero scrolls away, and never runs on touch or reduced motion.
+   Cost: two 256x256 textures and two tiny fragment shaders. It degrades to
+   nothing (no canvas at all) if WebGL, float textures, touch or reduced
+   motion say no.
    =========================================================================== */
-function HeroRipple() {
+const RIPPLE_VERT = `
+attribute vec2 aPos;
+varying vec2 vUV;
+void main(){ vUV = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+/* the simulation: height and velocity packed into r and g */
+const RIPPLE_SIM = `
+precision highp float;
+varying vec2 vUV;
+uniform sampler2D uPrev;
+uniform vec2 uTexel;
+uniform vec2 uDrop;
+uniform float uDropStrength;
+uniform float uDropRadius;
+void main(){
+  vec4 info = texture2D(uPrev, vUV);
+  /* average the four neighbours, subtract velocity — the wave equation */
+  float avg = (
+    texture2D(uPrev, vUV - vec2(uTexel.x, 0.0)).r +
+    texture2D(uPrev, vUV + vec2(uTexel.x, 0.0)).r +
+    texture2D(uPrev, vUV - vec2(0.0, uTexel.y)).r +
+    texture2D(uPrev, vUV + vec2(0.0, uTexel.y)).r
+  ) * 0.25;
+  info.g += (avg - info.r) * 2.0;
+  info.g *= 0.9915;                 /* damping — how long a ring survives */
+  info.r += info.g;
+
+  /* a drop pushes the surface down in a smooth cosine dome */
+  if (uDropStrength > 0.0) {
+    float d = max(0.0, 1.0 - length(uDrop - vUV) / uDropRadius);
+    d = 0.5 - cos(d * 3.14159) * 0.5;
+    info.r += d * uDropStrength;
+  }
+  gl_FragColor = info;
+}`;
+
+/* the render: refract the page image through the surface normal */
+const RIPPLE_DRAW = `
+precision highp float;
+varying vec2 vUV;
+uniform sampler2D uWater;
+uniform sampler2D uImage;
+uniform vec2 uTexel;
+uniform float uStrength;
+uniform vec3 uTint;
+void main(){
+  /* slope of the surface in x and y = the normal */
+  float l = texture2D(uWater, vUV - vec2(uTexel.x, 0.0)).r;
+  float r = texture2D(uWater, vUV + vec2(uTexel.x, 0.0)).r;
+  float b = texture2D(uWater, vUV - vec2(0.0, uTexel.y)).r;
+  float t = texture2D(uWater, vUV + vec2(0.0, uTexel.y)).r;
+  vec2 slope = vec2(r - l, t - b);
+
+  vec2 uv = vec2(vUV.x, 1.0 - vUV.y) + slope * uStrength;
+  vec4 col = texture2D(uImage, clamp(uv, 0.001, 0.999));
+
+  /* a specular glint on the steep faces, so light sits on the water */
+  float spec = pow(max(0.0, slope.x * 0.6 + slope.y * 0.8), 2.0) * 26.0;
+  col.rgb += uTint * clamp(spec, 0.0, 0.55);
+  gl_FragColor = col;
+}`;
+
+function compile(gl, type, src) {
+  const sh = gl.createShader(type);
+  gl.shaderSource(sh, src); gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+    console.warn("[ripples] shader:", gl.getShaderInfoLog(sh)); return null;
+  }
+  return sh;
+}
+function program(gl, vs, fs) {
+  const v = compile(gl, gl.VERTEX_SHADER, vs), f = compile(gl, gl.FRAGMENT_SHADER, fs);
+  if (!v || !f) return null;
+  const p = gl.createProgram();
+  gl.attachShader(p, v); gl.attachShader(p, f); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) return null;
+  return p;
+}
+
+function HeroRipples({ src }) {
   const cv = useRef(null);
 
   useEffect(() => {
     const c = cv.current;
     if (!c || reduced() || window.matchMedia("(pointer:coarse)").matches) return;
 
-    const ctx = c.getContext("2d", { alpha: true });
-    const COLS = 92, ROWS = 52;
-    let prev = new Float32Array(COLS * ROWS);
-    let cur = new Float32Array(COLS * ROWS);
-    let W = 0, H = 0, raf, run = true, vis = true;
-    let ink = "#0B0B0D", mark = "#D8232F";
+    const gl = c.getContext("webgl", { alpha: true, premultipliedAlpha: false, antialias: false });
+    if (!gl) return;
+    /* float textures are required for the height field to hold fine detail */
+    const ext = gl.getExtension("OES_texture_float") || gl.getExtension("OES_texture_half_float");
+    if (!ext) return;
+    const TYPE = gl.getExtension("OES_texture_float") ? gl.FLOAT
+      : gl.getExtension("OES_texture_half_float").HALF_FLOAT_OES;
 
-    const readTokens = () => {
-      const host = document.querySelector(".ru");
-      if (!host) return;
-      const cs = getComputedStyle(host);
-      ink = cs.getPropertyValue("--ink").trim() || ink;
-      mark = cs.getPropertyValue("--mark").trim() || mark;
+    const SIM = 256;
+    const simP = program(gl, RIPPLE_VERT, RIPPLE_SIM);
+    const drawP = program(gl, RIPPLE_VERT, RIPPLE_DRAW);
+    if (!simP || !drawP) return;
+
+    const quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const bindQuad = (p) => {
+      const loc = gl.getAttribLocation(p, "aPos");
+      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     };
-    readTokens();
-    const mo = new MutationObserver(readTokens);
-    const host = document.querySelector(".ru");
-    if (host) mo.observe(host, { attributes: true, attributeFilter: ["class"] });
 
+    const mkTex = () => {
+      const t = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SIM, SIM, 0, gl.RGBA, TYPE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      const fb = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      return { t, fb };
+    };
+    let A = mkTex(), B = mkTex();
+    [A, B].forEach(({ fb }) => {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    });
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    /* the hero photograph is the thing being refracted */
+    const imgTex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, imgTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+      new Uint8Array([245, 245, 248, 255]));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    let haveImg = false;
+    if (src) {
+      const im = new Image();
+      im.crossOrigin = "anonymous";
+      im.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, imgTex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
+        haveImg = true;
+      };
+      im.src = src;
+    }
+
+    let W = 0, H = 0, raf, run = true, vis = true;
     const size = () => {
       const r = c.getBoundingClientRect();
-      const d = Math.min(window.devicePixelRatio || 1, 1.75);
+      const d = Math.min(window.devicePixelRatio || 1, 2);
       W = r.width; H = r.height;
       c.width = Math.max(1, W * d); c.height = Math.max(1, H * d);
-      ctx.setTransform(d, 0, 0, d, 0, 0);
     };
-    size();
-    window.addEventListener("resize", size);
-
+    size(); window.addEventListener("resize", size);
     const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: .02 });
     io.observe(c);
 
-    /* dropping energy in — a moving cursor leaves a wake, not dots */
+    /* pending drops from the pointer, applied one per sim step */
+    const drops = [];
     let lx = -1, ly = -1;
-    const drop = (px, py, force) => {
-      const gx = Math.round((px / W) * (COLS - 1));
-      const gy = Math.round((py / H) * (ROWS - 1));
-      for (let oy = -1; oy <= 1; oy++) {
-        for (let ox = -1; ox <= 1; ox++) {
-          const x = gx + ox, y = gy + oy;
-          if (x < 1 || y < 1 || x >= COLS - 1 || y >= ROWS - 1) continue;
-          const fall = ox || oy ? .55 : 1;
-          cur[y * COLS + x] -= force * fall;
-        }
-      }
-    };
-
+    const surface = c.closest(".hero") || c.parentElement;
     const onMove = (e) => {
       const r = c.getBoundingClientRect();
-      const px = e.clientX - r.left, py = e.clientY - r.top;
-      if (px < 0 || py < 0 || px > r.width || py > r.height) return;
-      /* interpolate along the cursor's path so fast movement still leaves a
-         continuous wake instead of a dotted line */
+      const x = (e.clientX - r.left) / r.width;
+      const y = 1 - (e.clientY - r.top) / r.height;
+      if (x < 0 || x > 1 || y < 0 || y > 1) return;
       if (lx >= 0) {
-        const steps = Math.min(8, Math.hypot(px - lx, py - ly) / 12 | 0);
+        const steps = Math.min(5, Math.hypot(x - lx, y - ly) * 42 | 0);
         for (let i = 1; i <= steps; i++)
-          drop(lx + (px - lx) * (i / steps), ly + (py - ly) * (i / steps), 2.2);
+          drops.push([lx + (x - lx) * (i / steps), ly + (y - ly) * (i / steps), .022, .028]);
       }
-      drop(px, py, 5.2);
-      lx = px; ly = py;
+      drops.push([x, y, .03, .05]);
+      lx = x; ly = y;
     };
     const onLeave = () => { lx = -1; ly = -1; };
-    /* the canvas is pointer-events:none so it never swallows a click; the
-       listener lives on the hero section instead */
-    const surface = c.closest(".hero") || c.parentElement;
+    const onDown = (e) => {
+      const r = c.getBoundingClientRect();
+      drops.push([(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height, .1, .11]);
+    };
     surface.addEventListener("mousemove", onMove, { passive: true });
     surface.addEventListener("mouseleave", onLeave);
+    surface.addEventListener("pointerdown", onDown);
 
-    const cw = () => W / (COLS - 1), chh = () => H / (ROWS - 1);
-
-    const step = () => {
-      /* the wave equation, damped */
-      for (let y = 1; y < ROWS - 1; y++) {
-        for (let x = 1; x < COLS - 1; x++) {
-          const i = y * COLS + x;
-          const n = (cur[i - 1] + cur[i + 1] + cur[i - COLS] + cur[i + COLS]) / 2 - prev[i];
-          prev[i] = n * .962;
-        }
-      }
-      const t = prev; prev = cur; cur = t;
+    const uSim = {
+      prev: gl.getUniformLocation(simP, "uPrev"),
+      texel: gl.getUniformLocation(simP, "uTexel"),
+      drop: gl.getUniformLocation(simP, "uDrop"),
+      str: gl.getUniformLocation(simP, "uDropStrength"),
+      rad: gl.getUniformLocation(simP, "uDropRadius"),
+    };
+    const uDraw = {
+      water: gl.getUniformLocation(drawP, "uWater"),
+      image: gl.getUniformLocation(drawP, "uImage"),
+      texel: gl.getUniformLocation(drawP, "uTexel"),
+      strength: gl.getUniformLocation(drawP, "uStrength"),
+      tint: gl.getUniformLocation(drawP, "uTint"),
     };
 
-    const draw = () => {
-      ctx.clearRect(0, 0, W, H);
-      const dx = cw(), dy = chh();
-      ctx.lineWidth = 1;
-      for (let y = 2; y < ROWS - 1; y += 2) {
-        ctx.beginPath();
-        let peak = 0;
-        for (let x = 1; x < COLS - 1; x++) {
-          const h = cur[y * COLS + x];
-          if (Math.abs(h) > peak) peak = Math.abs(h);
-          const px = x * dx, py = y * dy + h * 2.6;
-          x === 1 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-        }
-        if (peak < .012) continue;                 // silent rows cost nothing
-        ctx.globalAlpha = Math.min(.34, peak * .5);
-        ctx.strokeStyle = peak > .9 ? mark : ink;
-        ctx.stroke();
+    const stepSim = (drop) => {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, B.fb);
+      gl.viewport(0, 0, SIM, SIM);
+      gl.useProgram(simP); bindQuad(simP);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.t);
+      gl.uniform1i(uSim.prev, 0);
+      gl.uniform2f(uSim.texel, 1 / SIM, 1 / SIM);
+      if (drop) {
+        gl.uniform2f(uSim.drop, drop[0], drop[1]);
+        gl.uniform1f(uSim.str, drop[2]);
+        gl.uniform1f(uSim.rad, drop[3]);
+      } else {
+        gl.uniform1f(uSim.str, 0);
+        gl.uniform1f(uSim.rad, .03);
+        gl.uniform2f(uSim.drop, -1, -1);
       }
-      ctx.globalAlpha = 1;
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      const t = A; A = B; B = t;
     };
 
     const tick = () => {
       if (!run) return;
       raf = requestAnimationFrame(tick);
       if (!vis) return;
-      step(); draw();
+      stepSim(drops.length ? drops.shift() : null);
+      if (drops.length > 3) drops.splice(0, drops.length - 3);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, c.width, c.height);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.useProgram(drawP); bindQuad(drawP);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.t);
+      gl.uniform1i(uDraw.water, 0);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, imgTex);
+      gl.uniform1i(uDraw.image, 1);
+      gl.uniform2f(uDraw.texel, 1 / SIM, 1 / SIM);
+      gl.uniform1f(uDraw.strength, haveImg ? .42 : .18);
+      gl.uniform3f(uDraw.tint, 1, .96, .92);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
     tick();
 
@@ -1846,9 +1981,13 @@ function HeroRipple() {
       window.removeEventListener("resize", size);
       surface.removeEventListener("mousemove", onMove);
       surface.removeEventListener("mouseleave", onLeave);
-      io.disconnect(); mo.disconnect();
+      surface.removeEventListener("pointerdown", onDown);
+      io.disconnect();
+      [A, B].forEach(({ t, fb }) => { gl.deleteTexture(t); gl.deleteFramebuffer(fb); });
+      gl.deleteTexture(imgTex); gl.deleteBuffer(quad);
+      gl.deleteProgram(simP); gl.deleteProgram(drawP);
     };
-  }, []);
+  }, [src]);
 
   if (reduced()) return null;
   return <canvas className="ripple" ref={cv} aria-hidden="true" />;
@@ -1856,7 +1995,7 @@ function HeroRipple() {
 
 function Hero() {
   const sec = useRef(null), plate = useRef(null),
-    type = useRef(null), wash = useRef(null), cue = useRef(null);
+    type = useRef(null), cue = useRef(null);
 
   /* Pointer target, read by the same loop that reads scroll.
      BUG FIXED: this used to animate marginLeft/marginRight in a second rAF
@@ -1887,20 +2026,18 @@ function Hero() {
       type.current.style.transform = `translate3d(${q.x * .12}px,${p * -84}px,0)`;
       type.current.style.opacity = `${1 - p * 1.6}`;
     }
-    if (wash.current) wash.current.style.opacity = `${1 - p * .28}`;
     if (cue.current) cue.current.style.opacity = `${1 - p * 3.4}`;
   }, 9);
 
   return (
     <section className="hero" id="hero" ref={sec}>
       <div className="plate" ref={plate}><Media a={M.hero.plate} eager style={{ height: "100%" }} /></div>
-      <div className="hwash" ref={wash} />
-      <HeroRipple />
+      <HeroRipples src={url(M.hero.plate.src)} />
 
       <div className="full" ref={type} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", zIndex: 3 }}>
-        <div>
-          <LB style={{ marginBottom: "clamp(20px,4vh,40px)" }}>RUMOAR — Field note 01</LB>
-          <h1 className="mega" style={{ maxWidth: "13ch" }}>
+        <div className="hero-copy">
+          <LB style={{ marginBottom: "clamp(16px,3vh,30px)" }}>RUMOAR — Field note 01</LB>
+          <h1 className="mega hero-h" style={{ maxWidth: "16ch" }}>
             <span className="hl"><span className="hero-line">Men changed.</span></span>
             <span className="hl"><span className="hero-line" style={{ color: "var(--ink-3)" }}>Menswear</span></span>
             <span className="hl"><span className="hero-line">didn&rsquo;t.</span></span>
@@ -3003,7 +3140,7 @@ const ERA_PLATES = {
    Cards are ordered back to front, so the one the reader ends on is the last
    in the array.
    =========================================================================== */
-function Stack({ items = [], caption, index }) {
+function Stack({ items = [], caption, index, id }) {
   const root = useRef(null), pin = useRef(null);
   const [active, setActive] = useState(items.length - 1);
 
@@ -3046,7 +3183,7 @@ function Stack({ items = [], caption, index }) {
 
   const cur = items[active] || items[items.length - 1] || {};
   return (
-    <section className="stack" ref={root}>
+    <section className="stack" id={id} ref={root}>
       <div className="stk-pin" ref={pin}>
         <div className="g" style={{ alignItems: "center", width: "100%" }}>
           <div style={{ gridColumn: "1 / 5" }}>
@@ -4145,13 +4282,33 @@ function IncomeCurve() {
   const { era, setEra } = useEra();
   const ref = useRef(null);
   const [live, setLive] = useState(false);
-  /* re-arms every time it leaves and returns, so the lines redraw on each
-     approach rather than being drawn once and dead for the rest of the visit */
+  /* BUG THAT WAS HERE: strokeDasharray flipped from "2000" to "none" in the
+     same frame the offset changed, so the whole path was revealed instantly
+     and nothing ever animated. The dash array must STAY at the path's true
+     length while only the offset animates. Measured per path, so it is
+     correct at any viewport width. */
   useEffect(() => {
     const el = ref.current; if (!el) return;
+    const paths = el.querySelectorAll(".ic-line");
+    const arm = () => {
+      paths.forEach((pth) => {
+        const len = pth.getTotalLength() || 1200;
+        gsap.set(pth, { attr: { "stroke-dasharray": len, "stroke-dashoffset": len } });
+      });
+    };
+    const play = () => {
+      paths.forEach((pth, i) => {
+        const len = pth.getTotalLength() || 1200;
+        gsap.fromTo(pth, { attr: { "stroke-dashoffset": len } },
+          { attr: { "stroke-dashoffset": 0 }, duration: 1.7, ease: "power2.inOut",
+            delay: i * .22, overwrite: "auto" });
+      });
+    };
+    if (reduced()) { setLive(true); return; }
+    arm();
     const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) setLive(true);
-      else if (e.boundingClientRect.top > 0) setLive(false);   // only re-arm from below
+      if (e.isIntersecting) { setLive(true); play(); }
+      else if (e.boundingClientRect.top > 0) { setLive(false); arm(); }
     }, { threshold: .18 });
     io.observe(el); return () => io.disconnect();
   }, []);
@@ -4173,16 +4330,12 @@ function IncomeCurve() {
 
         {/* the two that rise */}
         {["income", "market"].map((k, ki) => (
-          <path key={k} d={path(k)} fill="none" stroke="var(--ink)"
-            strokeWidth={ki ? 1 : 1.6} opacity={ki ? .32 : 1}
-            strokeDasharray={live ? "none" : "2000"} strokeDashoffset={live ? 0 : 2000}
-            style={{ transition: `stroke-dashoffset 1800ms cubic-bezier(.16,1,.3,1) ${ki * 220}ms` }} />
+          <path key={k} className="ic-line" d={path(k)} fill="none" stroke="var(--ink)"
+            strokeWidth={ki ? 1 : 1.6} opacity={ki ? .32 : 1} />
         ))}
 
         {/* the one that doesn't */}
-        <path d={path("systems")} fill="none" stroke="var(--mark)" strokeWidth="2"
-          strokeDasharray={live ? "none" : "2000"} strokeDashoffset={live ? 0 : 2000}
-          style={{ transition: "stroke-dashoffset 1800ms cubic-bezier(.16,1,.3,1) 500ms" }} />
+        <path className="ic-line" d={path("systems")} fill="none" stroke="var(--mark)" strokeWidth="2" />
         <text x={W - R} y={py(1) - 14} className="ptl" textAnchor="end" fill="var(--mark)"
           style={{ opacity: live ? 1 : 0, transition: "opacity 700ms 1600ms" }}>
           WARDROBE SYSTEMS AVAILABLE — 1
@@ -4770,7 +4923,7 @@ function Receipt({ history }) {
 
   return (
     <div className="receipt">
-      <p style={{ letterSpacing: ".42em", fontWeight: 600, fontSize: ".68rem", fontFamily: "'Inter',sans-serif" }}>RUMOAR</p>
+      <p style={{ letterSpacing: ".42em", fontWeight: 600, fontSize: ".68rem", fontFamily: "var(--font-mark)" }}>RUMOAR</p>
       <p style={{ opacity: .55, marginTop: 6 }}>IDENTITY RECEIPT · {stamp}</p>
       <hr />
       {items.length ? items.map((l, i) => (
@@ -4982,7 +5135,21 @@ export default function Rumoar() {
 
           <Silence a={M.editorial.silence1} kicker="04 — The Evolution"
             line={["Access solved itself.", { t: "Coherence didn't.", dim: true }]} />
-          <Film />
+
+          {/* six looks collapsing into one — this is The Evolution, and the
+              collapse IS the argument: everything arrived, nothing resolved */}
+          <Stack
+            id="evolution"
+            caption={<><span className="msk"><span className="gs-rise">Everything arrived.</span></span>
+              <span className="msk"><span className="gs-rise it">Nothing resolved.</span></span></>}
+            items={[
+              { a: M.lab.looks.corporate, note: "The register the market solved." },
+              { a: M.lab.looks.casual,    note: "Improvised from the office and the gym." },
+              { a: M.lab.looks.oldmoney,  note: "Heritage, quoted rather than worn." },
+              { a: M.lab.looks.european,  note: "Borrowed wholesale, fitted to nobody." },
+              { a: M.lab.looks.trend,     note: "Current for a season, then dead." },
+              { a: M.lab.looks.rumoar,    note: "Nine pieces that already agree." },
+            ]} />
 
           <Chapter id="market" n="05 — The Market"
             title={["There has never been more menswear.",
@@ -5033,20 +5200,6 @@ export default function Rumoar() {
           <WhiteSpaceAct you={you} />
           <RumoarAct />
           <WardrobeMath />
-
-          {/* six looks, collapsed into the height of one */}
-          <Stack
-            caption={<><span className="msk"><span className="gs-rise">Six looks.</span></span>
-              <span className="msk"><span className="gs-rise it">One logic.</span></span></>}
-            items={[
-              { a: M.lab.looks.corporate, note: "The register the market solved." },
-              { a: M.lab.looks.casual,    note: "Improvised from the office and the gym." },
-              { a: M.lab.looks.oldmoney,  note: "Heritage, quoted rather than worn." },
-              { a: M.lab.looks.european,  note: "Borrowed wholesale, fitted to nobody." },
-              { a: M.lab.looks.trend,     note: "Current for a season, then dead." },
-              { a: M.lab.looks.rumoar,    note: "Nine pieces that already agree with each other." },
-            ]} />
-
           <section id="chamber" style={{ paddingBlock: "clamp(130px,23vh,285px)" }}>
             <div className="g" style={{ marginBottom: "clamp(28px,5vh,56px)" }}>
               <div style={{ gridColumn: "1 / 8" }}>
