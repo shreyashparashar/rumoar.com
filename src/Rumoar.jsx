@@ -131,6 +131,26 @@ const M = {
        film: seq("film/frame-", 120, { pad: 4, ext: "jpg" })                 */
   film: vid("film/film.mp4", { poster: "film/poster.jpg", scrub: true, alt: "The week" }),
 
+  /* THE THESIS FILM — the pinned "one man, the wardrobe changes" sequence.
+
+     Scroll-scrubbed. The file is encoded with a keyframe every 5 frames
+     (-g 5 -keyint_min 5 -sc_threshold 0), which is the whole trick: a default
+     export puts a keyframe roughly every 250 frames, so dragging currentTime
+     forces the browser to decode an entire group of pictures per scroll tick
+     and the scrub visibly snags. Dense keyframes cost file size and buy smooth
+     scrubbing. Re-encode any replacement the same way or it will stutter.
+
+     Source: scroll.mp4 → 1280×720, 24fps, 5.04s, 121 frames, audio stripped,
+     faststart. 1.2 MB.
+
+     If you ever want per-frame control instead, this slot also accepts a
+     numbered frame sequence and the component adapts with no other changes:
+       man: seq("thesis/man-", 121, { pad: 4, ext: "webp" })                 */
+  thesis: {
+    man: vid("thesis/man.mp4", { scrub: true,
+      alt: "One man standing still while an entire wardrobe changes around him — smart casual, stripped to a base layer, then rebuilt as athletic wear" }),
+  },
+
   editorial: {
     silence1: img("editorial/silence-01.jpg", "After the timeline", "50% 42%"),
     silence2: img("editorial/silence-02.jpg", "Before the white space", "50% 44%"),
@@ -348,7 +368,7 @@ const pricePoints = [
 
 
 const brandData = [
-  { id: "van-heusen", name: "Van Heusen", x: 22, y: 26,
+  { id: "van-heusen", name: "Van Heusen", x: 20, y: 27,
     audience: "The corporate man, 28–45", style: "Formal, boardroom-led", occasion: "Office, ceremony",
     price: "Mid-premium", personalization: "Low", identity: "Role-based",
     serve: "A man whose day has one setting, and whose clothes are judged inside it.",
@@ -356,7 +376,7 @@ const brandData = [
     position: "Authority through formality. The suit as professional equipment.",
     stops: "At the office door. It has little to say about the same man on Saturday.",
     open: "A role can be equipped. A person has to be built." },
-  { id: "louis-philippe", name: "Louis Philippe", x: 28, y: 21,
+  { id: "louis-philippe", name: "Louis Philippe", x: 32, y: 17,
     audience: "The senior professional, 35–55", style: "Elevated formal, heritage-coded", occasion: "Office, occasion",
     price: "Premium", personalization: "Low", identity: "Status-based",
     serve: "A man who has arrived and needs the wardrobe to confirm it.",
@@ -364,7 +384,7 @@ const brandData = [
     position: "Heritage and rank. Quality as a legible social signal.",
     stops: "At hierarchy. Its language is seniority, not self-definition.",
     open: "Status is a fixed coordinate. Identity moves." },
-  { id: "allen-solly", name: "Allen Solly", x: 41, y: 46,
+  { id: "allen-solly", name: "Allen Solly", x: 44, y: 50,
     audience: "The office-casual man, 25–40", style: "Friday dressing, smart casual", occasion: "Work-adjacent",
     price: "Mid", personalization: "Low", identity: "Mood-based",
     serve: "A man who wants to look relaxed without looking careless.",
@@ -372,7 +392,7 @@ const brandData = [
     position: "Ease inside professionalism. A register, offered ready-made.",
     stops: "At the register. It supplies a mood, not a wardrobe logic.",
     open: "A mood can be borrowed. A point of view has to be constructed." },
-  { id: "us-polo", name: "U.S. Polo Assn.", x: 31, y: 39,
+  { id: "us-polo", name: "U.S. Polo Assn.", x: 30, y: 41,
     audience: "The everyday man, 20–40", style: "Sport-casual, dependable", occasion: "Weekend, everyday",
     price: "Accessible", personalization: "Low", identity: "Category-based",
     serve: "A man who does not want to think about clothes — and shouldn't have to.",
@@ -388,7 +408,7 @@ const brandData = [
     position: "Design credibility. The garment as the unit of value.",
     stops: "At the garment. Excellent pieces, assembly left to the customer.",
     open: "Taste without a system still produces a closet of unrelated good things." },
-  { id: "snitch", name: "Snitch", x: 44, y: 83,
+  { id: "snitch", name: "Snitch", x: 42, y: 84,
     audience: "The trend-native man, 18–28", style: "Fast contemporary", occasion: "Social, evening",
     price: "Accessible", personalization: "Low", identity: "Trend-based",
     serve: "A man dressing for a feed as much as for a room.",
@@ -544,24 +564,43 @@ const CSS = `
 .ru button{font-family:inherit;border:0;background:none;color:inherit;cursor:pointer;padding:0}
 .ru :focus-visible{outline:2px solid var(--mark);outline-offset:4px;border-radius:2px}
 .ru img,.ru video,.ru canvas{display:block}
-.ru ::selection{background:var(--ink);color:#fff}
+/* SELECTION — the highlight has to invert against whatever is under it.
+   The old rule hard-coded white text on a var(--ink) background, so in night
+   mode (--ink is bone white) it painted white on white and the selected words
+   vanished. Both halves now come from the theme, so it inverts correctly in
+   either light level. */
+.ru ::selection{background:var(--ink);color:var(--paper)}
+.ru ::-moz-selection{background:var(--ink);color:var(--paper)}
+/* Two surfaces are dark in BOTH light levels — the hero plate and the loader.
+   They need the night treatment even while the rest of the page is on paper. */
+.ru .hero ::selection,.ru .ld ::selection{background:#F5F3EF;color:#0A0A0E}
+.ru .hero ::-moz-selection,.ru .ld ::-moz-selection{background:#F5F3EF;color:#0A0A0E}
 
 .ru .g{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gut);
   padding-inline:var(--marg);max-width:1720px;margin-inline:auto}
 @media (min-width:721px){.ru .g,.ru .full,.ru .nav{padding-left:max(var(--marg),40px);padding-right:max(var(--marg),96px)}}
 .ru .full{padding-inline:var(--marg);max-width:1720px;margin-inline:auto}
 
+/* ---------------------------------------------------------------------------
+   TYPE
+   Everything small was set light and grey, which reads as "designed" in a
+   screenshot and as "unreadable" on an actual screen. Small type now carries
+   weight and a darker ink; the display sizes are untouched, so the page still
+   looks the same from across the room.
+   --------------------------------------------------------------------------- */
 .ru .mega{font-size:clamp(2.6rem,7.4vw,8rem);line-height:.9;letter-spacing:-.045em;font-weight:700;
-  text-wrap:balance}
-.ru .big{font-size:clamp(1.9rem,4.2vw,4rem);line-height:1;letter-spacing:-.04em;font-weight:700;text-wrap:balance}
+  text-wrap:balance;overflow-wrap:break-word}
+.ru .big{font-size:clamp(1.9rem,4.2vw,4rem);line-height:1;letter-spacing:-.04em;font-weight:700;
+  text-wrap:balance;overflow-wrap:break-word}
 .ru .mid{font-size:clamp(1.3rem,2.2vw,2.1rem);line-height:1.14;letter-spacing:-.03em;font-weight:600;
-  text-wrap:balance}
-.ru .h3{font-size:clamp(.95rem,1.2vw,1.15rem);font-weight:600;letter-spacing:-.02em;line-height:1.32}
-.ru .body{font-size:clamp(.88rem,.95vw,1rem);line-height:1.62;color:var(--ink-2);font-weight:400;
+  text-wrap:balance;overflow-wrap:break-word}
+.ru .h3{font-size:clamp(1rem,1.25vw,1.2rem);font-weight:700;letter-spacing:-.02em;line-height:1.32}
+.ru .body{font-size:clamp(.92rem,1vw,1.05rem);line-height:1.62;color:var(--ink-2);font-weight:500;
   text-wrap:pretty}
-.ru .lede{font-size:clamp(.95rem,1.1vw,1.1rem);line-height:1.55;color:var(--ink-2);font-weight:400}
-.ru .lb{font-family:var(--font-body);font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--ink-3);font-weight:600}
+.ru .lede{font-size:clamp(1rem,1.15vw,1.16rem);line-height:1.55;color:var(--ink-2);font-weight:500}
+/* the small-caps label: was .58rem/600 in the lightest grey on the page */
+.ru .lb{font-family:var(--font-body);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:700}
 .ru .num{font-variant-numeric:tabular-nums}
 .ru .dim{color:var(--ink-3)}
 .ru .rule{height:1px;background:var(--line)}
@@ -608,12 +647,23 @@ const CSS = `
   text-transform:uppercase;color:var(--ink-3);margin-top:9px;display:flex;
   justify-content:space-between}
 
-/* --- price gap --- */
-.ru .pg{width:100%;display:block}
-.ru .band{fill:#FAFAF8}
-.ru .band.hot{fill:rgba(27,42,59,.045)}
-.ru .bandl{font-family:var(--font-body);font-size:12px;letter-spacing:.2em;
-  text-transform:uppercase;fill:#9C9C94}
+/* --- price gap ---
+   BUG WAS HERE: every fill in this chart was a hard-coded light-mode hex.
+   Pull the lamp and the bands stayed near-white while the page went black,
+   so the chart floated as a bright slab with invisible labels on top of it.
+   All four now resolve from the theme, so the graph inverts with the room. */
+.ru .pg{width:100%;display:block;overflow:visible}
+.ru .band{fill:var(--paper-3);fill-opacity:.55;
+  transition:fill 700ms var(--ez)}
+.ru .band.hot{fill:color-mix(in srgb,var(--mark) 7%,var(--paper-3));fill-opacity:.85}
+.ru .bandsep{stroke:var(--line);stroke-width:1}
+.ru .bandl{font-family:var(--font-body);letter-spacing:.2em;
+  text-transform:uppercase;fill:var(--ink-2)}
+/* the empty quadrant — a tinted, dashed callout that has to survive both
+   light levels, so it is mixed from the brand mark rather than a fixed navy */
+.ru .voidbox{fill:color-mix(in srgb,var(--mark) 6%,transparent);
+  stroke:var(--mark);stroke-width:1.4;stroke-dasharray:7 8}
+.ru .voidlabel{fill:var(--mark);font-weight:700}
 
 .ru .lm{display:block;overflow:hidden}
 .ru .lm>span{display:block;transform:translateY(105%);transition:transform 1.25s var(--ez-out)}
@@ -704,10 +754,52 @@ const CSS = `
 .ru .manwrap,.ru .tquote,.ru .tseq{grid-area:1/1;position:relative;z-index:2}
 .ru .manwrap{display:flex;flex-direction:column;align-items:center;gap:clamp(12px,2vh,24px);
   will-change:opacity,filter,transform;max-height:100%;padding-block:clamp(48px,9vh,90px)}
-.ru .manwrap svg{height:min(52svh,440px);width:auto;display:block;flex:0 0 auto}
+
+/* ——— THE FILM PLATE ————————————————————————————————————————————————
+   The footage is shot on a white cyclorama, which means the plate has to be
+   handled differently at each light level:
+
+   DAY   — white studio on white paper is already invisible. Nothing to do but
+           soften the corners, and he appears to be standing on the page.
+   NIGHT — a white slab on a black page is a lightbox. The plate is graded
+           down to a dim studio, so the white floor becomes a mid-dark grey and
+           he reads as a figure standing in a spotlight rather than a cut-out
+           pasted onto the dark.
+
+   Both levels run the same elliptical mask, which is the thing that stops the
+   plate ever showing four hard corners — no blend modes, because .manwrap
+   carries a will-change and therefore its own stacking context, so a
+   mix-blend-mode here would blend against nothing and silently do nothing.
+
+   The light pools sit BEHIND the plate and bleed through the masked edge, so
+   the room can warm across the scroll without ever grading the man himself.
+   ———————————————————————————————————————————————————————————————— */
+.ru .manfilm{position:relative;z-index:2;
+  width:min(94vw,calc(min(60svh,600px) * 16 / 9));
+  aspect-ratio:16/9;flex:0 1 auto;
+  opacity:0;transition:opacity 900ms var(--ez)}
+.ru .manfilm.ready{opacity:1}
+.ru .manfilm canvas,.ru .manfilm video{width:100%;height:100%;display:block;
+  object-fit:cover;
+  transition:filter 700ms var(--ez);
+  -webkit-mask-image:radial-gradient(ellipse 58% 70% at 50% 46%,#000 44%,transparent 90%);
+  mask-image:radial-gradient(ellipse 58% 70% at 50% 46%,#000 44%,transparent 90%)}
+.ru.night .manfilm canvas,.ru.night .manfilm video{filter:grayscale(.22) brightness(.46) contrast(1.04)}
+
+/* the two light pools — cool underneath, warm fading up over the scroll */
+.ru .manlight{position:absolute;inset:0;z-index:1;pointer-events:none;display:grid;place-items:center}
+.ru .manlight span{position:absolute;width:min(78vw,860px);aspect-ratio:1/1.05;border-radius:50%;
+  filter:blur(14px)}
+.ru .manlight .coollight{background:radial-gradient(circle at 50% 44%,var(--pool-cool),transparent 66%);
+  opacity:.9}
+.ru .manlight .warmlight{background:radial-gradient(circle at 50% 44%,var(--pool-warm),transparent 68%);
+  opacity:0;will-change:opacity}
+@media (max-width:760px){
+  .ru .manfilm{width:min(96vw,calc(min(44svh,420px) * 16 / 9))}
+  .ru .manlight span{width:96vw}
+}
 .ru .mancap{font-family:var(--font-body);font-size:.62rem;letter-spacing:.24em;
   text-transform:uppercase;color:var(--bone-2);text-align:center;min-height:1.4em;max-width:32ch}
-.ru .acc{will-change:opacity,transform;opacity:0}
 .ru .tquote{display:grid;place-items:center;text-align:center;padding-inline:8vw;pointer-events:none;
   opacity:0;visibility:hidden}
 .ru .tquote p{font-size:clamp(1.7rem,4.6vw,3.6rem);font-weight:200;letter-spacing:-.055em;
@@ -737,7 +829,7 @@ const CSS = `
   .ru .tline{grid-area:auto;opacity:1;visibility:visible;margin-block:.4em}
   .ru .tline.neg{font-size:clamp(1.1rem,2.4vw,1.6rem)}
   .ru .tline.pos{font-size:clamp(1.6rem,4vw,2.8rem)}
-  .ru .acc{opacity:1}
+  .ru .manfilm{opacity:1}
   .ru .strike i{transform:scaleX(1)}
 }
 
@@ -1063,10 +1155,12 @@ const CSS = `
   padding-top:clamp(92px,13vh,150px);display:flex;justify-content:space-between;
   align-items:flex-start;pointer-events:none}
 .ru .hero-ui > *{pointer-events:auto}
-.ru .hero-stmt{max-width:30ch;color:#fff;font-size:clamp(.95rem,1.25vw,1.18rem);
-  line-height:1.42;font-weight:400}
-.ru .hero-stmt b{font-weight:700}
-.ru .hero-stmt span{color:rgba(255,255,255,.62)}
+.ru .hero-stmt{max-width:34ch;color:#fff}
+.ru .hero-stmt b{display:block;font-weight:700;letter-spacing:-.035em;
+  font-size:clamp(1.7rem,3.1vw,2.9rem);line-height:1.02;text-wrap:balance}
+.ru .hero-stmt span{display:block;margin-top:clamp(14px,2vh,22px);max-width:38ch;
+  color:rgba(255,255,255,.78);font-weight:500;line-height:1.5;
+  font-size:clamp(.9rem,1.05vw,1.02rem)}
 .ru .hero-begin{margin-top:clamp(24px,4vh,44px);display:inline-flex;align-items:center;
   gap:14px;color:#fff;font-size:.95rem;font-weight:500;padding-bottom:10px;
   border-bottom:1px solid rgba(255,255,255,.45);min-width:190px;justify-content:space-between;
@@ -1127,9 +1221,15 @@ const CSS = `
   opacity var(--content) var(--ez)}
 .ru .plotbox.back{transform:scale(.9) translateX(-13%);filter:blur(2px);opacity:.45}
 .ru .pt{cursor:pointer;transition:r var(--ui) var(--ez-out),opacity var(--content) var(--ez)}
-.ru .ptl{font-family:var(--font-body);font-size:15px;letter-spacing:.14em;fill:#56564F;
-  pointer-events:none;transition:opacity var(--ui) var(--ez)}
-.ru .ax{font-family:var(--font-body);font-size:13px;letter-spacing:.26em;fill:#9C9C94}
+/* SVG chart labels. These were hex-locked to the light palette — #56564F on a
+   near-black chart is unreadable. They now follow the ink tokens, and each one
+   is knocked out of whatever sits behind it (gridline, band, another point's
+   halo) with a paint-order stroke in the page colour. */
+.ru .ptl{font-family:var(--font-body);letter-spacing:.14em;fill:var(--ink);
+  pointer-events:none;transition:opacity var(--ui) var(--ez),fill 700ms var(--ez);
+  paint-order:stroke fill;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
+.ru .ax{font-family:var(--font-body);letter-spacing:.26em;fill:var(--ink-3);
+  paint-order:stroke fill;stroke:var(--paper);stroke-width:3px;stroke-linejoin:round}
 .ru .youring{transform-origin:center;transform-box:fill-box;animation:youpulse 3.4s var(--ez) infinite}
 @keyframes youpulse{0%{transform:scale(.72);opacity:.6}70%{transform:scale(1.12);opacity:0}100%{opacity:0}}
 @media(max-width:640px){
@@ -1355,6 +1455,125 @@ const CSS = `
   .ru .rail{gap:2px;padding:8px 10px}
   .ru .conn{display:none}
   .ru .cmp{height:clamp(320px,54svh,460px) !important}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE LEGIBILITY LAYER
+   Every caption, label and micro-heading in this file was originally set
+   somewhere between .46rem and .62rem, at weight 300–600, in the lightest
+   grey in the palette. That is a look, and it is also unreadable — worst of
+   all in the pinned "man" section, where the caption is the only copy on
+   screen.
+
+   This block is deliberately at the bottom and deliberately in one place:
+   it re-states the small end of the type scale at a size and weight you can
+   actually read, without touching a single display size. The page reads the
+   same from three feet away and stops squinting up close.
+
+   To tune the whole site's small type, change the numbers HERE. Nowhere else.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* --- the pinned man section: the caption IS the copy, so it leads --------- */
+.ru .mancap{font-size:clamp(.78rem,1.05vw,.9rem);letter-spacing:.18em;font-weight:700;
+  color:var(--bone);max-width:40ch;line-height:1.6}
+.ru .tquote p{font-weight:400}
+.ru .tline.neg{font-weight:500}
+.ru .tline.pos{font-weight:600}
+
+/* --- structural labels ---------------------------------------------------- */
+.ru .skip{font-size:.7rem;font-weight:700}
+.ru .wm{font-size:.8rem;font-weight:700}
+.ru .nl{font-size:.7rem;font-weight:600;letter-spacing:.17em}
+.ru .cta{font-size:.68rem;font-weight:700;letter-spacing:.17em}
+.ru .chip{font-size:.7rem;font-weight:700;letter-spacing:.13em}
+.ru .estrip .etrack{font-size:.62rem;font-weight:600}
+.ru .lamphint{font-size:.6rem;font-weight:700}
+.ru .ldest,.ru .ldskip{font-size:.64rem;font-weight:700}
+
+/* --- chart furniture: SVG text does not scale with the page, so it has to
+       be sized up in absolute units or it disappears on a laptop ----------- */
+.ru .ptl{font-size:19px;font-weight:600;letter-spacing:.1em}
+.ru .ax{font-size:16px;font-weight:700;letter-spacing:.2em}
+.ru .bandl{font-size:15px;font-weight:700;letter-spacing:.16em}
+@media(max-width:640px){.ru .ptl{font-size:23px}.ru .ax{font-size:19px}.ru .bandl{font-size:18px}}
+
+/* --- data tiles ----------------------------------------------------------- */
+.ru .fact .k{font-size:.64rem;font-weight:700;letter-spacing:.15em}
+.ru .fact .s{font-size:.82rem;font-weight:500;color:var(--ink-2)}
+.ru .role .rn{font-weight:700}
+.ru .role .rm{font-size:.86rem;font-weight:500;color:var(--ink-2)}
+.ru .role .rt{font-size:.95rem;font-weight:500}
+.ru .role .rs{font-size:.62rem;font-weight:700;letter-spacing:.16em}
+.ru .kv{font-size:.9rem;font-weight:500}
+.ru .tick .y{font-weight:600;color:var(--ink-2)}
+.ru .tick .t{font-size:.58rem;font-weight:700;letter-spacing:.17em}
+.ru .tick.on .y{font-weight:700}
+.ru .uf-label{font-weight:700}
+.ru .rsev{font-size:.62rem;font-weight:700}
+.ru .rgrid b{font-size:.64rem;font-weight:700;letter-spacing:.17em}
+.ru .verdict{font-weight:500}
+.ru .need{font-weight:400}
+.ru .receipt{font-size:.74rem;font-weight:500}
+.ru .row [data-l]::before{font-size:.62rem;font-weight:700}
+
+/* --- ornaments and instruments -------------------------------------------- */
+.ru .mark figcaption{font-size:.6rem;font-weight:700;letter-spacing:.2em;color:var(--ink-2)}
+.ru .deckcap,.ru .lightercap{font-size:.6rem;font-weight:700;letter-spacing:.2em;color:var(--ink-2)}
+.ru .vn-txt{font-size:.58rem;font-weight:700;letter-spacing:.17em}
+.ru .pnow{font-size:.7rem;font-weight:700}
+.ru .pfoot{font-size:.64rem;font-weight:700;letter-spacing:.14em}
+.ru .pl-txt{font-size:.56rem;font-weight:700;letter-spacing:.12em}
+@media(max-width:720px){.ru .pl-txt{font-size:.5rem;letter-spacing:.08em}}
+.ru .ph b{font-size:.6rem;font-weight:700}
+.ru .ph span{font-size:.68rem;font-weight:600}
+
+/* --- the dark instruments -------------------------------------------------- */
+.ru .chform button{font-size:.68rem;font-weight:700;letter-spacing:.2em}
+.ru .chend p{font-weight:400}
+.ru .chend button{font-size:.65rem;font-weight:700}
+.ru .askc .k{font-size:.64rem;font-weight:700;letter-spacing:.16em}
+.ru .askc .s{font-size:.9rem;font-weight:500}
+.ru .term{font-weight:500}
+.ru .hero-index{font-weight:600}
+.ru .hero-index .n{font-weight:600}
+.ru .hero-begin{font-weight:700}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE MARGIN GUARD
+   Two separate bugs read as one symptom ("the text is cut off"):
+
+   1. Descenders. Every rising headline sits inside a mask with
+      overflow:hidden and no room underneath, so the tails of g, y, p, j and
+      every italic were sliced off at the baseline. Fixed by giving the mask
+      breathing room and pulling the same amount back out of the layout, so
+      nothing moves and nothing clips.
+
+   2. The left edge. The vertical rumour strip is fixed at 26px wide, and the
+      grid's minimum left padding was 40px — leaving 14px of daylight between
+      a fixed rail and the first character of every line. The floor is now
+      wide enough that the column always clears it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.ru .lm,.ru .msk,.ru .hero .hl{padding-bottom:.16em;margin-bottom:-.16em}
+.ru .big,.ru .mega,.ru .mid,.ru .need{padding-bottom:.02em}
+
+@media (min-width:721px){
+  .ru .g,.ru .full,.ru .nav{
+    padding-left:max(var(--marg),72px);
+    padding-right:max(var(--marg),96px);
+  }
+}
+@media (max-width:720px){
+  .ru{--marg:clamp(22px,5.5vw,42px)}
+}
+/* long single words (URLs, bracketed placeholders) can't push past the column */
+.ru .body,.ru .lede,.ru .h3,.ru .uf-label{overflow-wrap:break-word}
+/* the creed lines are the widest words on the site — give them room to shrink
+   instead of running off both edges of a phone */
+@media (max-width:720px){
+  .ru .tline.pos{font-size:clamp(2rem,11vw,4rem)}
+  .ru .tline.neg{font-size:clamp(1.35rem,6.5vw,2.4rem)}
+  .ru .tquote,.ru .tseq{padding-inline:6vw}
+  .ru .tquote p{font-size:clamp(1.4rem,7vw,2.6rem)}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -2211,19 +2430,20 @@ function Hero() {
       <div className="hero-ui" ref={copy}>
         <div className="hero-lead">
           <p className="hero-stmt">
-            <b>A design-first exploration into India&rsquo;s emerging men&rsquo;s accessory
-            culture.</b> <span>Not a finished answer,<br />a starting point.</span>
+            <b>Men changed.<br />Menswear didn&rsquo;t.</b>
+            <span>An investigation into the Indian wardrobe &mdash; what it built,
+            what it skipped, and what still has no name.</span>
           </p>
           <button className="hero-begin"
             onClick={() => document.getElementById("money")?.scrollIntoView({ behavior: "smooth" })}>
-            Begin<i />
+            Begin the argument<i />
           </button>
         </div>
 
         <div className="hero-index">
-          <p><span className="n">01/</span> Research</p>
+          <p><span className="n">01/</span> Evidence</p>
           <p>Identity</p>
-          <p>Objects</p>
+          <p>System</p>
         </div>
       </div>
 
@@ -2466,13 +2686,13 @@ const fx = (v) => FIELD.l + (v / 100) * (FIELD.w - FIELD.l - FIELD.r);
 const fy = (v) => FIELD.h - FIELD.b - (v / 100) * (FIELD.h - FIELD.t - FIELD.b);
 /* label placement per point: which side, and any nudge to clear a neighbour */
 const LABEL = {
-  "van-heusen": { side: "left", dy: -2 },
-  "louis-philippe": { side: "left", dy: 16 },
-  "us-polo": { side: "right", dy: 14 },
-  "allen-solly": { side: "right", dy: -6 },
-  "rare-rabbit": { side: "right", dy: 0 },
+  "van-heusen": { side: "left", dy: -4 },
+  "louis-philippe": { side: "right", dy: 6 },
+  "us-polo": { side: "left", dy: 4 },
+  "allen-solly": { side: "right", dy: 2 },
+  "rare-rabbit": { side: "right", dy: 4 },
   "snitch": { side: "left", dy: 0 },
-  "rumoar": { side: "left", dy: -20 },
+  "rumoar": { side: "left", dy: -22 },
 };
 
 function Plot({ selected, hovered, onSelect, onHover, isolate = false, quiet = false, you = null }) {
@@ -2498,15 +2718,24 @@ function Plot({ selected, hovered, onSelect, onHover, isolate = false, quiet = f
           </g>
         ))}
 
+        {/* THE IDENTITY SPACE.
+            BUG WAS HERE: unless the white-space act had scrubbed to its final
+            step, this rectangle was drawn transparent with a var(--axis)
+            hairline — #DCDCE1 on white, and a 22%-alpha bone on black. The one
+            region the entire argument is about was, in both light levels,
+            effectively invisible. It is now always drawn in the brand mark and
+            always labelled; the act's final step simply raises it from quiet
+            to loud instead of from nothing to something. */}
         <rect x={wsX} y={wsY} width={wsW} height={wsH} rx="2"
-          fill={isolate ? "rgba(27,42,59,.05)" : "transparent"}
-          stroke={isolate ? "var(--mark)" : "var(--axis)"} strokeWidth="1" strokeDasharray="6 7"
+          fill={`color-mix(in srgb,var(--mark) ${isolate ? 9 : 4}%,transparent)`}
+          stroke="var(--mark)" strokeWidth={isolate ? 1.8 : 1.2} strokeDasharray="7 8"
+          opacity={isolate ? 1 : .58}
           style={{ transition: "all 1.4s cubic-bezier(.22,.68,.16,1)" }} />
-        {isolate ? (
-          <text x={wsX + wsW / 2} y={wsY + wsH / 2 + 4} textAnchor="middle" className="ax" fill="var(--mark)">
-            THE WHITE SPACE
-          </text>
-        ) : null}
+        <text x={wsX + wsW / 2} y={wsY + wsH - 16} textAnchor="middle" className="ax"
+          fill="var(--mark)" opacity={isolate ? 1 : .72}
+          style={{ fontWeight: 700, transition: "opacity 1.4s cubic-bezier(.22,.68,.16,1)" }}>
+          THE IDENTITY SPACE
+        </text>
 
         <line x1={fx(0)} y1={fy(0)} x2={fx(100)} y2={fy(0)} stroke="var(--axis)" strokeWidth="1" />
         <line x1={fx(0)} y1={fy(0)} x2={fx(0)} y2={fy(100)} stroke="var(--axis)" strokeWidth="1" />
@@ -2575,7 +2804,7 @@ function Plot({ selected, hovered, onSelect, onHover, isolate = false, quiet = f
           {[["Style", b.style], ["Audience", b.audience], ["Personalisation", b.personalization]].map(([k, v]) => (
             <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 20, paddingTop: 8 }}>
               <span className="lb">{k}</span>
-              <span style={{ fontSize: ".75rem", fontWeight: 300, textAlign: "right" }}>{v}</span>
+              <span style={{ fontSize: ".82rem", fontWeight: 600, textAlign: "right" }}>{v}</span>
             </div>
           ))}
         </div>
@@ -2705,17 +2934,25 @@ function WhiteSpaceAct({ you }) {
         alignItems: "center", overflow: "hidden"
       }}>
         <div className="g" style={{ width: "100%", alignItems: "center" }}>
-          <div style={{ gridColumn: "1 / 8", position: "relative", minHeight: "5.6em" }}>
+          <div style={{ gridColumn: "1 / 8", position: "relative", minHeight: "6.2em" }}>
+            {/* BUG WAS HERE: the second line of every couplet — which is the
+                half that carries the argument — was set in var(--ink-3), the
+                faintest grey in the palette. Against white it ran ~2.9:1 and
+                against the night background it ran ~3.0:1, so the whole act
+                read as barely-there in BOTH modes. Second lines now use ink-2,
+                and the payoff line keeps the mark. */}
             {lines.map((l, k) => (
               <h2 key={k} className="big" style={{
                 position: k === 0 ? "relative" : "absolute", inset: k === 0 ? undefined : 0,
                 opacity: s === k ? 1 : 0, filter: s === k ? "none" : "blur(10px)",
                 transform: `translateY(${s === k ? 0 : s > k ? -18 : 18}px)`,
                 transition: "opacity 820ms var(--ez),filter 820ms var(--ez),transform 1.2s var(--ez-out)"
-              }}>{l[0]}<br /><span style={{ color: k === 2 ? "var(--mark)" : "var(--ink-3)" }}>{l[1]}</span></h2>
+              }}>{l[0]}<br /><span style={{ color: k === 2 ? "var(--mark)" : "var(--ink-2)" }}>{l[1]}</span></h2>
             ))}
           </div>
-          <div className="wsplot" style={{ gridColumn: "8 / 13", opacity: s === 0 ? .3 : 1, transition: "opacity 1.4s var(--ez)" }}>
+          {/* the field was dimmed to 30% for the whole first beat, which is
+              most of the section — it now stays legible and merely recedes */}
+          <div className="wsplot" style={{ gridColumn: "8 / 13", opacity: s === 0 ? .72 : 1, transition: "opacity 1.4s var(--ez)" }}>
             <Plot selected={null} hovered={null} onSelect={() => { }} onHover={() => { }}
               isolate={s === 2} quiet you={you} />
           </div>
@@ -2767,7 +3004,7 @@ function Threshold({ onLab }) {
     <section id="lab" style={{ position: "relative", height: "100svh", overflow: "hidden", display: "flex", alignItems: "center" }}>
       <div style={{ position: "absolute", inset: 0 }}><Media a={M.editorial.threshold} style={{ height: "100%" }} /></div>
       <div style={{ position: "absolute", inset: 0, background: "var(--paper)", opacity: .88 }} />
-      <div className="g" style={{ position: "relative", width: "100%" }}>
+      <div className="g" style={{ position: "relative", width: "100%", alignItems: "center" }}>
         <div style={{ gridColumn: "1 / 9" }}>
           <Reveal><LB>06 — The Styling Lab</LB></Reveal>
           <Lines className="mega" style={{ margin: "clamp(22px,4vh,46px) 0" }}
@@ -2783,6 +3020,15 @@ function Threshold({ onLab }) {
               style={{ padding: "16px 34px", fontSize: ".64rem" }}>
               Enter the RUMOAR Styling Lab
             </Magnetic>
+          </Reveal>
+        </div>
+
+        {/* MOVED HERE from the deleted risk register. Unchanged component,
+            unchanged label — it simply now answers "six identities" with
+            "one unbroken thread", which is the point it was always making. */}
+        <div style={{ gridColumn: "10 / 13", alignSelf: "center" }}>
+          <Reveal delay={380}>
+            <ThreadMark form="grid" label="nine pieces · one unbroken thread" />
           </Reveal>
         </div>
       </div>
@@ -2959,7 +3205,7 @@ function Lab({ onExit }) {
                 onPointerDown={(e) => down(e, l.id)} onPointerMove={move} onPointerUp={up}
                 onKeyDown={(e) => e.key === "Enter" && apply(l.id)}>
                 <div className="tf"><Media a={M.lab.thumbs[l.id]} style={{ height: "100%" }} /></div>
-                <p style={{ fontSize: ".78rem", fontWeight: 400, marginTop: 8, color: l.isBrand ? "var(--mark)" : "var(--ink)" }}>
+                <p style={{ fontSize: ".86rem", fontWeight: 600, marginTop: 8, color: l.isBrand ? "var(--mark)" : "var(--ink)" }}>
                   {l.name}
                 </p>
                 <LB>{l.house}</LB>
@@ -3103,8 +3349,8 @@ function PlotYourself({ you, setYou }) {
               <span className="dim">Nearest house is {you.nearest.name} — and it is built for one of them.</span>
             </p>
             <div style={{ display: "flex", gap: 26, marginTop: 20, flexWrap: "wrap" }}>
-              <div><LB>Distance to nearest</LB><p className="num" style={{ fontSize: "1.5rem", fontWeight: 200 }}>{you.gap}</p></div>
-              <div><LB>Identity demand</LB><p className="num" style={{ fontSize: "1.5rem", fontWeight: 200 }}>{Math.round(you.x)}</p></div>
+              <div><LB>Distance to nearest</LB><p className="num" style={{ fontSize: "1.6rem", fontWeight: 500 }}>{you.gap}</p></div>
+              <div><LB>Identity demand</LB><p className="num" style={{ fontSize: "1.6rem", fontWeight: 500 }}>{Math.round(you.x)}</p></div>
             </div>
             <p className="lb" style={{ marginTop: 18, lineHeight: 1.9 }}>
               A positioning sketch, not a measurement
@@ -4139,41 +4385,199 @@ function useGsapMotion(active) {
 
 /* ---------------------------------------------------------------------------
    THE THESIS — pinned scroll
-   A man walks in with nothing. Six objects arrive one at a time. His body
-   never changes: the figure is the same path throughout. Only the light in
-   the room warms, and he stands one pixel taller each time.
+   One man. He does not move. The wardrobe moves around him: smart casual
+   dissolves, he is stripped to a base layer, and an entirely different life
+   assembles itself on the same body. Then he dissolves and the claim lands
+   alone.
 
-   That is the entire argument for why this is an identity company and not an
-   accessories company, and it is made without a word of copy.
+   That is the entire argument for why this is an identity company and not a
+   clothing company, and it is made without a word of copy.
+
+   WAS: a drawn SVG silhouette with six accessories fading in on top of it.
+   NOW: the real footage, scroll-scrubbed frame by frame. The accessory layer
+   is gone entirely — the garments are in the film, so drawing vector wallets
+   over a photograph of a man would have been fighting itself.
    --------------------------------------------------------------------------- */
-const MAN_STEPS = [
-  { id: "wallet", cap: "The first thing he bought with his own money." },
-  { id: "watch", cap: "A glance at the time is a glance at the plan." },
-  { id: "chain", cap: "Wedding-season fluent." },
-  { id: "shades", cap: "Confidence at arm's length." },
-  { id: "sling", cap: "The young man's briefcase." },
-  { id: "frag", cap: "Invisible detail. Visible status." },
-];
 
 const CREED_NEG = ["Not a store.", "Not a catalogue.", "Not accessories."];
 const CREED_POS = ["Identity.", "Status.", "Belonging.", "Confidence."];
 
+/* Captions ride the film. `at` is the position in the scrub, 0→1, where each
+   line takes over — read straight off the footage, so if you re-cut the video
+   these are the only numbers to move. */
+const MAN_STEPS = [
+  { at: .00, cap: "One man. Dressed for the room he was in this morning." },
+  { at: .17, cap: "The overshirt goes. The room has changed." },
+  { at: .34, cap: "Everything the market sold him, leaving at once." },
+  { at: .50, cap: "This is what is actually underneath. It never changes." },
+  { at: .62, cap: "A different life, assembling on the same body." },
+  { at: .80, cap: "Same man. Same week. Nothing in common but him." },
+];
+
+/** THE FILM
+    Accepts either descriptor kind from the manifest and picks the matching
+    player, so swapping between a scrubbed video and a numbered frame sequence
+    is a one-line change in §1 and nothing else moves. */
+function ManFilm({ a, progressRef }) {
+  if (a?.kind === "sequence") return <ManFrames a={a} progressRef={progressRef} />;
+  return <ManVideo a={a} progressRef={progressRef} />;
+}
+
+/** Scrubbed video — the shipped path.
+    currentTime is driven from scroll progress rather than from playback. Three
+    things make this behave:
+
+    1. The seek is skipped while a previous one is still in flight. Without
+       that guard, a fast scroll queues dozens of seeks and the decoder falls
+       behind the cursor by a visible margin.
+    2. Sub-frame moves are ignored, so a stationary page isn't issuing a seek
+       sixty times a second for a picture that would not change.
+    3. iOS will not decode and present a first frame until the element has been
+       told to play at least once, so it gets a muted play/pause nudge on
+       mount. Without it the section is a black rectangle on iPhone until the
+       visitor scrolls past the first keyframe. */
+function ManVideo({ a, progressRef }) {
+  const vid = useRef(null);
+  const last = useRef(-1);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const v = vid.current; if (!v) return;
+    const onReady = () => setReady(true);
+    v.addEventListener("loadeddata", onReady);
+    if (v.readyState >= 2) setReady(true);
+    /* the iOS first-frame nudge */
+    const p = v.play?.();
+    if (p && p.then) p.then(() => v.pause()).catch(() => { });
+    else { try { v.pause(); } catch { } }
+    return () => v.removeEventListener("loadeddata", onReady);
+  }, [a]);
+
+  useFrame(() => {
+    const v = vid.current;
+    if (!v || !v.duration || !Number.isFinite(v.duration)) return;
+    /* stop just short of the end: seeking to exactly duration parks some
+       decoders on a blank frame rather than on the last picture */
+    const t = clamp(progressRef.current || 0) * (v.duration - 0.04);
+    if (Math.abs(t - last.current) < 0.01) return;
+    if (v.seeking) return;
+    last.current = t;
+    try { v.currentTime = t; } catch { /* seek raced a reload; next frame retries */ }
+  });
+
+  return (
+    <div className={`manfilm ${ready ? "ready" : ""}`}>
+      <video ref={vid} src={url(a.path)} poster={a.poster ? url(a.poster) : undefined}
+        muted playsInline preload="auto" aria-label={a.alt} />
+    </div>
+  );
+}
+
+/** Numbered frame sequence — the alternative path, kept working.
+    Frames are preloaded first-and-last-first, so the opening paint never waits
+    on the final frame, and the canvas is only redrawn when the frame index
+    actually changes. */
+function ManFrames({ a, progressRef }) {
+  const cv = useRef(null);
+  const frames = useRef([]);
+  const drawn = useRef(-1);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    frames.current = [];
+    drawn.current = -1;
+
+    const load = (i) => new Promise((res) => {
+      const im = new Image();
+      im.decoding = "async";
+      im.onload = im.onerror = () => res(im);
+      im.src = url(`${a.prefix}${String(i + 1).padStart(a.pad, "0")}.${a.ext}`);
+    });
+
+    (async () => {
+      /* first and last before anything else: the section can paint a correct
+         opening and a correct ending before the middle has arrived */
+      frames.current[0] = await load(0);
+      if (!alive) return;
+      setReady(true);
+      frames.current[a.count - 1] = await load(a.count - 1);
+      /* then fill in, coarse pass before fine, so an early scrub already has
+         something close to the right frame instead of a blank canvas */
+      for (const step of [8, 4, 2, 1]) {
+        for (let i = 0; i < a.count; i += step) {
+          if (!alive) return;
+          if (frames.current[i]) continue;
+          frames.current[i] = await load(i);
+        }
+      }
+    })();
+
+    return () => { alive = false; };
+  }, [a]);
+
+  useFrame(() => {
+    const c = cv.current; if (!c) return;
+
+    /* Size first, and invalidate the cache when it changes. Getting this
+       backwards is a real bug: on a window resize the canvas backing store is
+       reallocated (and therefore cleared), but if the frame index happens to
+       be unchanged the early-out below would skip the redraw and leave a blank
+       plate until the next scroll tick. */
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.round(c.clientWidth * dpr), h = Math.round(c.clientHeight * dpr);
+    if (!w || !h) return;
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; drawn.current = -1; }
+
+    const p = clamp(progressRef.current || 0);
+    const want = Math.round(p * (a.count - 1));
+
+    /* if the exact frame hasn't downloaded yet, hold the nearest one that has,
+       rather than blanking — the sequence degrades to a lower frame rate
+       instead of to nothing */
+    let i = want;
+    if (!frames.current[i]?.width) {
+      for (let d = 1; d < a.count; d++) {
+        if (frames.current[want - d]?.width) { i = want - d; break; }
+        if (frames.current[want + d]?.width) { i = want + d; break; }
+      }
+    }
+    if (i === drawn.current) return;
+    const im = frames.current[i];
+    if (!im || !im.width) return;
+
+    const ctx = c.getContext("2d");
+    const s = Math.max(c.width / im.width, c.height / im.height);
+    ctx.drawImage(im, (c.width - im.width * s) / 2, (c.height - im.height * s) / 2,
+      im.width * s, im.height * s);
+    drawn.current = i;
+  });
+
+  return (
+    <div className={`manfilm ${ready ? "ready" : ""}`}>
+      <canvas ref={cv} role="img" aria-label={a.alt} />
+    </div>
+  );
+}
+
 function Thesis() {
   const root = useRef(null);
   const pin = useRef(null);
-  const [cap, setCap] = useState("A man walks in with nothing.");
+  const film = useRef(0);                 // 0→1 scrub position, written by GSAP
+  const [cap, setCap] = useState(MAN_STEPS[0].cap);
 
   useEffect(() => {
     const el = root.current; if (!el) return;
 
     /* Reduced motion: CSS already un-stacks this section into normal flow and
-       reveals every layer. Nothing to animate, and nothing to gate. */
-    if (reduced()) return;
+       reveals every layer. The film holds on its last frame — the end of the
+       argument — instead of scrubbing. */
+    if (reduced()) { film.current = 1; return; }
 
     /* If anything in the timeline throws, the section must not be left blank —
        every layer starts hidden in CSS, so a failure has to reveal them. */
     const bail = () => {
-      gsap.set(el.querySelectorAll(".acc"), { autoAlpha: 1, scale: 1 });
+      film.current = 1;
       gsap.set(el.querySelectorAll(".tquote"), { autoAlpha: 1, filter: "none" });
       gsap.set(el.querySelectorAll(".tline"), { autoAlpha: 0 });
       gsap.set(el.querySelectorAll(".tline.pos:last-child"), { autoAlpha: 1 });
@@ -4182,14 +4586,12 @@ function Thesis() {
     let ctx;
     try {
     ctx = gsap.context(() => {
-      const accs = gsap.utils.toArray(".acc", el);
       const negs = gsap.utils.toArray(".tline.neg", el);
       const poss = gsap.utils.toArray(".tline.pos", el);
 
       /* PHASE GATES — every phase starts hidden and is explicitly cleared by
          the phase before it. This is what stops the creed sitting on top of
          the man: nothing is visible unless the timeline put it there. */
-      gsap.set(accs, { autoAlpha: 0, scale: .82, transformOrigin: "center" });
       gsap.set(".tquote", { autoAlpha: 0, filter: "blur(10px)" });
       gsap.set([...negs, ...poss], { autoAlpha: 0 });
       gsap.set(".strike i", { scaleX: 0 });
@@ -4208,17 +4610,27 @@ function Thesis() {
         },
       });
 
-      /* 1 — he gets dressed. The figure never changes; the room warms. */
-      MAN_STEPS.forEach((st, i) => {
-        const at = i * 1.15 + .5;
-        tl.to(accs[i], { autoAlpha: 1, scale: 1, duration: .7 }, at)
-          .add(() => setCap(st.cap), at)
-          .to(".warmlight", { opacity: (i + 1) / MAN_STEPS.length, duration: 1 }, at)
-          .to(".manfig", { y: -(i + 1) * 1.4, duration: 1 }, at);
+      /* 1 — THE FILM. One tween drives the whole sequence: a proxy value from
+         0 to 1 that ManFilm reads every frame. The wardrobe changing IS the
+         phase, so it owns the first 7 units of the timeline. */
+      const RUN = 7;
+      const prox = { v: 0 };
+      tl.fromTo(prox, { v: 0 }, {
+        v: 1, duration: RUN, ease: "none",
+        onUpdate: () => { film.current = prox.v; },
+      }, 0);
+
+      /* captions are cued off the same 0→1 scrub as the footage */
+      MAN_STEPS.forEach((st) => {
+        tl.add(() => setCap(st.cap), st.at * RUN);
       });
 
+      /* the room warms across the whole change — the light behind the plate,
+         not on it, so the footage itself is never tinted */
+      tl.fromTo(".warmlight", { opacity: 0 }, { opacity: 1, duration: RUN, ease: "none" }, 0);
+
       /* 2 — he dissolves, and the claim lands alone */
-      const T = MAN_STEPS.length * 1.15 + 1.2;
+      const T = RUN + .6;
       tl.to(".manwrap", { autoAlpha: .05, filter: "blur(8px)", scale: .96, duration: 1.1 }, T)
         .add(() => setCap(""), T)
         .to(".tquote", { autoAlpha: 1, filter: "blur(0px)", duration: 1.2 }, T + .5);
@@ -4257,57 +4669,13 @@ function Thesis() {
       <div className="tpin" ref={pin}>
         <div className="tgrain" aria-hidden="true" />
         <div className="manwrap">
-          <svg viewBox="0 0 400 640" role="img"
-            aria-label="A silhouette of a man gradually acquiring a wallet, watch, chain, sunglasses, bag and fragrance, while only the light around him changes">
-            <defs>
-              <radialGradient id="lgc" cx="50%" cy="42%" r="60%">
-                <stop offset="0%" stopColor="var(--pool-cool)" stopOpacity=".9" />
-                <stop offset="100%" stopColor="var(--paper)" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="lgw" cx="50%" cy="42%" r="62%">
-                <stop offset="0%" stopColor="var(--pool-warm)" stopOpacity=".95" />
-                <stop offset="100%" stopColor="var(--paper)" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <ellipse cx="200" cy="290" rx="185" ry="270" fill="url(#lgc)" />
-            <ellipse className="warmlight" cx="200" cy="290" rx="185" ry="270" fill="url(#lgw)" />
-            <ellipse cx="200" cy="618" rx="118" ry="11" fill="#000" opacity=".55" />
-            <g className="manfig">
-              <circle cx="200" cy="82" r="33" fill="var(--fig)" />
-              <path fill="var(--fig)" d="M167,120 L233,120 C257,127 273,138 281,156 C292,181 295,222 293,256 L287,334 C286,348 279,356 269,356 L261,356 C253,356 249,348 250,336 L255,270 L249,300 L246,346 C245,466 243,538 239,594 C238,608 229,614 220,614 L214,614 C206,614 202,606 203,594 L206,470 L200,404 L194,470 L197,594 C198,606 194,614 186,614 L180,614 C171,614 162,608 161,594 C157,538 155,466 154,346 L151,300 L145,270 L150,336 C151,348 147,356 139,356 L131,356 C121,356 114,348 113,334 L107,256 C105,222 108,181 119,156 C127,138 143,127 167,120 Z" />
-            </g>
-            <g className="acc">
-              <rect x="252" y="342" width="24" height="16" rx="3" fill="var(--fig-2)" stroke="var(--cold)" strokeWidth="1" />
-              <path d="M252,348 h24" stroke="var(--cold)" strokeWidth=".8" />
-            </g>
-            <g className="acc">
-              <rect x="120" y="330" width="18" height="12" rx="3" fill="var(--fig-2)" stroke="var(--cold)" strokeWidth="1.1" />
-              <circle cx="129" cy="336" r="2.4" fill="var(--cold)" />
-            </g>
-            <g className="acc">
-              <path d="M176,138 Q200,166 224,138" fill="none" stroke="var(--cold)" strokeWidth="1.6" />
-              <circle cx="200" cy="154" r="3.2" fill="var(--cold)" />
-            </g>
-            <g className="acc">
-              <rect x="172" y="70" width="56" height="13" rx="6.5" fill="var(--fig-3)" stroke="var(--ink-3)" strokeWidth="1" />
-              <path d="M178,74 h18" stroke="rgba(245,243,239,.35)" strokeWidth="1.4" />
-            </g>
-            <g className="acc">
-              <path d="M162,132 L258,296" stroke="var(--fig-2)" strokeWidth="9" strokeLinecap="round" />
-              <rect x="238" y="286" width="46" height="32" rx="7" fill="var(--fig-2)" stroke="var(--cold)"
-                strokeWidth="1" transform="rotate(-8 261 302)" />
-            </g>
-            <g className="acc">
-              {[[286, 150, 1.8, "var(--ember-soft)", 1], [302, 128, 1.3, "var(--ink)", .6], [312, 168, 1.6, "var(--ember-soft)", .7],
-                [296, 192, 1.2, "var(--ink)", .5], [322, 142, 1.1, "var(--ember-soft)", .6], [306, 210, 1.5, "var(--ink)", .45],
-                [278, 176, 1.2, "var(--ember-soft)", .55], [318, 196, 1, "var(--ink)", .4]].map(([cx, cy, r, f, o], i) => (
-                <circle key={i} cx={cx} cy={cy} r={r} fill={f} opacity={o}>
-                  <animate attributeName="cy" values={`${cy};${cy - 7 - (i % 3) * 3};${cy}`}
-                    dur={`${2.2 + i * .25}s`} repeatCount="indefinite" />
-                </circle>
-              ))}
-            </g>
-          </svg>
+          {/* the light pools sit BEHIND the plate, so the room warms without
+              ever grading the footage itself */}
+          <div className="manlight" aria-hidden="true">
+            <span className="coollight" />
+            <span className="warmlight" />
+          </div>
+          <ManFilm a={M.thesis.man} progressRef={film} />
           <p className="mancap">{cap}</p>
         </div>
 
@@ -4331,6 +4699,7 @@ function Thesis() {
     </section>
   );
 }
+
 
 /* ---------------------------------------------------------------------------
    ONE DAY, DRAWN AS ONE LINE
@@ -4573,7 +4942,7 @@ function RoleGrid() {
         </div>
         <div style={{ gridColumn: "9 / 13", alignSelf: "end" }}>
           <LB>Average how well served</LB>
-          <p className="num" style={{ fontSize: "clamp(1.6rem,3vw,2.6rem)", fontWeight: 200, letterSpacing: "-.04em", marginTop: 8 }}>
+          <p className="num" style={{ fontSize: "clamp(1.6rem,3vw,2.6rem)", fontWeight: 500, letterSpacing: "-.04em", marginTop: 8 }}>
             {avg.toFixed(1)}<span className="dim" style={{ fontSize: ".5em" }}> / 10</span>
           </p>
         </div>
@@ -4607,6 +4976,22 @@ function RoleGrid() {
    regardless of what it charges. The gap is not a hole in the price ladder —
    brands exist in every band — it is that nobody at any price sells a method.
    --------------------------------------------------------------------------- */
+/* Label placement, one entry per point.
+   BUG WAS HERE: every label was centred 18px above its own dot. U.S. Polo
+   (₹-index 14) and Snitch (18) sit 32 user-units apart on a 1000-unit field —
+   two ~110-unit-wide labels stacked on the same baseline, so they printed
+   straight through each other. Anything on the garment floor now gets pushed
+   sideways instead of stacked, and RUMOAR clears its own halo ring. */
+const PRICE_LABEL = {
+  "us-polo":        { anchor: "end",    dx: -15, dy: 5 },
+  "snitch":         { anchor: "start",  dx: 15,  dy: 5 },
+  "allen-solly":    { anchor: "middle", dx: 0,   dy: -20 },
+  "van-heusen":     { anchor: "middle", dx: 0,   dy: -20 },
+  "louis-philippe": { anchor: "middle", dx: 0,   dy: 26 },
+  "rare-rabbit":    { anchor: "middle", dx: 0,   dy: -20 },
+  "rumoar":         { anchor: "middle", dx: 0,   dy: -32 },
+};
+
 function PriceGap() {
   const ref = useRef(null);
   const [live, setLive] = useState(false);
@@ -4626,22 +5011,22 @@ function PriceGap() {
     <div ref={ref} style={{ position: "relative", width: "100%" }}>
       <svg viewBox={`0 0 ${W} ${H}`} className="pg" role="img"
         aria-label="Indian menswear brands by price band and whether they sell a garment or a system">
-        {priceBands.map((b) => (
+        {priceBands.map((b, i) => (
           <g key={b.id}>
             <rect className={`band ${b.cagr.includes("%") ? "hot" : ""}`}
               x={gx(b.lo)} y={T} width={gx(b.hi) - gx(b.lo)} height={H - B - T} />
-            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 26} className="bandl" textAnchor="middle">{b.name}</text>
-            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 44} className="ax" textAnchor="middle">{b.range}</text>
-            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 62} className="ax" textAnchor="middle"
-              style={{ fill: b.cagr.includes("%") ? "var(--mark)" : "#C8C7C1" }}>{b.cagr}</text>
+            {i ? <line className="bandsep" x1={gx(b.lo)} y1={T} x2={gx(b.lo)} y2={H - B} /> : null}
+            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 28} className="bandl" textAnchor="middle">{b.name}</text>
+            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 48} className="ax" textAnchor="middle">{b.range}</text>
+            <text x={(gx(b.lo) + gx(b.hi)) / 2} y={H - B + 68} className="ax" textAnchor="middle"
+              style={{ fill: b.cagr.includes("%") ? "var(--mark)" : "var(--ink-3)", fontWeight: 700 }}>{b.cagr}</text>
           </g>
         ))}
 
         {/* the empty quadrant: everything above the garment floor, at any price */}
-        <rect x={gx(28)} y={T} width={gx(100) - gx(28)} height={gy(4.6) - T}
-          fill="rgba(27,42,59,.04)" stroke="var(--mark)" strokeWidth="1" strokeDasharray="6 7"
+        <rect className="voidbox" x={gx(28)} y={T} width={gx(100) - gx(28)} height={gy(4.6) - T}
           style={{ opacity: live ? 1 : 0, transition: "opacity 1200ms 900ms" }} />
-        <text x={gx(44)} y={gy(7.4)} className="ax" fill="var(--mark)"
+        <text x={gx(64)} y={gy(7.6)} className="ax voidlabel" textAnchor="middle"
           style={{ opacity: live ? 1 : 0, transition: "opacity 700ms 1500ms" }}>
           NOBODY SELLS A SYSTEM AT ANY PRICE
         </text>
@@ -4651,26 +5036,32 @@ function PriceGap() {
         <text x={34} y={gy(0)} className="ax" transform={`rotate(-90 34 ${gy(0)})`}>A GARMENT</text>
         <text x={34} y={gy(10)} className="ax" textAnchor="end" transform={`rotate(-90 34 ${gy(10)})`}>A SYSTEM</text>
 
-        {pricePoints.map((p, n) => (
-          <g key={p.id} style={{
-            opacity: live ? 1 : 0,
-            transition: `opacity 800ms cubic-bezier(.22,.68,.16,1) ${n * 90}ms`,
-          }}>
-            {p.isBrand ? (
-              <circle cx={gx(p.price)} cy={gy(p.system)} r="18" fill="none"
-                stroke="var(--mark)" strokeWidth="1" opacity=".4" />
-            ) : null}
-            <circle className="pt" cx={gx(p.price)} cy={gy(p.system)} r={p.isBrand ? 8 : 5.5}
-              fill={p.isBrand ? "var(--mark)" : "var(--ink)"} />
-            <circle cx={gx(p.price)} cy={gy(p.system)} r="26" fill="transparent"
-              style={{ cursor: "pointer" }}
-              onMouseEnter={() => setHov(p.id)} onMouseLeave={() => setHov(null)} />
-            <text className="ptl" x={gx(p.price)} y={gy(p.system) - 18} textAnchor="middle"
-              style={{ opacity: hov === p.id ? 1 : .62, fontWeight: p.isBrand || hov === p.id ? 600 : 400 }}>
-              {p.name}
-            </text>
-          </g>
-        ))}
+        {pricePoints.map((p, n) => {
+          const L2 = PRICE_LABEL[p.id] || { anchor: "middle", dx: 0, dy: -20 };
+          const cx = gx(p.price), cy = gy(p.system);
+          return (
+            <g key={p.id} style={{
+              opacity: live ? 1 : 0,
+              transition: `opacity 800ms cubic-bezier(.22,.68,.16,1) ${n * 90}ms`,
+            }}>
+              {p.isBrand ? (
+                <circle cx={cx} cy={cy} r="18" fill="none"
+                  stroke="var(--mark)" strokeWidth="1" opacity=".4" />
+              ) : null}
+              <circle className="pt" cx={cx} cy={cy} r={p.isBrand ? 8 : 5.5}
+                fill={p.isBrand ? "var(--mark)" : "var(--ink)"} />
+              {/* the hit target used to be r=26 — wider than the gap between
+                  U.S. Polo and Snitch, so the two stole each other's hover */}
+              <circle cx={cx} cy={cy} r="15" fill="transparent"
+                style={{ cursor: "pointer" }}
+                onMouseEnter={() => setHov(p.id)} onMouseLeave={() => setHov(null)} />
+              <text className="ptl" x={cx + L2.dx} y={cy + L2.dy} textAnchor={L2.anchor}
+                style={{ opacity: hov === p.id ? 1 : .78, fontWeight: p.isBrand || hov === p.id ? 700 : 600 }}>
+                {p.name}
+              </text>
+            </g>
+          );
+        })}
       </svg>
 
       <p className="body" style={{ marginTop: 20, maxWidth: "62ch" }}>
@@ -5404,7 +5795,9 @@ export default function Rumoar() {
 
           <WhiteSpaceAct you={you} />
           <RumoarAct />
-          <WardrobeMath />
+          {/* REMOVED — "The arithmetic" (the WardrobeMath counter).
+              The component itself is left intact further down the file, so it
+              can be dropped back in with one line if it is ever wanted again. */}
           <section id="chamber" style={{ paddingBlock: "clamp(93px,17vh,205px)" }}>
             <div className="g" style={{ marginBottom: "clamp(28px,5vh,56px)" }}>
               <div style={{ gridColumn: "1 / 8" }}>
@@ -5441,7 +5834,12 @@ export default function Rumoar() {
             </div>
           </section>
 
-          <RiskRegister />
+          {/* REMOVED — "08 — Where this breaks" (the RiskRegister).
+              Its thread-mark ornament was the one piece worth keeping and has
+              moved down to the Styling Lab threshold, where "nine pieces · one
+              unbroken thread" sits directly opposite "Same man. Six identities."
+              The component is left intact below if the register is ever
+              wanted back. */}
           <TheAsk />
           <Threshold onLab={() => goto("lab")} />
           <Colophon />
