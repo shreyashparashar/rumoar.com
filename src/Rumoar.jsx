@@ -1829,6 +1829,154 @@ void main(){
   gl_FragColor = vec4(col.rgb, 1.0);
 }`;
 
+
+/* ---------------------------------------------------------------------------
+   THE 2D FALLBACK
+   Same wave simulation, no GPU. The refraction is done by redrawing the
+   photograph as a grid of overlapping tiles, each shifted by the slope of the
+   water above it. Tiles overlap by a pixel so the seams close.
+
+   It is the technique that predates WebGL water by about a decade, and it is
+   the reason this effect now runs on machines with hardware acceleration
+   switched off — which is exactly what was happening.
+   --------------------------------------------------------------------------- */
+function start2D(c, src) {
+  const ctx = c.getContext("2d");
+  if (!ctx) { console.info("[ripples] no 2D context either — hero renders plain"); return; }
+
+  const GW = 160, GH = 90, N = GW * GH;
+  let prev = new Float32Array(N), cur = new Float32Array(N);
+  let img = null, iw = 0, ih = 0;
+
+  if (src) {
+    const im = new Image();
+    if (/^https?:\/\//i.test(src) && !src.startsWith(window.location.origin)) im.crossOrigin = "anonymous";
+    im.onload = () => { img = im; iw = im.naturalWidth; ih = im.naturalHeight; console.info("[ripples] 2D surface ready"); };
+    im.onerror = () => console.info("[ripples] image missing — water still renders");
+    im.src = src;
+  }
+
+  let W = 0, H = 0, dpr = 1;
+  const size = () => {
+    const r = c.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    W = Math.max(1, r.width); H = Math.max(1, r.height);
+    c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  size();
+  window.addEventListener("resize", size);
+
+  const drop = (gx, gy, radius, force) => {
+    const r2 = radius * radius;
+    for (let y = -radius; y <= radius; y++) {
+      for (let x = -radius; x <= radius; x++) {
+        const px = gx + x, py = gy + y;
+        if (px < 1 || py < 1 || px >= GW - 1 || py >= GH - 1) continue;
+        const d2 = x * x + y * y; if (d2 > r2) continue;
+        cur[py * GW + px] += force * (Math.cos((Math.sqrt(d2) / radius) * Math.PI) * .5 + .5);
+      }
+    }
+  };
+  for (let i = 0; i < 3; i++)
+    drop(24 + ((Math.random() * (GW - 48)) | 0), 20 + ((Math.random() * (GH - 40)) | 0), 8, 2.6);
+
+  let lx = -1, ly = -1;
+  const host = c.closest(".hero") || c.parentElement;
+  const toGrid = (cx, cy) => {
+    const r = c.getBoundingClientRect();
+    return [Math.round(((cx - r.left) / r.width) * (GW - 1)),
+            Math.round(((cy - r.top) / r.height) * (GH - 1))];
+  };
+  const push = (cx, cy) => {
+    const [gx, gy] = toGrid(cx, cy);
+    if (gx < 0 || gy < 0 || gx >= GW || gy >= GH) return;
+    if (lx >= 0) {
+      const steps = Math.min(6, (Math.hypot(gx - lx, gy - ly) / 3) | 0);
+      for (let i = 1; i <= steps; i++)
+        drop(Math.round(lx + (gx - lx) * (i / steps)), Math.round(ly + (gy - ly) * (i / steps)), 4, .8);
+    }
+    drop(gx, gy, 6, 1.7);
+    lx = gx; ly = gy;
+  };
+  const onMove = (e) => push(e.clientX, e.clientY);
+  const onTouch = (e) => { const t = e.touches && e.touches[0]; if (t) push(t.clientX, t.clientY); };
+  const onLeave = () => { lx = -1; ly = -1; };
+  const onDown = (e) => { const [gx, gy] = toGrid(e.clientX, e.clientY); drop(gx, gy, 13, 6); };
+  host.addEventListener("mousemove", onMove, { passive: true });
+  host.addEventListener("touchmove", onTouch, { passive: true });
+  host.addEventListener("mouseleave", onLeave);
+  host.addEventListener("pointerdown", onDown);
+
+  let vis = true;
+  const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: 0 });
+  io.observe(c);
+
+  let raf, run = true, frame = 0;
+  const tick = () => {
+    if (!run) return;
+    raf = requestAnimationFrame(tick);
+    if (!vis) return;
+
+    for (let y = 1; y < GH - 1; y++) {
+      const row = y * GW;
+      for (let x = 1; x < GW - 1; x++) {
+        const i = row + x;
+        prev[i] = ((cur[i - 1] + cur[i + 1] + cur[i - GW] + cur[i + GW]) * .5 - prev[i]) * .972;
+      }
+    }
+    const sw = prev; prev = cur; cur = sw;
+
+    /* cover-fit the source once per frame */
+    const TX = 40, TY = 24;                     /* tile counts, not pixels */
+    const tw = W / TX, th = H / TY;
+    if (img) {
+      const ca = W / H, ia = iw / ih;
+      const sw2 = ca > ia ? iw : ih * ca;
+      const sh2 = ca > ia ? iw / ca : ih;
+      const sx0 = (iw - sw2) / 2, sy0 = (ih - sh2) / 2;
+      for (let ty = 0; ty < TY; ty++) {
+        for (let tx = 0; tx < TX; tx++) {
+          const gx = Math.round((tx / TX) * (GW - 1)) || 1;
+          const gy = Math.round((ty / TY) * (GH - 1)) || 1;
+          const i = gy * GW + gx;
+          const dx = (cur[i + 1] - cur[i - 1]) * 26;
+          const dy = (cur[i + GW] - cur[i - GW]) * 26;
+          ctx.drawImage(img,
+            sx0 + (tx / TX) * sw2 + dx, sy0 + (ty / TY) * sh2 + dy,
+            sw2 / TX, sh2 / TY,
+            tx * tw - .5, ty * th - .5, tw + 1, th + 1);
+        }
+      }
+    } else {
+      /* no photograph — draw the water itself so it is still visible */
+      ctx.clearRect(0, 0, W, H);
+      for (let ty = 0; ty < TY; ty++) {
+        for (let tx = 0; tx < TX; tx++) {
+          const gx = Math.round((tx / TX) * (GW - 1)) || 1;
+          const gy = Math.round((ty / TY) * (GH - 1)) || 1;
+          const h = cur[gy * GW + gx];
+          const v = Math.max(0, Math.min(255, 26 + h * 120)) | 0;
+          ctx.fillStyle = `rgb(${v},${(v * 1.06) | 0},${(v * 1.3) | 0})`;
+          ctx.fillRect(tx * tw, ty * th, tw + 1, th + 1);
+        }
+      }
+    }
+    frame++;
+  };
+  tick();
+
+  return () => {
+    run = false; cancelAnimationFrame(raf);
+    window.removeEventListener("resize", size);
+    host.removeEventListener("mousemove", onMove);
+    host.removeEventListener("touchmove", onTouch);
+    host.removeEventListener("mouseleave", onLeave);
+    host.removeEventListener("pointerdown", onDown);
+    io.disconnect();
+  };
+}
+
 function HeroRipples({ src }) {
   const cv = useRef(null);
 
@@ -1837,9 +1985,23 @@ function HeroRipples({ src }) {
     if (!c) return;
     if (reduced()) return;                    /* motion preference is the ONLY opt-out */
 
-    const gl = c.getContext("webgl", { alpha: false, antialias: false, depth: false })
-      || c.getContext("experimental-webgl");
-    if (!gl) { console.info("[ripples] WebGL unavailable — hero renders plain"); return; }
+    /* Try every context name, and try plain before optioned — some setups
+       reject an options object they don't like rather than negotiating. */
+    let gl = null;
+    for (const name of ["webgl2", "webgl", "experimental-webgl"]) {
+      for (const opts of [{ alpha: false, antialias: false, depth: false, powerPreference: "low-power" }, undefined]) {
+        try { gl = c.getContext(name, opts); } catch { gl = null; }
+        if (gl) break;
+      }
+      if (gl) break;
+    }
+    if (!gl) {
+      /* No WebGL at all — usually hardware acceleration switched off. Fall back
+         to a 2D canvas version of the same simulation rather than showing
+         nothing. It is a few frames slower and it works everywhere. */
+      console.info("[ripples] no WebGL — running the 2D fallback instead");
+      return start2D(c, src);
+    }
 
     const mk = (t, srcTxt) => {
       const sh = gl.createShader(t);
