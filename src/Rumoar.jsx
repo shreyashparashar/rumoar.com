@@ -551,17 +551,17 @@ const CSS = `
 @media (min-width:721px){.ru .g,.ru .full,.ru .nav{padding-left:max(var(--marg),40px);padding-right:max(var(--marg),96px)}}
 .ru .full{padding-inline:var(--marg);max-width:1720px;margin-inline:auto}
 
-.ru .mega{font-size:clamp(3rem,9.6vw,11rem);line-height:.88;letter-spacing:-.06em;font-weight:200;
+.ru .mega{font-size:clamp(2.6rem,7.4vw,8rem);line-height:.9;letter-spacing:-.045em;font-weight:700;
   text-wrap:balance}
-.ru .big{font-size:clamp(2.1rem,5.4vw,5.2rem);line-height:.98;letter-spacing:-.052em;text-wrap:balance}
-.ru .mid{font-size:clamp(1.45rem,2.8vw,2.8rem);line-height:1.08;letter-spacing:-.042em;font-weight:300;
+.ru .big{font-size:clamp(1.9rem,4.2vw,4rem);line-height:1;letter-spacing:-.04em;font-weight:700;text-wrap:balance}
+.ru .mid{font-size:clamp(1.3rem,2.2vw,2.1rem);line-height:1.14;letter-spacing:-.03em;font-weight:600;
   text-wrap:balance}
-.ru .h3{font-size:clamp(1rem,1.4vw,1.35rem);font-weight:400;letter-spacing:-.02em;line-height:1.32}
-.ru .body{font-size:clamp(.93rem,1vw,1.05rem);line-height:1.7;color:var(--ink-2);font-weight:300;
+.ru .h3{font-size:clamp(.95rem,1.2vw,1.15rem);font-weight:600;letter-spacing:-.02em;line-height:1.32}
+.ru .body{font-size:clamp(.88rem,.95vw,1rem);line-height:1.62;color:var(--ink-2);font-weight:400;
   text-wrap:pretty}
-.ru .lede{font-size:clamp(1rem,1.3vw,1.24rem);line-height:1.55;color:var(--ink-2);font-weight:300}
-.ru .lb{font-family:var(--font-body);font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;
-  color:var(--ink-3);font-weight:500}
+.ru .lede{font-size:clamp(.95rem,1.1vw,1.1rem);line-height:1.55;color:var(--ink-2);font-weight:400}
+.ru .lb{font-family:var(--font-body);font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600}
 .ru .num{font-variant-numeric:tabular-nums}
 .ru .dim{color:var(--ink-3)}
 .ru .rule{height:1px;background:var(--line)}
@@ -583,7 +583,7 @@ const CSS = `
 .ru .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:1px;background:var(--line);border:1px solid var(--line);margin-top:clamp(24px,4vh,44px)}
 .ru .fact{background:var(--paper);padding:18px 16px}
-.ru .fact .v{font-size:clamp(1.3rem,2.4vw,2rem);font-weight:200;letter-spacing:-.04em;
+.ru .fact .v{font-size:clamp(1.15rem,1.9vw,1.6rem);font-weight:700;letter-spacing:-.04em;
   font-variant-numeric:tabular-nums;line-height:1}
 .ru .fact .k{font-family:var(--font-body);font-size:.55rem;letter-spacing:.18em;
   text-transform:uppercase;color:var(--ink-3);margin-top:9px;line-height:1.5}
@@ -597,7 +597,7 @@ const CSS = `
     transform var(--content) var(--ez)}
 .ru .role.off{opacity:.16;pointer-events:none}
 .ru .role:hover{background:var(--paper-2)}
-.ru .role .rn{font-size:clamp(1.05rem,1.5vw,1.35rem);font-weight:300;letter-spacing:-.03em}
+.ru .role .rn{font-size:clamp(.98rem,1.2vw,1.12rem);font-weight:600;letter-spacing:-.03em}
 .ru .role .rm{font-size:.78rem;color:var(--ink-3);margin-top:7px;font-weight:300;line-height:1.5}
 .ru .role .rt{font-size:.86rem;color:var(--ink-2);margin-top:16px;font-weight:300;line-height:1.6}
 .ru .meter{height:2px;background:var(--line);margin-top:18px;position:relative;overflow:hidden}
@@ -769,6 +769,19 @@ const CSS = `
   text-transform:uppercase;color:var(--ink-3);margin-top:14px}
 @media (max-width:900px){.ru .mark{max-width:190px;margin-inline:auto}}
 
+.ru .unfold{border-top:1px solid var(--line)}
+.ru .unfold:last-of-type{border-bottom:1px solid var(--line)}
+.ru .uf-head{width:100%;display:flex;align-items:center;gap:16px;padding:clamp(13px,1.7vh,20px) 0;
+  text-align:left;cursor:pointer;background:none;border:0}
+.ru .uf-label{font-size:clamp(.95rem,1.25vw,1.15rem);font-weight:600;letter-spacing:-.02em;
+  color:var(--ink);flex:0 0 auto;max-width:70%}
+.ru .uf-rule{flex:1 1 auto;height:1px;background:var(--line);transform:scaleX(0);
+  transform-origin:left;transition:transform .55s var(--ez),background .3s}
+.ru .unfold.on .uf-rule{transform:scaleX(1);background:var(--mark)}
+.ru .uf-sign{font-size:1rem;color:var(--ink-3);flex:0 0 auto;width:14px;text-align:center}
+.ru .unfold.on .uf-sign{color:var(--mark)}
+.ru .uf-inner{padding-bottom:clamp(18px,2.4vh,28px);max-width:64ch}
+
 /* THE STACK — five frames collapsing into one */
 .ru .stack{position:relative}
 .ru .stk-pin{height:100svh;display:flex;align-items:center;overflow:hidden;
@@ -776,7 +789,7 @@ const CSS = `
 .ru .stk-deck{position:relative;width:100%;aspect-ratio:16/10}
 .ru .stk-card{position:absolute;inset:0;margin:0;overflow:hidden;
   background:var(--paper-2);border:1px solid var(--line);will-change:transform;
-  box-shadow:0 24px 60px -34px rgba(0,0,0,.5)}
+  box-shadow:0 4px 18px -12px rgba(0,0,0,.22)}
 .ru .stk-card .m{width:100%;height:100%}
 @media (max-width:760px){
   .ru .stk-pin{height:auto;padding-block:clamp(48px,8vh,90px)}
@@ -785,10 +798,10 @@ const CSS = `
 
 /* THE ERA COLLAGE — a board assembling itself */
 .ru .collage{position:relative;width:100%;height:100%;min-height:clamp(280px,42vh,460px)}
-.ru .pl{position:absolute;margin:0;will-change:transform,opacity;
-  filter:drop-shadow(0 18px 34px rgba(0,0,0,.45))}
+.ru .pl{position:absolute;margin:0;will-change:transform,opacity}
 .ru .pl-img{position:relative;height:100%;overflow:hidden;
-  background:var(--paper-2);border:1px solid var(--line)}
+  background:var(--paper-2);border:1px solid var(--line);
+  box-shadow:0 2px 10px -6px rgba(0,0,0,.18)}
 .ru .pl-img .m{width:100%;height:100%}
 .ru .pl-call{position:absolute;display:flex;align-items:center;gap:0;pointer-events:none;
   transform:translate(0,-50%)}
@@ -940,10 +953,9 @@ const CSS = `
 .ru .risk{border:1px solid var(--line);padding:clamp(18px,2.4vw,28px);
   transition:border-color var(--ui)}
 .ru .risk+.risk{margin-top:-1px}
-.ru .rsev{font-family:var(--font-body);font-size:.54rem;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--ember)}
-.ru .rq{font-size:clamp(1.05rem,1.7vw,1.4rem);font-weight:300;letter-spacing:-.03em;margin-top:10px;
-  color:var(--bone)}
+.ru .rsev{font-family:var(--font-body);font-size:.52rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--mark);margin-right:10px;font-weight:600}
+.ru .rq{font-size:clamp(.95rem,1.2vw,1.1rem);font-weight:600;letter-spacing:-.02em;color:var(--ink)}
 .ru .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.4vw,32px);margin-top:18px}
 @media (max-width:760px){.ru .rgrid{grid-template-columns:1fr}}
 .ru .rgrid b{font-family:var(--font-body);font-size:.54rem;letter-spacing:.22em;
@@ -987,7 +999,7 @@ const CSS = `
 .ru .ask{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;
   background:var(--nline);border:1px solid var(--nline)}
 .ru .askc{background:var(--night);padding:clamp(20px,2.6vw,32px)}
-.ru .askc .v{font-size:clamp(1.5rem,2.8vw,2.4rem);font-weight:200;letter-spacing:-.045em;
+.ru .askc .v{font-size:clamp(1.25rem,2vw,1.75rem);font-weight:700;letter-spacing:-.045em;
   font-variant-numeric:tabular-nums;line-height:1}
 .ru .askc .k{font-family:var(--font-body);font-size:.54rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--bone-3);margin-top:10px}
@@ -1034,20 +1046,28 @@ const CSS = `
 .ru .cta:hover{color:#fff}
 .ru .cta:hover::before{transform:none}
 
-.ru .hero{height:100svh;min-height:600px;position:relative;overflow:hidden;
-  background:var(--paper)}
 .ru .plate{position:absolute;inset:-8% -5%;will-change:transform;
   filter:none;transition:filter 700ms var(--ez)}
 .ru.night .plate{filter:grayscale(.35) brightness(.62) contrast(1.08)}
 .ru .cut{position:absolute;right:-3%;bottom:0;width:min(50vw,720px);height:86%;will-change:transform}
-.ru .ripple{position:absolute;inset:0;z-index:1;width:100%;height:100%;display:block;
+.ru .hero{min-height:100svh;position:relative;background:var(--paper);
+  display:flex;flex-direction:column;justify-content:center;
+  padding-block:clamp(96px,15vh,190px) clamp(48px,8vh,110px);gap:clamp(40px,7vh,96px)}
+.ru .hero-top .mega{max-width:14ch}
+.ru .hero-btm{align-items:start}
+.ru .hero-media{position:relative;aspect-ratio:3/4;overflow:hidden;
+  border:1px solid var(--line);background:var(--paper-3);cursor:crosshair}
+.ru .hero-media .m{position:absolute;inset:0;width:100%;height:100%}
+.ru .ripple{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;
   pointer-events:none}
+.ru .hero-cue{position:absolute;left:var(--marg);bottom:clamp(18px,3vh,34px)}
+@media (max-width:860px){
+  .ru .hero{padding-block:clamp(88px,14vh,140px) 48px;gap:36px}
+  .ru .hero-top > div,.ru .hero-btm > div{grid-column:1 / 13 !important}
+  .ru .hero-btm{row-gap:26px}
+  .ru .hero-media{aspect-ratio:4/3;max-width:100%}
+}
 /* the hero headline is deliberately modest — the photograph is the loud thing */
-.ru .hero-h{font-size:clamp(2rem,5.2vw,4.4rem)!important;line-height:1.02;letter-spacing:-.045em}
-.ru .hero-copy{position:relative}
-.ru .hero-copy::before{content:"";position:absolute;inset:-6% -8% -10% -6%;z-index:-1;
-  background:radial-gradient(ellipse 62% 68% at 28% 50%,var(--paper) 0%,
-    color-mix(in srgb,var(--paper) 72%,transparent) 46%,transparent 78%)}
 /* the hero headline rises after the loader clears, not on a fixed timer */
 .ru .hero .hl{display:block;overflow:hidden;padding-bottom:.06em}
 .ru .hero .hl > span{display:block;will-change:transform}
@@ -1163,7 +1183,24 @@ const CSS = `
 .ru .barcode{display:flex;gap:2px;align-items:flex-end;height:34px;margin-top:16px}
 .ru .barcode i{flex:1;background:var(--ink)}
 
-.ru .labwrap{min-height:100svh;background:radial-gradient(120% 70% at 50% 0%,#FFF 0%,#F7F6F3 55%,#EFEEEA 100%)}
+.ru .labwrap{min-height:100svh;background:var(--paper)}
+/* THE LAB ON MOBILE — the three-column desk collapses into a single column,
+   the figure comes first because it is the thing you are changing, and the
+   tile rail becomes a horizontal scroller under it. Drag still works, but tap
+   is the primary gesture on touch and always was. */
+@media (max-width:900px){
+  .ru .labwrap .g > div{grid-column:1 / 13 !important}
+  .ru .labwrap .g{row-gap:clamp(26px,5vh,48px)}
+  .ru .lab-figure{order:-1}
+  .ru .lab-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;
+    margin-inline:calc(var(--marg) * -1);padding-inline:var(--marg)}
+  .ru .lab-rail::-webkit-scrollbar{display:none}
+  .ru .lab-rail > *{flex:0 0 clamp(96px,30vw,132px);scroll-snap-align:start;margin:0 !important}
+  .ru .stage{min-height:clamp(360px,52svh,520px)}
+  .ru .tile:hover{transform:none}
+  .ru .cmp{touch-action:pan-y}
+}
 .ru .tile{position:relative;cursor:grab;touch-action:none;transition:transform var(--ui) var(--ez-out)}
 .ru .tile:hover{transform:translateY(-5px)}
 .ru .tf{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--paper-3);
@@ -1292,8 +1329,7 @@ const CSS = `
   .ru .nl{display:none}
   .ru .fstage{height:82svh}
   .ru .dive{width:100vw}
-  .ru .hero{min-height:560px}
-  .ru .cut{width:88vw;height:54%;right:-14%;opacity:.9}
+    .ru .cut{width:88vw;height:54%;right:-14%;opacity:.9}
   .ru .rail{gap:2px;padding:8px 10px}
   .ru .conn{display:none}
   .ru .cmp{height:clamp(320px,54svh,460px) !important}
@@ -1716,99 +1752,51 @@ function Nav({ active, onLab }) {
 
 
 
+
 /* ===========================================================================
-   THE RIPPLES  —  WebGL
-   The same technique jquery.ripples uses, written directly against WebGL so
-   there is no jQuery and no plugin to load.
+   THE RIPPLES
+   Same visual result as jquery.ripples — the image REFRACTS under a live water
+   surface — but built to actually run everywhere.
 
-   Two ping-pong float textures hold the water height. Each frame a shader
-   runs the wave equation across them; a second shader reads the resulting
-   height field, derives a surface normal, and REFRACTS the hero image
-   through it. That refraction is the whole point — the picture bends under
-   the water instead of lines being drawn on top of it.
+   WHY IT IS SPLIT: the usual approach keeps the height field in a floating
+   point texture and steps it with a shader. That needs render-to-float, which
+   plenty of browsers still refuse (OES_texture_float alone is not enough —
+   the framebuffer also has to be complete). The previous version failed
+   silently for exactly that reason and drew nothing at all.
 
-   Cost: two 256x256 textures and two tiny fragment shaders. It degrades to
-   nothing (no canvas at all) if WebGL, float textures, touch or reduced
-   motion say no.
+   So: the wave equation runs on the CPU over a small Float32Array, and the
+   result is uploaded each frame as an ordinary 8-bit texture. A 200x112 grid
+   is ~22k cells, which is nothing, and the upload is a few kB. The shader then
+   does the part it is genuinely good at — reading the slope and bending the
+   photograph through it.
    =========================================================================== */
-const RIPPLE_VERT = `
-attribute vec2 aPos;
-varying vec2 vUV;
+const RIP_VERT = `
+attribute vec2 aPos; varying vec2 vUV;
 void main(){ vUV = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
 
-/* the simulation: height and velocity packed into r and g */
-const RIPPLE_SIM = `
-precision highp float;
+const RIP_FRAG = `
+precision mediump float;
 varying vec2 vUV;
-uniform sampler2D uPrev;
-uniform vec2 uTexel;
-uniform vec2 uDrop;
-uniform float uDropStrength;
-uniform float uDropRadius;
-void main(){
-  vec4 info = texture2D(uPrev, vUV);
-  /* average the four neighbours, subtract velocity — the wave equation */
-  float avg = (
-    texture2D(uPrev, vUV - vec2(uTexel.x, 0.0)).r +
-    texture2D(uPrev, vUV + vec2(uTexel.x, 0.0)).r +
-    texture2D(uPrev, vUV - vec2(0.0, uTexel.y)).r +
-    texture2D(uPrev, vUV + vec2(0.0, uTexel.y)).r
-  ) * 0.25;
-  info.g += (avg - info.r) * 2.0;
-  info.g *= 0.9915;                 /* damping — how long a ring survives */
-  info.r += info.g;
-
-  /* a drop pushes the surface down in a smooth cosine dome */
-  if (uDropStrength > 0.0) {
-    float d = max(0.0, 1.0 - length(uDrop - vUV) / uDropRadius);
-    d = 0.5 - cos(d * 3.14159) * 0.5;
-    info.r += d * uDropStrength;
-  }
-  gl_FragColor = info;
-}`;
-
-/* the render: refract the page image through the surface normal */
-const RIPPLE_DRAW = `
-precision highp float;
-varying vec2 vUV;
-uniform sampler2D uWater;
+uniform sampler2D uHeight;
 uniform sampler2D uImage;
 uniform vec2 uTexel;
 uniform float uStrength;
-uniform vec3 uTint;
 void main(){
-  /* slope of the surface in x and y = the normal */
-  float l = texture2D(uWater, vUV - vec2(uTexel.x, 0.0)).r;
-  float r = texture2D(uWater, vUV + vec2(uTexel.x, 0.0)).r;
-  float b = texture2D(uWater, vUV - vec2(0.0, uTexel.y)).r;
-  float t = texture2D(uWater, vUV + vec2(0.0, uTexel.y)).r;
+  /* heights arrive centred on 0.5 so they can be stored unsigned */
+  float l = texture2D(uHeight, vUV - vec2(uTexel.x, 0.0)).r;
+  float r = texture2D(uHeight, vUV + vec2(uTexel.x, 0.0)).r;
+  float b = texture2D(uHeight, vUV - vec2(0.0, uTexel.y)).r;
+  float t = texture2D(uHeight, vUV + vec2(0.0, uTexel.y)).r;
   vec2 slope = vec2(r - l, t - b);
 
   vec2 uv = vec2(vUV.x, 1.0 - vUV.y) + slope * uStrength;
-  vec4 col = texture2D(uImage, clamp(uv, 0.001, 0.999));
+  vec4 col = texture2D(uImage, clamp(uv, 0.002, 0.998));
 
-  /* a specular glint on the steep faces, so light sits on the water */
-  float spec = pow(max(0.0, slope.x * 0.6 + slope.y * 0.8), 2.0) * 26.0;
-  col.rgb += uTint * clamp(spec, 0.0, 0.55);
-  gl_FragColor = col;
+  /* light catching the steep faces */
+  float spec = pow(max(0.0, slope.x * 0.7 + slope.y * 0.7), 2.0) * 34.0;
+  col.rgb += vec3(1.0, 0.97, 0.93) * clamp(spec, 0.0, 0.5);
+  gl_FragColor = vec4(col.rgb, 1.0);
 }`;
-
-function compile(gl, type, src) {
-  const sh = gl.createShader(type);
-  gl.shaderSource(sh, src); gl.compileShader(sh);
-  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-    console.warn("[ripples] shader:", gl.getShaderInfoLog(sh)); return null;
-  }
-  return sh;
-}
-function program(gl, vs, fs) {
-  const v = compile(gl, gl.VERTEX_SHADER, vs), f = compile(gl, gl.FRAGMENT_SHADER, fs);
-  if (!v || !f) return null;
-  const p = gl.createProgram();
-  gl.attachShader(p, v); gl.attachShader(p, f); gl.linkProgram(p);
-  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) return null;
-  return p;
-}
 
 function HeroRipples({ src }) {
   const cv = useRef(null);
@@ -1817,161 +1805,159 @@ function HeroRipples({ src }) {
     const c = cv.current;
     if (!c || reduced() || window.matchMedia("(pointer:coarse)").matches) return;
 
-    const gl = c.getContext("webgl", { alpha: true, premultipliedAlpha: false, antialias: false });
-    if (!gl) return;
-    /* float textures are required for the height field to hold fine detail */
-    const ext = gl.getExtension("OES_texture_float") || gl.getExtension("OES_texture_half_float");
-    if (!ext) return;
-    const TYPE = gl.getExtension("OES_texture_float") ? gl.FLOAT
-      : gl.getExtension("OES_texture_half_float").HALF_FLOAT_OES;
+    const gl = c.getContext("webgl", { alpha: true, antialias: false, premultipliedAlpha: false })
+      || c.getContext("experimental-webgl");
+    if (!gl) { console.info("[ripples] no webgl — hero renders plain"); return; }
 
-    const SIM = 256;
-    const simP = program(gl, RIPPLE_VERT, RIPPLE_SIM);
-    const drawP = program(gl, RIPPLE_VERT, RIPPLE_DRAW);
-    if (!simP || !drawP) return;
+    const mk = (type, srcTxt) => {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, srcTxt); gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        console.warn("[ripples]", gl.getShaderInfoLog(sh)); return null;
+      }
+      return sh;
+    };
+    const vs = mk(gl.VERTEX_SHADER, RIP_VERT), fs = mk(gl.FRAGMENT_SHADER, RIP_FRAG);
+    if (!vs || !fs) return;
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      console.warn("[ripples] link failed"); return;
+    }
+    gl.useProgram(prog);
 
     const quad = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, quad);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-    const bindQuad = (p) => {
-      const loc = gl.getAttribLocation(p, "aPos");
-      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    };
+    const aPos = gl.getAttribLocation(prog, "aPos");
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-    const mkTex = () => {
-      const t = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, t);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SIM, SIM, 0, gl.RGBA, TYPE, null);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      const fb = gl.createFramebuffer();
-      gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
-      return { t, fb };
-    };
-    let A = mkTex(), B = mkTex();
-    [A, B].forEach(({ fb }) => {
-      gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
-    });
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    /* ---- the height field, on the CPU ---- */
+    const GW = 200, GH = 112, N = GW * GH;
+    let prev = new Float32Array(N), cur = new Float32Array(N);
+    const bytes = new Uint8Array(N * 4);
 
-    /* the hero photograph is the thing being refracted */
-    const imgTex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, imgTex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-      new Uint8Array([245, 245, 248, 255]));
+    const hTex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, hTex);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    let haveImg = false;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, GW, GH, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
+
+    /* ---- the photograph ---- */
+    const iTex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, iTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+      new Uint8Array([255, 255, 255, 255]));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    let ready = false;
     if (src) {
       const im = new Image();
       im.crossOrigin = "anonymous";
       im.onload = () => {
-        gl.bindTexture(gl.TEXTURE_2D, imgTex);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, iTex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
-        haveImg = true;
+        ready = true;
       };
+      im.onerror = () => console.info("[ripples] image missing:", src);
       im.src = src;
     }
 
-    let W = 0, H = 0, raf, run = true, vis = true;
+    gl.uniform1i(gl.getUniformLocation(prog, "uHeight"), 0);
+    gl.uniform1i(gl.getUniformLocation(prog, "uImage"), 1);
+    gl.uniform2f(gl.getUniformLocation(prog, "uTexel"), 1 / GW, 1 / GH);
+    const uStrength = gl.getUniformLocation(prog, "uStrength");
+
     const size = () => {
       const r = c.getBoundingClientRect();
       const d = Math.min(window.devicePixelRatio || 1, 2);
-      W = r.width; H = r.height;
-      c.width = Math.max(1, W * d); c.height = Math.max(1, H * d);
+      c.width = Math.max(1, r.width * d);
+      c.height = Math.max(1, r.height * d);
+      gl.viewport(0, 0, c.width, c.height);
     };
     size(); window.addEventListener("resize", size);
+
+    let vis = true;
     const io = new IntersectionObserver(([e]) => { vis = e.isIntersecting; }, { threshold: .02 });
     io.observe(c);
 
-    /* pending drops from the pointer, applied one per sim step */
-    const drops = [];
-    let lx = -1, ly = -1;
-    const surface = c.closest(".hero") || c.parentElement;
-    const onMove = (e) => {
-      const r = c.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width;
-      const y = 1 - (e.clientY - r.top) / r.height;
-      if (x < 0 || x > 1 || y < 0 || y > 1) return;
-      if (lx >= 0) {
-        const steps = Math.min(5, Math.hypot(x - lx, y - ly) * 42 | 0);
-        for (let i = 1; i <= steps; i++)
-          drops.push([lx + (x - lx) * (i / steps), ly + (y - ly) * (i / steps), .022, .028]);
+    /* ---- dropping energy in ---- */
+    const drop = (gx, gy, radius, force) => {
+      const r2 = radius * radius;
+      for (let y = -radius; y <= radius; y++) {
+        for (let x = -radius; x <= radius; x++) {
+          const px = gx + x, py = gy + y;
+          if (px < 1 || py < 1 || px >= GW - 1 || py >= GH - 1) continue;
+          const d2 = x * x + y * y;
+          if (d2 > r2) continue;
+          const f = Math.cos((Math.sqrt(d2) / radius) * Math.PI) * .5 + .5;
+          cur[py * GW + px] += force * f;
+        }
       }
-      drops.push([x, y, .03, .05]);
-      lx = x; ly = y;
+    };
+    let lx = -1, ly = -1;
+    const surface = c.closest(".hero-media") || c.closest(".hero") || c.parentElement;
+    const toGrid = (e) => {
+      const r = c.getBoundingClientRect();
+      return [Math.round(((e.clientX - r.left) / r.width) * (GW - 1)),
+              Math.round((1 - (e.clientY - r.top) / r.height) * (GH - 1)), r];
+    };
+    const onMove = (e) => {
+      const [gx, gy, r] = toGrid(e);
+      if (gx < 0 || gy < 0 || gx > GW || gy > GH) return;
+      if (lx >= 0) {
+        const steps = Math.min(6, Math.hypot(gx - lx, gy - ly) / 4 | 0);
+        for (let i = 1; i <= steps; i++)
+          drop(Math.round(lx + (gx - lx) * (i / steps)),
+               Math.round(ly + (gy - ly) * (i / steps)), 4, .55);
+      }
+      drop(gx, gy, 6, 1.1);
+      lx = gx; ly = gy;
     };
     const onLeave = () => { lx = -1; ly = -1; };
-    const onDown = (e) => {
-      const r = c.getBoundingClientRect();
-      drops.push([(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height, .1, .11]);
-    };
+    const onDown = (e) => { const [gx, gy] = toGrid(e); drop(gx, gy, 13, 4.2); };
     surface.addEventListener("mousemove", onMove, { passive: true });
     surface.addEventListener("mouseleave", onLeave);
     surface.addEventListener("pointerdown", onDown);
 
-    const uSim = {
-      prev: gl.getUniformLocation(simP, "uPrev"),
-      texel: gl.getUniformLocation(simP, "uTexel"),
-      drop: gl.getUniformLocation(simP, "uDrop"),
-      str: gl.getUniformLocation(simP, "uDropStrength"),
-      rad: gl.getUniformLocation(simP, "uDropRadius"),
-    };
-    const uDraw = {
-      water: gl.getUniformLocation(drawP, "uWater"),
-      image: gl.getUniformLocation(drawP, "uImage"),
-      texel: gl.getUniformLocation(drawP, "uTexel"),
-      strength: gl.getUniformLocation(drawP, "uStrength"),
-      tint: gl.getUniformLocation(drawP, "uTint"),
-    };
-
-    const stepSim = (drop) => {
-      gl.bindFramebuffer(gl.FRAMEBUFFER, B.fb);
-      gl.viewport(0, 0, SIM, SIM);
-      gl.useProgram(simP); bindQuad(simP);
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.t);
-      gl.uniform1i(uSim.prev, 0);
-      gl.uniform2f(uSim.texel, 1 / SIM, 1 / SIM);
-      if (drop) {
-        gl.uniform2f(uSim.drop, drop[0], drop[1]);
-        gl.uniform1f(uSim.str, drop[2]);
-        gl.uniform1f(uSim.rad, drop[3]);
-      } else {
-        gl.uniform1f(uSim.str, 0);
-        gl.uniform1f(uSim.rad, .03);
-        gl.uniform2f(uSim.drop, -1, -1);
+    const step = () => {
+      for (let y = 1; y < GH - 1; y++) {
+        const row = y * GW;
+        for (let x = 1; x < GW - 1; x++) {
+          const i = row + x;
+          const v = (cur[i - 1] + cur[i + 1] + cur[i - GW] + cur[i + GW]) * .5 - prev[i];
+          prev[i] = v * .968;                 /* damping = how long a ring lives */
+        }
       }
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      const t = A; A = B; B = t;
+      const t = prev; prev = cur; cur = t;
+      /* encode to bytes, centred on 128 so negatives survive */
+      for (let i = 0; i < N; i++) {
+        let v = 128 + cur[i] * 46;
+        bytes[i * 4] = v < 0 ? 0 : v > 255 ? 255 : v;
+      }
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, hTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, GW, GH, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
     };
 
+    let raf, run = true;
     const tick = () => {
       if (!run) return;
       raf = requestAnimationFrame(tick);
       if (!vis) return;
-      stepSim(drops.length ? drops.shift() : null);
-      if (drops.length > 3) drops.splice(0, drops.length - 3);
-
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      gl.viewport(0, 0, c.width, c.height);
-      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.useProgram(drawP); bindQuad(drawP);
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, A.t);
-      gl.uniform1i(uDraw.water, 0);
-      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, imgTex);
-      gl.uniform1i(uDraw.image, 1);
-      gl.uniform2f(uDraw.texel, 1 / SIM, 1 / SIM);
-      gl.uniform1f(uDraw.strength, haveImg ? .42 : .18);
-      gl.uniform3f(uDraw.tint, 1, .96, .92);
+      step();
+      gl.useProgram(prog);
+      gl.uniform1f(uStrength, ready ? .9 : 0);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, hTex);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, iTex);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
     tick();
@@ -1983,9 +1969,8 @@ function HeroRipples({ src }) {
       surface.removeEventListener("mouseleave", onLeave);
       surface.removeEventListener("pointerdown", onDown);
       io.disconnect();
-      [A, B].forEach(({ t, fb }) => { gl.deleteTexture(t); gl.deleteFramebuffer(fb); });
-      gl.deleteTexture(imgTex); gl.deleteBuffer(quad);
-      gl.deleteProgram(simP); gl.deleteProgram(drawP);
+      gl.deleteTexture(hTex); gl.deleteTexture(iTex);
+      gl.deleteBuffer(quad); gl.deleteProgram(prog);
     };
   }, [src]);
 
@@ -1994,63 +1979,55 @@ function HeroRipples({ src }) {
 }
 
 function Hero() {
-  const sec = useRef(null), plate = useRef(null),
-    type = useRef(null), cue = useRef(null);
+  const sec = useRef(null), type = useRef(null), cue = useRef(null);
 
-  /* Pointer target, read by the same loop that reads scroll.
-     BUG FIXED: this used to animate marginLeft/marginRight in a second rAF
-     loop. Margin is a layout property — every frame forced a reflow, and the
-     two loops fought over the same elements. Both inputs now compose into one
-     transform written once per frame. */
-  const ptr = useRef({ tx: 0, ty: 0, x: 0, y: 0, on: false });
-
-  useEffect(() => {
-    if (reduced() || window.matchMedia("(pointer:coarse)").matches) return;
-    const mm = (e) => {
-      ptr.current.on = true;
-      ptr.current.tx = (e.clientX / window.innerWidth - .5) * 18;
-      ptr.current.ty = (e.clientY / window.innerHeight - .5) * 12;
-    };
-    window.addEventListener("mousemove", mm, { passive: true });
-    return () => window.removeEventListener("mousemove", mm);
-  }, []);
-
-  useScene(sec, (p, dt) => {
-    const q = ptr.current;
-    q.x = damp(q.x, q.tx, 5, dt);
-    q.y = damp(q.y, q.ty, 5, dt);
-
-    if (plate.current) plate.current.style.transform =
-      `translate3d(${q.x * .22}px,${p * 9}%,0) scale(${1 + p * .1})`;
-    if (type.current) {
-      type.current.style.transform = `translate3d(${q.x * .12}px,${p * -84}px,0)`;
-      type.current.style.opacity = `${1 - p * 1.6}`;
-    }
-    if (cue.current) cue.current.style.opacity = `${1 - p * 3.4}`;
-  }, 9);
+  useScene(sec, (p) => {
+    if (type.current) type.current.style.transform = `translate3d(0,${p * -34}px,0)`;
+    if (cue.current) cue.current.style.opacity = String(Math.max(0, 1 - p * 3));
+  });
 
   return (
     <section className="hero" id="hero" ref={sec}>
-      <div className="plate" ref={plate}><Media a={M.hero.plate} eager style={{ height: "100%" }} /></div>
-      <HeroRipples src={url(M.hero.plate.src)} />
-
-      <div className="full" ref={type} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", zIndex: 3 }}>
-        <div className="hero-copy">
-          <LB style={{ marginBottom: "clamp(16px,3vh,30px)" }}>RUMOAR — Field note 01</LB>
-          <h1 className="mega hero-h" style={{ maxWidth: "16ch" }}>
+      <div className="g hero-top" ref={type}>
+        <div style={{ gridColumn: "1 / 13" }}>
+          <LB style={{ marginBottom: "clamp(22px,4vh,44px)" }}>RUMOAR — Field note 01</LB>
+          <h1 className="mega">
             <span className="hl"><span className="hero-line">Men changed.</span></span>
-            <span className="hl"><span className="hero-line" style={{ color: "var(--ink-3)" }}>Menswear</span></span>
-            <span className="hl"><span className="hero-line">didn&rsquo;t.</span></span>
+            <span className="hl"><span className="hero-line">
+              <span className="dim">Menswear</span> didn&rsquo;t.
+            </span></span>
           </h1>
         </div>
       </div>
 
-      <div className="full" ref={cue} style={{
-        position: "absolute", left: 0, right: 0, bottom: "clamp(20px,4vh,42px)", zIndex: 3,
-        display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20
-      }}>
+      <div className="g hero-btm">
+        {/* the photograph is a panel, not a backdrop — and it is the thing the
+            water bends. Move the cursor across it. */}
+        <div style={{ gridColumn: "1 / 5" }}>
+          <div className="hero-media">
+            <Media a={M.hero.plate} eager style={{ height: "100%" }} />
+            <HeroRipples src={url(M.hero.plate.path)} />
+          </div>
+        </div>
+
+        <div style={{ gridColumn: "6 / 9" }}>
+          <p className="lb">The shift</p>
+          <p className="body" style={{ marginTop: 14 }}>
+            The conversation moved from dressing well to expressing well. Income arrived,
+            the catalogue arrived, and the wardrobe stayed exactly where it was.
+          </p>
+        </div>
+        <div style={{ gridColumn: "10 / 13" }}>
+          <p className="lb">The gap</p>
+          <p className="body" style={{ marginTop: 14 }}>
+            Six houses, four price bands, and not one of them selling a method. He assembles
+            coherence himself, unpaid, and mostly fails.
+          </p>
+        </div>
+      </div>
+
+      <div className="hero-cue" ref={cue}>
         <LB>Scroll</LB>
-        <LB>An investigation in six parts</LB>
       </div>
     </section>
   );
@@ -2058,7 +2035,7 @@ function Hero() {
 
 function Chapter({ id, n, title, note }) {
   return (
-    <section id={id} className="g" style={{ padding: "clamp(130px,24vh,320px) 0 clamp(46px,9vh,120px)" }}>
+    <section id={id} className="g" style={{ padding: "clamp(96px,16vh,200px) 0 clamp(34px,6vh,80px)" }}>
       <div style={{ gridColumn: "1 / 3" }}><Reveal><LB>{n}</LB></Reveal></div>
       <div style={{ gridColumn: "3 / 10" }}>
         <Lines lines={title} className="big" />
@@ -2115,7 +2092,7 @@ function Timeline() {
 
   const d = eraData[i];
   return (
-    <section ref={sec} style={{ paddingBottom: "clamp(84px,14vh,203px)" }}>
+    <section ref={sec} style={{ paddingBottom: "clamp(60px,10vh,146px)" }}>
       <div className="railwrap">
         <div className="glass rail" ref={rail} role="tablist" aria-label="Eras" style={{ maxWidth: 900 }}
           onKeyDown={(e) => {
@@ -2197,7 +2174,7 @@ function Silence({ a, line, kicker, align = "left" }) {
       }} />
       <div className="full" style={{
         position: "absolute", inset: 0, display: "flex", alignItems: "flex-end",
-        paddingBottom: "clamp(78px,17vh,217px)", justifyContent: align === "left" ? "flex-start" : "flex-end"
+        paddingBottom: "clamp(56px,12vh,156px)", justifyContent: align === "left" ? "flex-start" : "flex-end"
       }}>
         <div style={{ maxWidth: "21ch" }}>
           {kicker ? <Reveal><LB style={{ marginBottom: 16 }}>{kicker}</LB></Reveal> : null}
@@ -2255,7 +2232,7 @@ function Film() {
         <div ref={veil} style={{ position: "absolute", inset: 0, background: "var(--paper)", opacity: 0 }} />
         <div className="full" style={{
           position: "absolute", inset: 0, display: "flex", alignItems: "flex-end",
-          paddingBottom: "clamp(72px,15vh,203px)"
+          paddingBottom: "clamp(51px,11vh,146px)"
         }}>
           <div style={{ position: "relative", width: "100%", height: "1.3em" }}>
             {filmCopy.map((c, k) => (
@@ -2768,10 +2745,10 @@ function Lab({ onExit }) {
         </div>
       </div>
 
-      <div className="g" style={{ paddingTop: "clamp(16px,3vh,42px)", paddingBottom: "clamp(70px,11vh,159px)", alignItems: "start" }}>
+      <div className="g" style={{ paddingTop: "clamp(16px,3vh,42px)", paddingBottom: "clamp(50px,8vh,114px)", alignItems: "start" }}>
         <div style={{ gridColumn: "1 / 3" }}>
           <LB>Sources</LB>
-          <div className="labsrc" style={{ display: "grid", gap: 13, marginTop: 16 }}>
+          <div className="labsrc lab-rail" style={{ display: "grid", gap: 13, marginTop: 16 }}>
             {lookData.map((l) => (
               <div key={l.id} className={`tile ${shown === l.id ? "on" : ""}`} role="button" tabIndex={0}
                 aria-label={`Dress him in ${l.name}`}
@@ -2786,11 +2763,11 @@ function Lab({ onExit }) {
             ))}
           </div>
           <p className="lb" style={{ marginTop: 18, lineHeight: 1.9 }}>
-            Drag onto the figure — or tap to preview, tap again to dress
+            Tap to preview, tap again to dress. Drag also works.
           </p>
         </div>
 
-        <div style={{ gridColumn: "3 / 10" }}>
+        <div className="lab-figure" style={{ gridColumn: "3 / 10" }}>
           <div ref={stage} className={`stage ${hot ? "hot" : ""}`}>
             {lookData.map((l) => (
               <LookRender key={l.id} look={l} active={l.id === id && !preview} preview={preview === l.id} />
@@ -2830,7 +2807,7 @@ function Lab({ onExit }) {
         </div>
       </div>
 
-      <div className="g" style={{ paddingBottom: "clamp(98px,17vh,217px)" }}>
+      <div className="g" style={{ paddingBottom: "clamp(70px,12vh,156px)" }}>
         <div style={{ gridColumn: "1 / 13" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
             <h3 className="mid">The same man, two systems</h3><LB>Drag the divider</LB>
@@ -2840,7 +2817,7 @@ function Lab({ onExit }) {
       </div>
 
       {/* what you leave with — an itemised session, not a cart */}
-      <div className="g" style={{ paddingBottom: "clamp(112px,20vh,261px)", alignItems: "start" }}>
+      <div className="g" style={{ paddingBottom: "clamp(80px,14vh,187px)", alignItems: "start" }}>
         <div style={{ gridColumn: "1 / 6" }}>
           <LB>Take it with you</LB>
           <h3 className="mid" style={{ marginTop: 16, maxWidth: "18ch" }}>
@@ -4562,10 +4539,42 @@ function Lamp({ night, onPull }) {
   );
 }
 
-function RiskRegister() {
-  const [open, setOpen] = useState(0);
+
+/* ===========================================================================
+   THE UNFOLD
+   Long-form detail that costs no vertical space until it is wanted. The
+   summary stays a single line of type; opening it rolls the body out beneath
+   and draws a rule across as it goes, so it reads as a sentence continuing
+   rather than a panel appearing.
+   =========================================================================== */
+function Unfold({ label, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const body = useRef(null);
+  useEffect(() => {
+    const el = body.current; if (!el) return;
+    if (reduced()) { el.style.height = open ? "auto" : "0px"; return; }
+    gsap.to(el, {
+      height: open ? "auto" : 0, opacity: open ? 1 : 0,
+      duration: .55, ease: "power3.inOut", overwrite: "auto",
+    });
+  }, [open]);
   return (
-    <section id="risks" style={{ paddingBlock: "clamp(130px,23vh,285px)" }}>
+    <div className={`unfold ${open ? "on" : ""}`}>
+      <button className="uf-head" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        <span className="uf-label">{label}</span>
+        <span className="uf-rule" />
+        <span className="uf-sign">{open ? "\u2013" : "+"}</span>
+      </button>
+      <div className="uf-body" ref={body} style={{ height: 0, opacity: 0, overflow: "hidden" }}>
+        <div className="uf-inner">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function RiskRegister() {
+  return (
+    <section id="risks" style={{ paddingBlock: "clamp(93px,17vh,205px)" }}>
       <div className="g">
         <div style={{ gridColumn: "9 / 13", alignSelf: "center", order: 2 }}>
           <Reveal delay={220}><ThreadMark form="grid" label="nine pieces · one unbroken thread" /></Reveal>
@@ -4587,21 +4596,13 @@ function RiskRegister() {
       <div className="g" style={{ marginTop: "clamp(40px,7vh,80px)" }}>
         <div style={{ gridColumn: "1 / 13" }}>
           {RISKS.map((r, i) => (
-            <Reveal key={r.n} delay={i * 70}>
-              <div className="risk">
-                <button style={{ width: "100%", textAlign: "left" }}
-                  aria-expanded={open === i}
-                  onClick={() => setOpen(open === i ? -1 : i)}>
-                  <span className="rsev">{r.n}</span>
-                  <p className="rq">{r.q}</p>
-                </button>
-                {open === i ? (
-                  <div className="rgrid">
-                    <div className="atk"><b>The attack</b><p className="body">{r.atk}</p></div>
-                    <div className="ans"><b>The answer</b><p className="body">{r.ans}</p></div>
-                  </div>
-                ) : null}
-              </div>
+            <Reveal key={r.n} delay={i * 60}>
+              <Unfold label={<><span className="rsev">{r.n}</span> {r.q}</>}>
+                <div className="rgrid">
+                  <div className="atk"><b>The attack</b><p className="body">{r.atk}</p></div>
+                  <div className="ans"><b>The answer</b><p className="body">{r.ans}</p></div>
+                </div>
+              </Unfold>
             </Reveal>
           ))}
         </div>
@@ -4769,7 +4770,7 @@ const ASK_CARDS = [
 
 function TheAsk() {
   return (
-    <section id="ask" style={{ paddingBlock: "clamp(145px,26vh,330px)" }}>
+    <section id="ask" style={{ paddingBlock: "clamp(104px,19vh,237px)" }}>
       <div className="g">
         <div style={{ gridColumn: "1 / 8" }}>
           <Reveal>
@@ -5049,7 +5050,7 @@ export default function Rumoar() {
           <Hero />
           <Thesis />
 
-          <section style={{ paddingBlock: "clamp(81px,13vh,165px)" }}>
+          <section style={{ paddingBlock: "clamp(58px,9vh,118px)" }}>
             <div className="g">
               <div style={{ gridColumn: "11 / 13", alignSelf: "center", order: 2 }}>
                 <Reveal delay={200}><ThreadMark form="stitch" label="one stitch" /></Reveal>
@@ -5069,7 +5070,7 @@ export default function Rumoar() {
             title={["The wallet grew.", { t: "The wardrobe didn't.", dim: true }]}
             note="Income tripled in twenty years. Consumption doubled in ten. The number of ways to build a wardrobe has stayed at one." />
 
-          <section className="g" style={{ paddingBottom: "clamp(84px,14vh,203px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(60px,10vh,146px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><IncomeCurve /></Reveal>
             </div>
@@ -5077,7 +5078,7 @@ export default function Rumoar() {
 
           {/* the deck sits in the gutter beside the market, where the page has
               room to breathe — a live hand, dealt the same way every time */}
-          <section className="g" style={{ paddingBottom: "clamp(98px,17vh,217px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(70px,12vh,156px)" }}>
             <div style={{ gridColumn: "1 / 4" }}>
               <Reveal><Deck /></Reveal>
             </div>
@@ -5106,7 +5107,7 @@ export default function Rumoar() {
             title={["He is not six men.", { t: "He is one man, in six rooms,", dim: true }, { t: "inside the same week.", dim: true }]}
             note="Not segments — registers one person is asked to hold, and how well the market dresses each." />
 
-          <section className="g" style={{ paddingBottom: "clamp(56px,10vh,116px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(40px,7vh,83px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><RoleGrid /></Reveal>
             </div>
@@ -5114,7 +5115,7 @@ export default function Rumoar() {
 
           {/* the same argument at day scale — kept inside this chapter rather
               than given its own, because it is evidence, not a new claim */}
-          <section className="g" style={{ paddingBottom: "clamp(112px,18vh,246px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,177px)" }}>
             <div style={{ gridColumn: "1 / 5" }}>
               <Reveal>
                 <p className="lb">The same week, compressed</p>
@@ -5156,7 +5157,7 @@ export default function Rumoar() {
               { t: "There has never been more of a man left over.", dim: true }]}
             note="Six houses, plotted on what they optimise for. None is wrong. Each is built for one man, in one setting." />
 
-          <section className="g" style={{ paddingBottom: "clamp(84px,14vh,203px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(60px,10vh,146px)" }}>
             <div style={{ gridColumn: "1 / 10" }}>
               <Reveal>
                 <div className={`plotbox ${selected ? "back" : ""}`}>
@@ -5176,7 +5177,7 @@ export default function Rumoar() {
             </div>
           </section>
 
-          <section className="g" style={{ paddingBottom: "clamp(112px,18vh,246px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,177px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><Matrix selected={selected} onSelect={setSelected} hovered={hovered} onHover={setHovered} /></Reveal>
             </div>
@@ -5186,7 +5187,7 @@ export default function Rumoar() {
             title={["The gap is not in what it costs.", { t: "It is in what you get for it.", dim: true }]}
             note="Mid-premium grows 25% a year, premium 45%. Brands exist in both. Every one sells a garment." />
 
-          <section className="g" style={{ paddingBottom: "clamp(112px,18vh,246px)" }}>
+          <section className="g" style={{ paddingBottom: "clamp(80px,13vh,177px)" }}>
             <div style={{ gridColumn: "1 / 13" }}>
               <Reveal><PriceGap /></Reveal>
             </div>
@@ -5200,7 +5201,7 @@ export default function Rumoar() {
           <WhiteSpaceAct you={you} />
           <RumoarAct />
           <WardrobeMath />
-          <section id="chamber" style={{ paddingBlock: "clamp(130px,23vh,285px)" }}>
+          <section id="chamber" style={{ paddingBlock: "clamp(93px,17vh,205px)" }}>
             <div className="g" style={{ marginBottom: "clamp(28px,5vh,56px)" }}>
               <div style={{ gridColumn: "1 / 8" }}>
                 <Reveal>
